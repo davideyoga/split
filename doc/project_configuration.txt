@@ -1,0 +1,37 @@
+#creazione progetto
+npx create-nx-workspace@latest nome-del-tuo-spazio-di-lavoro
+
+#installo nest
+nx add @nx/nest
+
+#installo nest
+nx add @nx/nest
+
+#creo il progetto nest
+nx g @nx/nest:app apps/my-nest-app
+
+#bildo il beck-end
+nx build splitBack
+
+#installo plugin ionix
+npm install @nxext/ionic-angular --save-dev
+
+#https://nxext.dev/docs/ionic-angular/overview.html
+
+#Add Ionic and Capacitor Configuration:
+nx g @nxext/ionic-angular:configuration my-app
+
+
+nx run splitFront:sync:ios
+nx run splitFront:sync:android
+
+
+
+Prisma: 
+    Nella root del progetto lanciare: npx prisma init --db
+    Configurare link .env per collegare al DB
+    Configurare DataModel dentro prisma/schema.prisma
+    Lanciare comando per inizializzare DB: npx prisma migrate dev --name {nomeCommitDataModel}
+    Per rigenerare i file di prisma: npx prisma generate
+    Per resettare il db: npx prisma migrate reset
+    Per aprire Prisma Studio: npx prisma studio

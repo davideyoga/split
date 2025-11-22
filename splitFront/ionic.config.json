@@ -1,0 +1,7 @@
+{
+  "name": "splitFront",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

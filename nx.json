@@ -68,8 +68,13 @@
     "@nx/angular:application": {
       "e2eTestRunner": "none",
       "linter": "eslint",
-      "style": "css",
-      "unitTestRunner": "none"
+      "style": "scss",
+      "unitTestRunner": "none",
+      "standalone": true
+    },
+    "@nx/angular:component": {
+      "style": "scss",
+      "standalone": true
     }
   }
 }

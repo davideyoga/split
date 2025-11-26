@@ -14,6 +14,7 @@
         "browser": "splitFront/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "splitFront/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*.svg",
@@ -22,7 +23,7 @@
           }
         ],
         "styles": [
-          "splitFront/src/styles.css",
+          "splitFront/src/styles.scss",
           "splitFront/src/theme/variables.scss",
           "node_modules/@ionic/angular/css/core.css",
           "node_modules/@ionic/angular/css/normalize.css",

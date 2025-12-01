@@ -1,0 +1,35 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <!-- Aggiungiamo un bottone per chiudere -->
+    <ion-buttons slot="start">
+      <ion-button (click)="dismissModal()">Chiudi</ion-button>
+    </ion-buttons>
+    <ion-title>Seleziona Partecipante</ion-title>
+  </ion-toolbar>
+  
+  <!-- Aggiungiamo la barra di ricerca sotto l'header -->
+  <!-- debounce fa si che si aspetti 300 mlsecondi prima di chiamare la funzione -->
+  <ion-toolbar>
+    <ion-searchbar
+      placeholder="Cerca per nickname"
+      [(ngModel)]="searchQuery"
+      (ionInput)="searchUsers()"
+      [debounce]="450"
+    ></ion-searchbar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- La lista ora mostra i risultati della ricerca (searchResults) -->
+  <ion-list>
+    <!-- Mostra un messaggio se la ricerca non ha prodotto risultati -->
+    <ion-item *ngIf="searchResults.length === 0 && searchQuery.trim().length > 1">
+      <ion-label class="ion-text-center">Nessun utente trovato.</ion-label>
+    </ion-item>
+
+    <!-- Itera sulla lista dei risultati e li mostra -->
+    <ion-item *ngFor="let user of searchResults" (click)="selectParticipant(user)" button>
+      <ion-label>{{ user.nickName }}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

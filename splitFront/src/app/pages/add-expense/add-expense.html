@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/home"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Nuova Spesa</ion-title><!--!!!TODO: mettere placeholder da tradurre in tutta la pagina-->
+  </ion-toolbar>
+</ion-header>
+
+  <ion-content class="ion-padding">
+  <!-- 1. Colleghiamo il form al nostro FormGroup in TypeScript -->
+  <form [formGroup]="expenseForm" (ngSubmit)="createExpense()">
+    <ion-list>
+      <!-- CAMPO EMAIL CREATORE -->
+      <ion-item>
+        <ion-input
+          label="La tua Email"
+          labelPlacement="floating"
+          type="email"
+          formControlName="creatorEmail"
+          placeholder="mario.rossi@email.com"
+        ></ion-input>
+      </ion-item>
+
+      <!--
+      <div *ngIf="selectedParticipantEmail" class="ion-padding-start">
+        <p>Spesa da dividere con: <strong>{{ selectedParticipantEmail }}</strong></p>
+      </div>
+      -->
+      
+      <!--Contributors to the expense
+        ToDo: aggiungere trackBy:trackParticipants-->
+      <ion-item *ngFor="let participant of participants; ">
+        <ion-label>{{participant.nickName}}</ion-label>
+      </ion-item>
+
+      <!-- CAMPO IMPORTO -->
+      <ion-item>
+        <ion-input
+          label="Importo"
+          labelPlacement="floating"
+          type="number"
+          formControlName="amount"
+          placeholder="0.00"
+        ></ion-input>
+      </ion-item>
+    </ion-list>
+    
+  </form>
+
+  <ion-footer class="ion-no-border">
+    <ion-toolbar>
+
+      <!-- Left Button to add participant -->
+      <ion-buttons slot="start">
+        <ion-button shape="round" color="medium" (click)="openParticipantModal()">
+          <ion-icon slot="start" name="person-add-outline"></ion-icon>
+          Seleziona Partecipanti
+        </ion-button>
+      </ion-buttons>
+
+      <!-- Right button to save expense -->
+      <ion-buttons slot="end">
+        <ion-button shape="round" color="primary">
+          Crea Spesa
+          <ion-icon slot="end" name="checkmark-done-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+
+    </ion-toolbar>
+  </ion-footer>
+
+</ion-content>
+

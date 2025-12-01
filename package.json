@@ -65,6 +65,8 @@
     "@nestjs/common": "^11.0.0",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "@ngx-translate/core": "^17.0.0",
+    "@ngx-translate/http-loader": "^17.0.0",
     "axios": "^1.6.0",
     "ionicons": "^7.0.0",
     "reflect-metadata": "^0.1.13",

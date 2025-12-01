@@ -4,7 +4,11 @@
     "outDir": "../../dist/out-tsc",
     "types": [],
     "emitDeclarationOnly": false, 
-    "declaration": false
+    "declaration": false,
+    "lib": [
+      "es2018",
+      "dom" 
+    ]
   },
   "include": ["src/**/*.ts"],
   "exclude": [

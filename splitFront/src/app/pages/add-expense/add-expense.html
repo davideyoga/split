@@ -55,14 +55,14 @@
       <ion-buttons slot="start">
         <ion-button shape="round" color="medium" (click)="openParticipantModal()">
           <ion-icon slot="start" name="person-add-outline"></ion-icon>
-          Seleziona Partecipanti
+          {{ 'add-expense.add-participant' | translate }}
         </ion-button>
       </ion-buttons>
 
       <!-- Right button to save expense -->
       <ion-buttons slot="end">
         <ion-button shape="round" color="primary">
-          Crea Spesa
+          {{ 'add-expense.create-expense' | translate }}
           <ion-icon slot="end" name="checkmark-done-outline"></ion-icon>
         </ion-button>
       </ion-buttons>

@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs';
 import { User } from '../../models/user.model';
 import { ParticipantSelectionService } from '../../services/participant-selection-service';
 import { SelectParticipantComponent } from '../../components/select-participant/select-participant.component';
-
+import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
 
 @Component({
   selector: 'app-add-expense',
@@ -15,7 +15,7 @@ import { SelectParticipantComponent } from '../../components/select-participant/
   styleUrls: ['./add-expense.scss'],
   standalone: true,
   imports: [IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList,
-    IonBackButton
+    IonBackButton, TranslatePipe, TranslateDirective
   ]
 })
 export class addExpense implements OnInit, OnDestroy {

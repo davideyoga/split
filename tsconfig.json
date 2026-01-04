@@ -4,13 +4,13 @@
   "files": [],
   "references": [
     {
-      "path": "./splitBack-e2e"
-    },
-    {
       "path": "./splitBack"
     },
     {
       "path": "./data-access"
+    },
+    {
+      "path": "./splitFront"
     }
   ]
 }

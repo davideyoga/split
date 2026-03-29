@@ -1,0 +1,41 @@
+Configurazione ambiente:
+La prima cosa da fare e' installare tutte le librerie 
+definite nel package.json con il comando "npm install"
+
+La seconda cosa e' installare il db postgresql e creare l' utente
+nel DB
+Lancio "sudo -u postgres psql" per parire la cli del DB
+Eseguo i comandi di seguito
+-- Crea l'utente (se diverso da 'postgres')
+CREATE USER admin WITH PASSWORD 'mia_password';
+
+-- Dai i permessi all'utente per creare DB
+ALTER USER admin CREATEDB;
+
+-- Crea il database
+CREATE DATABASE split-db OWNER admin;
+
+-- Esci
+\q
+
+
+Per la lanciare il front e il back:
+npx nx serve splitFront (o splitBack)
+
+Per avviare prisma studio
+"./node_modules/.bin/prisma studio --schema=./splitBack/prisma/schema.prisma"
+
+
+
+Ora lancio il comando per allineare il db al file prisma.schema,
+uso il comando che si trova dentro la cartella node_modules
+"./node_modules/.bin/prisma db push --schema=./splitBack/prisma/schema.prisma" 
+
+Per lanciare prisma studio, 
+
+TERMINI
+- package.json: definisce le librerie del progetto
+- npm: gestore dei pacchetti node
+- npx: npx sta per Node Package eXecute, e' un tool CLI (incluso automaticamente con npm dalla versione 5.2 in poi) che serve a eseguire binari Node.js
+- node_modules: directory di installazione locale di tutte le librerie esterne necessarie al tuo progetto per funzionare (runtime) o per essere sviluppato (dev time).
+

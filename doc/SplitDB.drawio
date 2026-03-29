@@ -1,0 +1,43 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64; rv:146.0) Gecko/20100101 Firefox/146.0" version="29.6.6">
+  <diagram name="Pagina-1" id="NTmd7dLTsKazYlgweWX3">
+    <mxGraphModel dx="1044" dy="677" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="JLFygLgIDgdc_LrykLYY-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="User" vertex="1">
+          <mxGeometry height="60" width="120" x="140" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Group" vertex="1">
+          <mxGeometry height="60" width="120" x="500" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-4" edge="1" parent="1" source="JLFygLgIDgdc_LrykLYY-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="JLFygLgIDgdc_LrykLYY-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-5" edge="1" parent="1" source="JLFygLgIDgdc_LrykLYY-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="JLFygLgIDgdc_LrykLYY-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="UserOnGroup" vertex="1">
+          <mxGeometry height="60" width="120" x="320" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="Expense" vertex="1">
+          <mxGeometry height="60" width="120" x="400" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-8" edge="1" parent="1" source="JLFygLgIDgdc_LrykLYY-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="JLFygLgIDgdc_LrykLYY-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-11" edge="1" parent="1" source="JLFygLgIDgdc_LrykLYY-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="JLFygLgIDgdc_LrykLYY-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-7" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ExpenseContribution" vertex="1">
+          <mxGeometry height="60" width="160" x="120" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-10" edge="1" parent="1" source="JLFygLgIDgdc_LrykLYY-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="JLFygLgIDgdc_LrykLYY-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="JLFygLgIDgdc_LrykLYY-9" parent="1" style="rounded=1;whiteSpace=wrap;html=1;" value="ConfirmationCode" vertex="1">
+          <mxGeometry height="60" width="120" x="140" y="230" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

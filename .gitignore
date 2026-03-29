@@ -45,6 +45,5 @@ Thumbs.db
 
 .angular
 
-#doc folder
-doc/
+./.env
 .env

@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/home"></ion-back-button>
     </ion-buttons>
-    <ion-title>Nuova Spesa</ion-title><!--!!!TODO: mettere placeholder da tradurre in tutta la pagina-->
+    <ion-title>{{'add-expense.new-expense' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -39,6 +39,9 @@
         ></ion-input>
       </ion-item>
     </ion-list>
+
+    <!--TODO: Pagata Da-->
+    <!--TODO: Aggiungere la divisione in parti disuguali-->
     
   </form>
 
@@ -64,33 +67,16 @@
     </ion-toolbar>
   </ion-footer>
 
-  <!--Contributors to the expense
-  ToDo: aggiungere trackBy:trackParticipants-->
-  <ion-item *ngFor="let participant of participants; ">
-    <ion-label>{{participant.nickName}}</ion-label>
-  </ion-item>
--------------- 
-Fatto da me
-  <ion-item>
-  @for (participant of participants; track participant.nickName) {
-    <ion-label>{{participant.nickName}}</ion-label>
-    <ion-button slot="remove"> Remove </ion-button>
-    } @empty {
-    <li>Nessun partecipante selezionato</li>
-    }
 
---------------
-Fatto da gemini
-<div class="ion-padding-horizontal ion-padding-top" style="display: flex; flex-wrap: wrap; gap: 8px;">
+ <!--List of selected participants-->
+  <div class="ion-padding-horizontal ion-padding-top" style="display: flex; flex-wrap: wrap; gap: 8px;">
     @for (participant of participants; track participant.publicId; let i = $index) {
-      <ion-chip color="primary" outline="true">
+      <ion-chip color="medium">
         <ion-label>{{ participant.nickName }}</ion-label>
-        <ion-icon name="close-circle" (click)="removeParticipant(i)"></ion-icon>
+        <ion-icon name="close" (click)="removeParticipant(participant)"></ion-icon><!--TODO: non si vede la x-->
       </ion-chip>
     }
   </div>
-</ion-item>
-
 
 </ion-content>
 

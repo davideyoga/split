@@ -1,5 +1,8 @@
 {
   "add-expense": {
-    "select-participant": "Seleziona Partecipante"
+    "add-participant": "Seleziona partecipante",
+    "create-expense": "Crea spesa",
+    "amount": "Importo",
+    "new-expense": "Nuova spesa"
   }
 }

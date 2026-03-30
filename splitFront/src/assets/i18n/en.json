@@ -1,6 +1,8 @@
 {
   "add-expense": {
     "add-participant": "Select Participant",
-    "create-expense": "Create Expense"
+    "create-expense": "Create Expense",
+    "amount": "Amount",
+    "new-expense": "New Expense"
   }
 }

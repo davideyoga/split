@@ -15,7 +15,7 @@ import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
   styleUrls: ['./add-expense.scss'],
   standalone: true,
   imports: [IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList,
-    IonBackButton, TranslatePipe, TranslateDirective, IonChip
+    IonBackButton, TranslatePipe, TranslateDirective, IonChip, IonChip, IonIcon, IonLabel
   ]
 })
 export class addExpense implements OnInit, OnDestroy {
@@ -67,11 +67,8 @@ export class addExpense implements OnInit, OnDestroy {
     await modal.present();
   }
 
-  async removeParticipant(i) {
-    const modal = await this.modalCtrl.create({
-      component: SelectParticipantComponent, // Specifica quale componente aprire
-    });
-    await modal.present();
+  removeParticipant(participant: User) {//TODO: fare in modo che non si possa selezionare 2 volte lo stesso utente
+    this.participants = this.participants.filter(p => p !== participant);
   }
 
   // È una best practice cancellare le iscrizioni per evitare memory leak

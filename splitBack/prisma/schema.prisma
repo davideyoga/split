@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
@@ -15,6 +14,7 @@ model User {
   nickName             String             @unique
   expenseContributions ExpenseContribution[]
   expensesCreatedByMe  Expense[]          @relation("CreatedBy")
+  expensesPaidByMe     Expense[]          @relation("PaidBy")
   userOnGroups         UserOnGroup[]
   createdDate          DateTime           @default(now())
   confirmed            Boolean            @default(false)
@@ -38,6 +38,7 @@ model ExpenseContribution {
   userId      Int
   expense     Expense  @relation(fields: [expenseId], references: [id])
   expenseId   Int
+  share       Decimal  // Quanto deve questa persona per questa spesa
   createdDate DateTime @default(now())
 }
 
@@ -45,19 +46,24 @@ model Expense {
 
   id                   Int                   @id @default(autoincrement())
   amount               Decimal
+  currency             String                @default("EUR") // Pronto per V2.0
+  category             String?               // Pronto per V3.0
   createdDate          DateTime              @default(now())
   expenseContributions ExpenseContribution[]
   createdBy            User                  @relation("CreatedBy", fields: [createdById], references: [id])
   createdById          Int
-  groupsOnExpenses     ExpenseOnGroup[]
+  group                Group?                @relation(fields: [groupId], references: [id])
+  groupId              Int?
   description          String
+  paidBy               User                  @relation("PaidBy", fields: [paidById], references: [id])
+  paidById             Int
 }
 
 model Group {
   id              Int              @id() @default(autoincrement())
   name            String
   usersOnGroup    UserOnGroup[]
-  expensesOnGroup ExpenseOnGroup[]
+  expenses        Expense[]
   createdDate     DateTime         @default(now())
 }
 
@@ -67,15 +73,5 @@ model UserOnGroup {
   group       Group    @relation(fields: [groupId], references: [id])
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
-  createdDate DateTime @default(now())
-}
-
-model ExpenseOnGroup {
-
-  id          Int      @id() @default(autoincrement())
-  expenseId   Int
-  expense     Expense  @relation(fields: [expenseId], references: [id])
-  groupId     Int
-  group       Group    @relation(fields: [groupId], references: [id])
   createdDate DateTime @default(now())
 }

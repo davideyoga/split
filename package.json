@@ -70,6 +70,8 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "axios": "^1.6.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
     "ionicons": "^7.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",

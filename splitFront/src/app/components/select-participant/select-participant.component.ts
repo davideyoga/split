@@ -1,10 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, ModalController, IonButton, IonSearchbar, IonButtons } from '@ionic/angular/standalone';
-import { HttpClient } from '@angular/common/http';
+import { IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, ModalController, IonButton, IonSearchbar, IonButtons, IonSpinner } from '@ionic/angular/standalone';
 import { FormsModule } from '@angular/forms';
 import { User } from '../../models/user.model';
 import { ParticipantSelectionService } from '../../services/participant-selection-service';
+import { UserService } from '../../services/user.service';
 
 
 @Component({
@@ -12,47 +12,34 @@ import { ParticipantSelectionService } from '../../services/participant-selectio
   templateUrl: './select-participant.component.html',
   styleUrls: ['./select-participant.component.scss'],
   standalone: true,
-  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonButton, IonButtons, IonSearchbar, FormsModule],
+  imports: [CommonModule, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonItem, IonLabel, IonButton, IonButtons, IonSearchbar, FormsModule, IonSpinner],
 })
 
 export class SelectParticipantComponent{
 
-  // La lista dei risultati della ricerca, inizialmente vuota
+  private userService = inject(UserService);
+  private modalCtrl= inject(ModalController);
+  private participantSelectionService = inject(ParticipantSelectionService);
+
   searchResults: User[] = [];
-
-  // La stringa di ricerca, collegata all'input
-  searchQuery: string = '';
-
-  // L'URL del tuo backend (cambia la porta se necessario)
-  private apiUrl = 'http://localhost:3000';//TODO: non deve sta qua il link
-
-  constructor(
-    private modalCtrl: ModalController,
-    private participantSelectionService: ParticipantSelectionService,
-    private http: HttpClient // Inietta HttpClient
-  ) {}
+  searchQuery = '';
+  isLoading = false;
 
   // Metodo chiamato ogni volta che l'utente digita nella barra di ricerca
   searchUsers() {
-    // Non fare la ricerca se l'input è troppo corto per evitare richieste inutili
-    if (this.searchQuery.trim().length < 2) {
+    if (this.searchQuery.trim().length < 3) {
       this.searchResults = [];
       return;
     }
 
-    // Fai la chiamata GET al tuo backend
-    this.http.get<User[]>(`${this.apiUrl}/user/${this.searchQuery}`)
-      .subscribe({
-        next: (users) => {
-          // In caso di successo, aggiorna la lista dei risultati
-          this.searchResults = users;
-        },
-        error: (err) => {
-          // In caso di errore, svuota la lista e stampa l'errore in console
-          console.error('Errore durante la ricerca degli utenti', err);//TODO: gestione degli errori da sistemare
-          this.searchResults = [];
-        }
-      });
+    this.isLoading = true;
+    this.searchResults = []; 
+    //subscription to getUsers
+    this.userService.getUsers(this.searchQuery).subscribe((users) => {
+      //abilito spinner
+      this.searchResults = users;
+      this.isLoading = false;
+    });
   }
 
   // Metodo chiamato quando l'utente seleziona un risultato dalla lista//TODO: passare tutto lo user, non solo la mail 

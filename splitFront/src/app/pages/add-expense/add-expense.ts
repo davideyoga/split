@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController } from '@ionic/angular/standalone';
+import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController, IonChip } from '@ionic/angular/standalone';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { User } from '../../models/user.model';
@@ -15,11 +15,14 @@ import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
   styleUrls: ['./add-expense.scss'],
   standalone: true,
   imports: [IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList,
-    IonBackButton, TranslatePipe, TranslateDirective
+    IonBackButton, TranslatePipe, TranslateDirective, IonChip
   ]
 })
 export class addExpense implements OnInit, OnDestroy {
 
+  private fb = inject(FormBuilder);
+  private modalCtrl= inject(ModalController);
+  private dataSharingService = inject(ParticipantSelectionService);
 
   creator: User | null = null;
 
@@ -33,10 +36,6 @@ export class addExpense implements OnInit, OnDestroy {
   // 1. Dichiara la variabile per il nostro form
   expenseForm!: FormGroup;
 
-  constructor(private fb: FormBuilder, 
-              private modalCtrl: ModalController, 
-              private dataSharingService: ParticipantSelectionService) {}
-
   ngOnInit() {
 
     // Creiamo la struttura del form e le sue regole di validazione
@@ -48,11 +47,12 @@ export class addExpense implements OnInit, OnDestroy {
       participants: this.fb.array([]),
       amount: [null, [Validators.required, Validators.min(0.01)]],
     });
-
+    
     // Mettiamoci in ascolto dei cambiamenti dal servizio
     this.participantSubscription = this.dataSharingService.selectedParticipant$
-      .subscribe(newParticipant => {
+      .subscribe((newParticipant: User) => {
         if (newParticipant) {
+          
           this.participants.push(newParticipant);
         }
       });
@@ -61,6 +61,13 @@ export class addExpense implements OnInit, OnDestroy {
   
 
   async openParticipantModal() {
+    const modal = await this.modalCtrl.create({
+      component: SelectParticipantComponent, // Specifica quale componente aprire
+    });
+    await modal.present();
+  }
+
+  async removeParticipant(i) {
     const modal = await this.modalCtrl.create({
       component: SelectParticipantComponent, // Specifica quale componente aprire
     });

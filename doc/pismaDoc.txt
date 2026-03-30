@@ -1,0 +1,2 @@
+per resettare prisma: npx prisma migrate reset --schema=splitBack/prisma/schema.prisma
+per inizializzare prisma: npx prisma migrate dev --schema=splitBack/prisma/schema.prisma --name init_db

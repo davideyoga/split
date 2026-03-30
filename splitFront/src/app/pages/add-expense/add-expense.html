@@ -28,12 +28,6 @@
       </div>
       -->
       
-      <!--Contributors to the expense
-        ToDo: aggiungere trackBy:trackParticipants-->
-      <ion-item *ngFor="let participant of participants; ">
-        <ion-label>{{participant.nickName}}</ion-label>
-      </ion-item>
-
       <!-- CAMPO IMPORTO -->
       <ion-item>
         <ion-input
@@ -69,6 +63,34 @@
 
     </ion-toolbar>
   </ion-footer>
+
+  <!--Contributors to the expense
+  ToDo: aggiungere trackBy:trackParticipants-->
+  <ion-item *ngFor="let participant of participants; ">
+    <ion-label>{{participant.nickName}}</ion-label>
+  </ion-item>
+-------------- 
+Fatto da me
+  <ion-item>
+  @for (participant of participants; track participant.nickName) {
+    <ion-label>{{participant.nickName}}</ion-label>
+    <ion-button slot="remove"> Remove </ion-button>
+    } @empty {
+    <li>Nessun partecipante selezionato</li>
+    }
+
+--------------
+Fatto da gemini
+<div class="ion-padding-horizontal ion-padding-top" style="display: flex; flex-wrap: wrap; gap: 8px;">
+    @for (participant of participants; track participant.publicId; let i = $index) {
+      <ion-chip color="primary" outline="true">
+        <ion-label>{{ participant.nickName }}</ion-label>
+        <ion-icon name="close-circle" (click)="removeParticipant(i)"></ion-icon>
+      </ion-chip>
+    }
+  </div>
+</ion-item>
+
 
 </ion-content>
 

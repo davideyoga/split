@@ -19,11 +19,17 @@
   </ion-toolbar>
 </ion-header>
 
+  <div class="ion-text-center ion-padding" *ngIf="isLoading">  
+    <ion-spinner name="crescent" color="primary"></ion-spinner>
+    <p>Ricerca in corso...</p>
+  </div>
+
 <ion-content>
   <!-- La lista ora mostra i risultati della ricerca (searchResults) -->
   <ion-list>
+    
     <!-- Mostra un messaggio se la ricerca non ha prodotto risultati -->
-    <ion-item *ngIf="searchResults.length === 0 && searchQuery.trim().length > 1">
+    <ion-item *ngIf="searchResults.length === 0 && searchQuery.trim().length > 1 && isLoading" >
       <ion-label class="ion-text-center">Nessun utente trovato.</ion-label>
     </ion-item>
 

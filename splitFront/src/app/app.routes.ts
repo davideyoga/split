@@ -19,13 +19,16 @@ export const routes: Routes = [
   },
   {
     path: 'groups',
-    loadComponent: () => import('./pages/groups/groups').then((m) => m.Groups),
+    loadComponent: () =>
+      import('./pages/groups/group-list/group-list').then((m) => m.GroupList),
     canActivate: [authGuard],
   },
   {
     path: 'groups/:publicId',
     loadComponent: () =>
-      import('./pages/groups/group-detail').then((m) => m.GroupDetail),
+      import('./pages/groups/group-detail/group-detail').then(
+        (m) => m.GroupDetail,
+      ),
     canActivate: [authGuard],
   },
   {

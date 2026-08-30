@@ -24,11 +24,11 @@ import { addIcons } from 'ionicons';
 import { personAddOutline, trashOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
-import { SelectParticipantComponent } from '../../components/select-participant/select-participant.component';
-import { Group } from '../../models/group.model';
-import { User } from '../../models/user.model';
-import { GroupService } from '../../services/group.service';
-import { ParticipantSelectionService } from '../../services/participant-selection-service';
+import { SelectParticipantComponent } from '../../../components/select-participant/select-participant.component';
+import { Group } from '../../../models/group.model';
+import { User } from '../../../models/user.model';
+import { GroupService } from '../../../services/group.service';
+import { ParticipantSelectionService } from '../../../services/participant-selection-service';
 
 @Component({
   selector: 'app-group-detail',

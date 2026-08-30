@@ -30,16 +30,16 @@ import { addIcons } from 'ionicons';
 import { close, people, personAddOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
-import { SelectParticipantComponent } from '../../components/select-participant/select-participant.component';
-import { Group } from '../../models/group.model';
-import { User } from '../../models/user.model';
-import { GroupService } from '../../services/group.service';
-import { ParticipantSelectionService } from '../../services/participant-selection-service';
+import { SelectParticipantComponent } from '../../../components/select-participant/select-participant.component';
+import { Group } from '../../../models/group.model';
+import { User } from '../../../models/user.model';
+import { GroupService } from '../../../services/group.service';
+import { ParticipantSelectionService } from '../../../services/participant-selection-service';
 
 @Component({
-  selector: 'app-groups',
-  templateUrl: './groups.html',
-  styleUrls: ['./groups.scss'],
+  selector: 'app-group-list',
+  templateUrl: './group-list.html',
+  styleUrls: ['./group-list.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -68,7 +68,7 @@ import { ParticipantSelectionService } from '../../services/participant-selectio
     IonToolbar,
   ],
 })
-export class Groups implements OnInit, OnDestroy {
+export class GroupList implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private modalCtrl = inject(ModalController);
   private groupService = inject(GroupService);

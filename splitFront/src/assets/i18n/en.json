@@ -21,5 +21,24 @@
     "paid-by": "Paid by",
     "no-expenses": "No expenses yet",
     "load-error": "Couldn't load expenses, please try again"
+  },
+  "groups": {
+    "title": "Groups",
+    "manage": "Manage",
+    "new-group": "New group",
+    "your-groups": "Your groups",
+    "create": "Create group",
+    "name-label": "Group name",
+    "name-placeholder": "e.g. Weekend trip",
+    "add-member": "Add member",
+    "rename": "Rename",
+    "rename-success": "Group name updated",
+    "members-count": "{{count}} members",
+    "detail-title": "Group",
+    "empty": "You don't belong to any group yet",
+    "load-error": "Couldn't load groups, please try again",
+    "create-error": "Couldn't create the group, please try again",
+    "rename-error": "Couldn't rename the group, please try again",
+    "member-error": "Couldn't update members, please try again"
   }
 }

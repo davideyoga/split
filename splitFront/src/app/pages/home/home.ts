@@ -12,6 +12,7 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonListHeader,
   IonNote,
   IonTitle,
   IonToolbar,
@@ -19,9 +20,11 @@ import {
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { addIcons } from 'ionicons';
-import { add, logOutOutline } from 'ionicons/icons';
+import { add, logOutOutline, people } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
+import { Group } from '../../models/group.model';
+import { GroupService } from '../../services/group.service';
 
 @Component({
   selector: 'app-home',
@@ -40,6 +43,7 @@ import { ExpenseListItem, ExpenseService } from '../../services/expense.service'
     IonItem,
     IonLabel,
     IonList,
+    IonListHeader,
     IonNote,
     IonTitle,
     IonToolbar,
@@ -50,17 +54,27 @@ import { ExpenseListItem, ExpenseService } from '../../services/expense.service'
 export class Home implements OnInit {
   private authService = inject(AuthService);
   private expenseService = inject(ExpenseService);
+  private groupService = inject(GroupService);
   private router = inject(Router);
 
   expenses: ExpenseListItem[] = [];
+  groups: Group[] = [];
   loadError = false;
 
   constructor() {
-    addIcons({ add, 'log-out-outline': logOutOutline });
+    addIcons({ add, 'log-out-outline': logOutOutline, people });
   }
 
   ngOnInit() {
     this.loadExpenses();
+    this.loadGroups();
+  }
+
+  loadGroups() {
+    this.groupService.getMyGroups().subscribe({
+      next: (groups) => (this.groups = groups),
+      error: () => (this.groups = []),
+    });
   }
 
   loadExpenses() {

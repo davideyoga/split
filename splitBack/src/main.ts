@@ -3,6 +3,11 @@
  * This is only a minimal backend to get started.
  */
 
+// Load .env before anything else so process.env (DATABASE_URL, JWT_SECRET, …)
+// is populated when the Nest modules are evaluated (AuthModule reads
+// JWT_SECRET at module-load time).
+import 'dotenv/config';
+
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';

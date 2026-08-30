@@ -61,6 +61,7 @@ model Expense {
 
 model Group {
   id              Int              @id() @default(autoincrement())
+  publicId        String           @unique @default(uuid())
   name            String
   usersOnGroup    UserOnGroup[]
   expenses        Expense[]
@@ -74,4 +75,6 @@ model UserOnGroup {
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
   createdDate DateTime @default(now())
+
+  @@unique([groupId, userId])
 }

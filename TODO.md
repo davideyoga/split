@@ -12,6 +12,7 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 
 ## Backend (`splitBack`)
 
+- [group.service.ts:27](splitBack/src/app/group/group.service.ts#L27) — permessi gruppo: oggi qualsiasi membro puo' rinominare il gruppo e aggiungere/rimuovere membri. Prima della beta aggiungere `Group.createdById` (owner) e limitare le mutazioni all'owner.
 - [main.ts:16](splitBack/src/main.ts#L16) — restringere CORS a un origin specifico invece di `enableCors()` aperto.
 - [user.controller.ts:22](splitBack/src/app/user/user.controller.ts#L22) — la ricerca utenti dovrebbe filtrare solo utenti già registrati/confermati.
 - [expense.service.ts](splitBack/src/app/expense/expense.service.ts) — permettere quote diverse invece di una divisione sempre equa tra i partecipanti.

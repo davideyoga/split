@@ -2,6 +2,9 @@
   <ion-toolbar>
     <ion-title> Home </ion-title>
     <ion-buttons slot="end">
+      <ion-button routerLink="/groups">
+        <ion-icon slot="icon-only" name="people"></ion-icon>
+      </ion-button>
       <ion-button (click)="logout()">
         <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
       </ion-button>
@@ -10,6 +13,24 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  @if (groups.length > 0) {
+    <ion-list>
+      <ion-list-header>
+        <ion-label>{{ 'groups.title' | translate }}</ion-label>
+        <ion-button routerLink="/groups">{{ 'groups.manage' | translate }}</ion-button>
+      </ion-list-header>
+      @for (group of groups; track group.publicId) {
+        <ion-item button [routerLink]="['/groups', group.publicId]">
+          <ion-icon slot="start" name="people"></ion-icon>
+          <ion-label>{{ group.name }}</ion-label>
+          <ion-note slot="end">
+            {{ 'groups.members-count' | translate: { count: group.members.length } }}
+          </ion-note>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
   @if (loadError) {
     <p class="ion-padding">{{ 'home.load-error' | translate }}</p>
   } @else if (expenses.length === 0) {

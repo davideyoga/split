@@ -18,6 +18,17 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'groups',
+    loadComponent: () => import('./pages/groups/groups').then((m) => m.Groups),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'groups/:publicId',
+    loadComponent: () =>
+      import('./pages/groups/group-detail').then((m) => m.GroupDetail),
+    canActivate: [authGuard],
+  },
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',

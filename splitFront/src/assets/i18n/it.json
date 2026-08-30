@@ -21,5 +21,24 @@
     "paid-by": "Pagata da",
     "no-expenses": "Nessuna spesa presente",
     "load-error": "Impossibile caricare le spese, riprova"
+  },
+  "groups": {
+    "title": "Gruppi",
+    "manage": "Gestisci",
+    "new-group": "Nuovo gruppo",
+    "your-groups": "I tuoi gruppi",
+    "create": "Crea gruppo",
+    "name-label": "Nome del gruppo",
+    "name-placeholder": "es. Viaggio del weekend",
+    "add-member": "Aggiungi membro",
+    "rename": "Rinomina",
+    "rename-success": "Nome del gruppo aggiornato",
+    "members-count": "{{count}} membri",
+    "detail-title": "Gruppo",
+    "empty": "Non fai ancora parte di nessun gruppo",
+    "load-error": "Impossibile caricare i gruppi, riprova",
+    "create-error": "Impossibile creare il gruppo, riprova",
+    "rename-error": "Impossibile rinominare il gruppo, riprova",
+    "member-error": "Impossibile aggiornare i membri, riprova"
   }
 }

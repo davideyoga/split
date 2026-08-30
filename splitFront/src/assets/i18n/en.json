@@ -3,6 +3,23 @@
     "add-participant": "Select Participant",
     "create-expense": "Create Expense",
     "amount": "Amount",
-    "new-expense": "New Expense"
+    "new-expense": "New Expense",
+    "created-by": "Created by",
+    "description-label": "Description",
+    "description-placeholder": "e.g. Dinner",
+    "amount-invalid": "Enter a valid amount (numbers only)",
+    "create-error": "Couldn't create the expense, please try again"
+  },
+  "login": {
+    "title": "Log in",
+    "email-label": "Your email",
+    "email-placeholder": "mario.rossi@email.com",
+    "submit": "Log in",
+    "user-not-found": "No account found for this email"
+  },
+  "home": {
+    "paid-by": "Paid by",
+    "no-expenses": "No expenses yet",
+    "load-error": "Couldn't load expenses, please try again"
   }
 }

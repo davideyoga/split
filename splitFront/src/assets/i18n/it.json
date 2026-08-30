@@ -3,6 +3,23 @@
     "add-participant": "Seleziona partecipante",
     "create-expense": "Crea spesa",
     "amount": "Importo",
-    "new-expense": "Nuova spesa"
+    "new-expense": "Nuova spesa",
+    "created-by": "Creata da",
+    "description-label": "Descrizione",
+    "description-placeholder": "es. Cena",
+    "amount-invalid": "Inserisci un importo valido (solo numeri)",
+    "create-error": "Impossibile creare la spesa, riprova"
+  },
+  "login": {
+    "title": "Accedi",
+    "email-label": "La tua email",
+    "email-placeholder": "mario.rossi@email.com",
+    "submit": "Accedi",
+    "user-not-found": "Nessun account trovato per questa email"
+  },
+  "home": {
+    "paid-by": "Pagata da",
+    "no-expenses": "Nessuna spesa presente",
+    "load-error": "Impossibile caricare le spese, riprova"
   }
 }

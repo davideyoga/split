@@ -12,11 +12,12 @@ Vorrei arrivare ad avere le seguetni schermate:
 - - bottone in basso a dx che mi permette di creare una nuova spesa 
 
 - Nuova spesa
-- - mi permette di aggiungere i partecipanti alla spesa che possono essere o utentni singoli o gruppi
+- - mi permette di aggiungere i partecipanti alla spesa che possono essere o utenti singoli
 - - mi permette di selezionare il costo della spesa
 - - mi permette di scegliere quanta e' la quota in carico a me 
 - - mi permette di selezionare la valuta (versione V2.0)
-- - mi permette di selezionare la categoria della spesa (versione V3.0)
+- - mi permette di selezionare la categoria della spesa (versione V2.0)
+- - mi permette di aggiungere dei gruppi alle spese (versione V2.0)
 
 
 - Seleziona partecipanti

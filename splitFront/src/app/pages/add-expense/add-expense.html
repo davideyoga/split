@@ -9,17 +9,11 @@
 
   <ion-content class="ion-padding">
   <!-- 1. Colleghiamo il form al nostro FormGroup in TypeScript -->
-  <form [formGroup]="expenseForm" (ngSubmit)="createExpense()">
+  <form [formGroup]="expenseForm" (ngSubmit)="createExpense()" id="add-expense-form">
     <ion-list>
-      <!-- CAMPO EMAIL CREATORE -->
-      <ion-item>
-        <ion-input
-          label="La tua Email"
-          labelPlacement="floating"
-          type="email"
-          formControlName="creatorEmail"
-          placeholder="mario.rossi@email.com"
-        ></ion-input>
+      <!-- CREATORE DELLA SPESA (precompilato dall'utente loggato) -->
+      <ion-item lines="none">
+        <ion-label>{{ 'add-expense.created-by' | translate }}: {{ creator?.nickName }}</ion-label>
       </ion-item>
 
       <!--
@@ -27,22 +21,46 @@
         <p>Spesa da dividere con: <strong>{{ selectedParticipantEmail }}</strong></p>
       </div>
       -->
-      
+
+      <!-- CAMPO DESCRIZIONE -->
+      <ion-item>
+        <ion-input
+          label="{{ 'add-expense.description-label' | translate }}"
+          labelPlacement="floating"
+          type="text"
+          formControlName="description"
+          placeholder="{{ 'add-expense.description-placeholder' | translate }}"
+        ></ion-input>
+      </ion-item>
+
       <!-- CAMPO IMPORTO -->
       <ion-item>
         <ion-input
-          label="Importo"
+          label="{{ 'add-expense.amount' | translate }}"
           labelPlacement="floating"
-          type="number"
+          type="text"
+          inputmode="decimal"
           formControlName="amount"
           placeholder="0.00"
+          (ionInput)="sanitizeAmountInput($event)"
         ></ion-input>
       </ion-item>
+      @if (expenseForm.get('amount')?.touched && expenseForm.get('amount')?.invalid) {
+        <ion-text color="danger">
+          <p class="ion-padding-start">{{ 'add-expense.amount-invalid' | translate }}</p>
+        </ion-text>
+      }
     </ion-list>
 
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="ion-padding-start">{{ errorMessage | translate }}</p>
+      </ion-text>
+    }
+
     <!--TODO: Pagata Da-->
-    <!--TODO: Aggiungere la divisione in parti disuguali-->
-    
+    <!--TODO: Aggiungere la divisione in partidisuguali-->
+
   </form>
 
   <ion-footer class="ion-no-border">
@@ -58,7 +76,7 @@
 
       <!-- Right button to save expense -->
       <ion-buttons slot="end">
-        <ion-button shape="round" color="primary">
+        <ion-button shape="round" color="primary" type="submit" form="add-expense-form" [disabled]="expenseForm.invalid">
           {{ 'add-expense.create-expense' | translate }}
           <ion-icon slot="end" name="checkmark-done-outline"></ion-icon>
         </ion-button>

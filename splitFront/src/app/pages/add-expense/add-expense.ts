@@ -1,12 +1,15 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController, IonChip } from '@ionic/angular/standalone';
+import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController, IonChip, IonText, IonInput } from '@ionic/angular/standalone';
 import { ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { User } from '../../models/user.model';
 import { ParticipantSelectionService } from '../../services/participant-selection-service';
 import { SelectParticipantComponent } from '../../components/select-participant/select-participant.component';
+import { AuthService } from '../../services/auth.service';
+import { ExpenseService } from '../../services/expense.service';
 import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
 
 @Component({
@@ -15,7 +18,7 @@ import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
   styleUrls: ['./add-expense.scss'],
   standalone: true,
   imports: [IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList,
-    IonBackButton, TranslatePipe, TranslateDirective, IonChip, IonChip, IonIcon, IonLabel
+    IonBackButton, TranslatePipe, TranslateDirective, IonChip, IonChip, IonIcon, IonLabel, IonText, IonInput
   ]
 })
 export class addExpense implements OnInit, OnDestroy {
@@ -23,6 +26,9 @@ export class addExpense implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private modalCtrl= inject(ModalController);
   private dataSharingService = inject(ParticipantSelectionService);
+  private authService = inject(AuthService);
+  private expenseService = inject(ExpenseService);
+  private router = inject(Router);
 
   creator: User | null = null;
 
@@ -31,6 +37,7 @@ export class addExpense implements OnInit, OnDestroy {
 
 
   selectedParticipantEmail: User | null = null;
+  errorMessage = '';
   private participantSubscription!: Subscription;
 
   // 1. Dichiara la variabile per il nostro form
@@ -45,9 +52,16 @@ export class addExpense implements OnInit, OnDestroy {
         nickName: ['']
       }), 
       participants: this.fb.array([]),
-      amount: [null, [Validators.required, Validators.min(0.01)]],
+      amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.01)]],
+      description: ['', Validators.required],
     });
-    
+
+    // Precompiliamo il creatore con l'utente attualmente loggato
+    this.creator = this.authService.currentUser();
+    if (this.creator) {
+      this.expenseForm.get('creator')?.patchValue(this.creator);
+    }
+
     // Mettiamoci in ascolto dei cambiamenti dal servizio
     this.participantSubscription = this.dataSharingService.selectedParticipant$
       .subscribe((newParticipant: User) => {
@@ -71,6 +85,19 @@ export class addExpense implements OnInit, OnDestroy {
     this.participants = this.participants.filter(p => p !== participant);
   }
 
+  // Ripulisce l'importo digitato lasciando solo cifre e un'unica virgola/punto decimale
+  sanitizeAmountInput(event: Event) {
+    const detail = (event as CustomEvent<{ value?: string | null }>).detail;
+    let value = (detail.value ?? '').replace(',', '.').replace(/[^0-9.]/g, '');
+
+    const firstDot = value.indexOf('.');
+    if (firstDot !== -1) {
+      value = value.slice(0, firstDot + 1) + value.slice(firstDot + 1).replace(/\./g, '');
+    }
+
+    this.expenseForm.get('amount')?.setValue(value);
+  }
+
   // È una best practice cancellare le iscrizioni per evitare memory leak
   ngOnDestroy() {
     if (this.participantSubscription) {
@@ -80,12 +107,22 @@ export class addExpense implements OnInit, OnDestroy {
 
   // 4. Questo è il metodo che verrà chiamato al submit del form
   createExpense() {
-    // Per ora, ci limitiamo a stampare i dati in console per verificare
-    console.log('Form inviato!');
-    console.log('Dati:', this.expenseForm.value);
-    console.log('Stato di validità:', this.expenseForm.valid);
+    if (this.expenseForm.invalid) {
+      return;
+    }
 
-    // In futuro, qui faremo la chiamata HTTP al nostro backend
+    this.errorMessage = '';
+
+    this.expenseService.create({
+      description: this.expenseForm.value.description,
+      amount: Number(this.expenseForm.value.amount),
+      participantPublicIds: this.participants.map((p) => p.publicId),
+    }).subscribe({
+      next: () => this.router.navigateByUrl('/home'),
+      error: () => {
+        this.errorMessage = 'add-expense.create-error';
+      }
+    });
   }
 
 }

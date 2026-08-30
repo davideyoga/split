@@ -15,7 +15,8 @@ import { AppComponent } from './app/app.component';
 
 import {provideTranslateService} from "@ngx-translate/core";
 import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
-import {provideHttpClient} from "@angular/common/http";
+import {provideHttpClient, withInterceptors} from "@angular/common/http";
+import {authInterceptor} from "./app/services/auth.interceptor";
 
 
 bootstrapApplication(AppComponent, {
@@ -24,7 +25,7 @@ bootstrapApplication(AppComponent, {
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
 
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([authInterceptor])),
     provideTranslateService({
       loader: provideTranslateHttpLoader({
         prefix: '/assets/i18n/',

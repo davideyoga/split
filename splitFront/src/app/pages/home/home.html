@@ -1,10 +1,36 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> Home </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="logout()">
+        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  @if (loadError) {
+    <p class="ion-padding">{{ 'home.load-error' | translate }}</p>
+  } @else if (expenses.length === 0) {
+    <p class="ion-padding">{{ 'home.no-expenses' | translate }}</p>
+  } @else {
+    <ion-list>
+      @for (expense of expenses; track expense.id) {
+        <ion-item>
+          <ion-label>
+            <h2>{{ expense.description }}</h2>
+            <p>{{ 'home.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>
+          </ion-label>
+          <ion-note slot="end">
+            <div>{{ expense.amount }} {{ expense.currency }}</div>
+            <div>{{ expense.createdDate | date: 'dd/MM/yyyy' }}</div>
+          </ion-note>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
   <ion-fab-button routerLink="/add-expense">
     <ion-icon name="add"></ion-icon>

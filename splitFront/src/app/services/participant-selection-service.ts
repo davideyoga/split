@@ -1,22 +1,27 @@
-// src/app/services/data-sharing.service.ts
+// src/app/services/participant-selection-service.ts
 
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { Group } from '../models/group.model';
 import { User } from '../models/user.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ParticipantSelectionService {
-
-  // Usiamo un Subject per emettere il nuovo partecipante selezionato
+  // Un partecipante singolo scelto dalla modale select-participant.
   private selectedParticipantSource = new Subject<User>();
-
-  // La pagina si iscriverà a questo Observable per ricevere i dati
   selectedParticipant$ = this.selectedParticipantSource.asObservable();
 
-  // La modale chiamerà questo metodo quando un utente viene selezionato
+  // Un gruppo scelto dalla modale select-participant (segmento "Gruppo").
+  private selectedGroupSource = new Subject<Group>();
+  selectedGroup$ = this.selectedGroupSource.asObservable();
+
   selectParticipant(participant: User) {
     this.selectedParticipantSource.next(participant);
+  }
+
+  selectGroup(group: Group) {
+    this.selectedGroupSource.next(group);
   }
 }

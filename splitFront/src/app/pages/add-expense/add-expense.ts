@@ -4,7 +4,10 @@ import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms'
 import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController, IonChip, IonText, IonInput } from '@ionic/angular/standalone';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { addIcons } from 'ionicons';
+import { checkmarkDoneOutline, close, people, personAddOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
+import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
 import { ParticipantSelectionService } from '../../services/participant-selection-service';
 import { SelectParticipantComponent } from '../../components/select-participant/select-participant.component';
@@ -25,7 +28,7 @@ export class addExpense implements OnInit, OnDestroy {
 
   private fb = inject(FormBuilder);
   private modalCtrl= inject(ModalController);
-  private dataSharingService = inject(ParticipantSelectionService);
+  private participantSelection = inject(ParticipantSelectionService);
   private authService = inject(AuthService);
   private expenseService = inject(ExpenseService);
   private router = inject(Router);
@@ -35,13 +38,26 @@ export class addExpense implements OnInit, OnDestroy {
   //lista contributori alla spesa
   participants: User[] = [];
 
+  // Gruppo opzionale a cui legare la spesa: il backend espande i membri in
+  // singole quote. Una sola spesa -> un solo gruppo (schema Expense.groupId).
+  selectedGroup: Group | null = null;
 
   selectedParticipantEmail: User | null = null;
   errorMessage = '';
   private participantSubscription!: Subscription;
+  private groupSubscription!: Subscription;
 
   // 1. Dichiara la variabile per il nostro form
   expenseForm!: FormGroup;
+
+  constructor() {
+    addIcons({
+      people,
+      close,
+      'person-add-outline': personAddOutline,
+      'checkmark-done-outline': checkmarkDoneOutline,
+    });
+  }
 
   ngOnInit() {
 
@@ -50,7 +66,7 @@ export class addExpense implements OnInit, OnDestroy {
       creator: this.fb.group({
         publicId: [''],
         nickName: ['']
-      }), 
+      }),
       participants: this.fb.array([]),
       amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.01)]],
       description: ['', Validators.required],
@@ -63,16 +79,25 @@ export class addExpense implements OnInit, OnDestroy {
     }
 
     // Mettiamoci in ascolto dei cambiamenti dal servizio
-    this.participantSubscription = this.dataSharingService.selectedParticipant$
+    this.participantSubscription = this.participantSelection.selectedParticipant$
       .subscribe((newParticipant: User) => {
-        if (newParticipant) {
-          
+        if (
+          newParticipant &&
+          !this.participants.some((p) => p.publicId === newParticipant.publicId)
+        ) {
           this.participants.push(newParticipant);
+        }
+      });
+
+    this.groupSubscription = this.participantSelection.selectedGroup$
+      .subscribe((group: Group) => {
+        if (group) {
+          this.selectedGroup = group;
         }
       });
   }
 
-  
+
 
   async openParticipantModal() {
     const modal = await this.modalCtrl.create({
@@ -81,8 +106,12 @@ export class addExpense implements OnInit, OnDestroy {
     await modal.present();
   }
 
-  removeParticipant(participant: User) {//TODO: fare in modo che non si possa selezionare 2 volte lo stesso utente
+  removeParticipant(participant: User) {
     this.participants = this.participants.filter(p => p !== participant);
+  }
+
+  removeGroup() {
+    this.selectedGroup = null;
   }
 
   // Ripulisce l'importo digitato lasciando solo cifre e un'unica virgola/punto decimale
@@ -100,9 +129,8 @@ export class addExpense implements OnInit, OnDestroy {
 
   // È una best practice cancellare le iscrizioni per evitare memory leak
   ngOnDestroy() {
-    if (this.participantSubscription) {
-      this.participantSubscription.unsubscribe();
-    }
+    this.participantSubscription?.unsubscribe();
+    this.groupSubscription?.unsubscribe();
   }
 
   // 4. Questo è il metodo che verrà chiamato al submit del form
@@ -117,6 +145,7 @@ export class addExpense implements OnInit, OnDestroy {
       description: this.expenseForm.value.description,
       amount: Number(this.expenseForm.value.amount),
       participantPublicIds: this.participants.map((p) => p.publicId),
+      groupPublicId: this.selectedGroup?.publicId,
     }).subscribe({
       next: () => this.router.navigateByUrl('/home'),
       error: () => {

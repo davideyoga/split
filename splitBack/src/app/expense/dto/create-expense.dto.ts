@@ -1,4 +1,10 @@
-import { IsArray, IsNumber, IsString, Min } from 'class-validator';
+import {
+  IsArray,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export class CreateExpenseDto {
   @IsString()
@@ -8,7 +14,12 @@ export class CreateExpenseDto {
   @Min(0.01)
   amount: number;
 
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  participantPublicIds: string[];
+  participantPublicIds: string[] = [];
+
+  @IsOptional()
+  @IsString()
+  groupPublicId?: string;
 }

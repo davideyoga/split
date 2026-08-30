@@ -86,12 +86,22 @@
   </ion-footer>
 
 
- <!--List of selected participants-->
+ <!--Selected group (optional) + selected participants-->
   <div class="ion-padding-horizontal ion-padding-top" style="display: flex; flex-wrap: wrap; gap: 8px;">
-    @for (participant of participants; track participant.publicId; let i = $index) {
+    @if (selectedGroup) {
+      <ion-chip color="primary">
+        <ion-icon name="people"></ion-icon>
+        <ion-label>
+          {{ selectedGroup.name }} ·
+          {{ 'add-expense.group-members-count' | translate: { count: selectedGroup.members.length } }}
+        </ion-label>
+        <ion-icon name="close" (click)="removeGroup()"></ion-icon>
+      </ion-chip>
+    }
+    @for (participant of participants; track participant.publicId) {
       <ion-chip color="medium">
         <ion-label>{{ participant.nickName }}</ion-label>
-        <ion-icon name="close" (click)="removeParticipant(participant)"></ion-icon><!--TODO: non si vede la x-->
+        <ion-icon name="close" (click)="removeParticipant(participant)"></ion-icon>
       </ion-chip>
     }
   </div>

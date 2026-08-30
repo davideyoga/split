@@ -9,6 +9,7 @@ export interface CreateExpensePayload {
   description: string;
   amount: number;
   participantPublicIds: string[];
+  groupPublicId?: string;
 }
 
 export interface ExpenseContribution {
@@ -24,6 +25,7 @@ export interface ExpenseListItem {
   currency: string;
   createdDate: string;
   paidBy: User;
+  group: { publicId: string; name: string } | null;
   expenseContributions: ExpenseContribution[];
 }
 

@@ -1,41 +1,85 @@
 <ion-header>
   <ion-toolbar color="primary">
-    <!-- Aggiungiamo un bottone per chiudere -->
     <ion-buttons slot="start">
-      <ion-button (click)="dismissModal()">Chiudi</ion-button>
+      <ion-button (click)="dismissModal()">
+        {{ 'select-participant.close' | translate }}
+      </ion-button>
     </ion-buttons>
-    <ion-title>Seleziona Partecipante</ion-title>
+    <ion-title>{{ 'select-participant.title' | translate }}</ion-title>
   </ion-toolbar>
-  
-  <!-- Aggiungiamo la barra di ricerca sotto l'header -->
-  <!-- debounce fa si che si aspetti 300 mlsecondi prima di chiamare la funzione -->
+
   <ion-toolbar>
-    <ion-searchbar
-      placeholder="Cerca per nickname"
-      [(ngModel)]="searchQuery"
-      (ionInput)="searchUsers()"
-      [debounce]="450"
-    ></ion-searchbar>
+    <ion-segment [value]="mode" (ionChange)="onModeChange($event)">
+      <ion-segment-button value="person">
+        <ion-label>{{ 'select-participant.segment-person' | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="group">
+        <ion-label>{{ 'select-participant.segment-group' | translate }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
+
+  @if (mode === 'person') {
+    <ion-toolbar>
+      <ion-searchbar
+        placeholder="{{ 'select-participant.search-placeholder' | translate }}"
+        [(ngModel)]="searchQuery"
+        (ionInput)="searchUsers()"
+        [debounce]="450"
+      ></ion-searchbar>
+    </ion-toolbar>
+  }
 </ion-header>
 
-  <div class="ion-text-center ion-padding" *ngIf="isLoading">  
-    <ion-spinner name="crescent" color="primary"></ion-spinner>
-    <p>Ricerca in corso...</p>
-  </div>
-
 <ion-content>
-  <!-- La lista ora mostra i risultati della ricerca (searchResults) -->
-  <ion-list>
-    
-    <!-- Mostra un messaggio se la ricerca non ha prodotto risultati -->
-    <ion-item *ngIf="searchResults.length === 0 && searchQuery.trim().length > 1 && isLoading" >
-      <ion-label class="ion-text-center">Nessun utente trovato.</ion-label>
-    </ion-item>
-
-    <!-- Itera sulla lista dei risultati e li mostra -->
-    <ion-item *ngFor="let user of searchResults" (click)="selectParticipant(user)" button>
-      <ion-label>{{ user.nickName }}</ion-label>
-    </ion-item>
-  </ion-list>
+  @if (mode === 'person') {
+    @if (isLoading) {
+      <div class="ion-text-center ion-padding">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+        <p>{{ 'select-participant.searching' | translate }}</p>
+      </div>
+    } @else {
+      <ion-list>
+        @if (searchResults.length === 0 && searchQuery.trim().length >= 3) {
+          <ion-item>
+            <ion-label class="ion-text-center">
+              {{ 'select-participant.no-results' | translate }}
+            </ion-label>
+          </ion-item>
+        }
+        @for (user of searchResults; track user.publicId) {
+          <ion-item button (click)="selectParticipant(user)">
+            <ion-label>{{ user.nickName }}</ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  } @else {
+    @if (groupsLoading) {
+      <div class="ion-text-center ion-padding">
+        <ion-spinner name="crescent" color="primary"></ion-spinner>
+      </div>
+    } @else if (groups.length === 0) {
+      <ion-list>
+        <ion-item>
+          <ion-label class="ion-text-center">
+            {{ 'select-participant.no-groups' | translate }}
+          </ion-label>
+        </ion-item>
+      </ion-list>
+    } @else {
+      <ion-list>
+        @for (group of groups; track group.publicId) {
+          <ion-item button (click)="selectGroup(group)">
+            <ion-label>
+              {{ group.name }}
+              <span class="member-count">
+                ({{ group.members.length }})
+              </span>
+            </ion-label>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  }
 </ion-content>

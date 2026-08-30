@@ -8,7 +8,18 @@
     "description-label": "Descrizione",
     "description-placeholder": "es. Cena",
     "amount-invalid": "Inserisci un importo valido (solo numeri)",
-    "create-error": "Impossibile creare la spesa, riprova"
+    "create-error": "Impossibile creare la spesa, riprova",
+    "group-members-count": "{{count}} membri"
+  },
+  "select-participant": {
+    "title": "Seleziona partecipante",
+    "close": "Chiudi",
+    "search-placeholder": "Cerca per nickname",
+    "searching": "Ricerca in corso...",
+    "no-results": "Nessun utente trovato",
+    "segment-person": "Persona",
+    "segment-group": "Gruppo",
+    "no-groups": "Non fai ancora parte di nessun gruppo"
   },
   "login": {
     "title": "Accedi",
@@ -18,6 +29,7 @@
     "user-not-found": "Nessun account trovato per questa email"
   },
   "home": {
+    "expenses-title": "Spese",
     "paid-by": "Pagata da",
     "no-expenses": "Nessuna spesa presente",
     "load-error": "Impossibile caricare le spese, riprova"

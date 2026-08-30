@@ -8,7 +8,18 @@
     "description-label": "Description",
     "description-placeholder": "e.g. Dinner",
     "amount-invalid": "Enter a valid amount (numbers only)",
-    "create-error": "Couldn't create the expense, please try again"
+    "create-error": "Couldn't create the expense, please try again",
+    "group-members-count": "{{count}} members"
+  },
+  "select-participant": {
+    "title": "Select participant",
+    "close": "Close",
+    "search-placeholder": "Search by nickname",
+    "searching": "Searching...",
+    "no-results": "No users found",
+    "segment-person": "Person",
+    "segment-group": "Group",
+    "no-groups": "You don't belong to any group yet"
   },
   "login": {
     "title": "Log in",
@@ -18,6 +29,7 @@
     "user-not-found": "No account found for this email"
   },
   "home": {
+    "expenses-title": "Expenses",
     "paid-by": "Paid by",
     "no-expenses": "No expenses yet",
     "load-error": "Couldn't load expenses, please try again"

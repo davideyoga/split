@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, UseGuards, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { Request } from 'express';
 import { AuthUser } from '../auth/auth.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -14,6 +14,13 @@ export class ExpenseController {
   findMine(@Req() request: Request) {
     const user = request['user'] as AuthUser;
     return this.expenseService.findMine(user.publicId);
+  }
+
+  @Get('group/:publicId')
+  @UseGuards(JwtAuthGuard)
+  findByGroup(@Req() request: Request, @Param('publicId') publicId: string) {
+    const user = request['user'] as AuthUser;
+    return this.expenseService.findByGroup(user.publicId, publicId);
   }
 
   @Post()

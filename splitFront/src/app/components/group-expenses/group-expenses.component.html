@@ -1,0 +1,38 @@
+<ion-list-header>
+  <ion-label>{{ 'groups.expenses-title' | translate }}</ion-label>
+</ion-list-header>
+
+@if (loading) {
+  <p class="ion-padding-horizontal">{{ 'groups.expenses-loading' | translate }}</p>
+} @else if (loadError) {
+  <p class="ion-padding-horizontal">{{ 'groups.expenses-load-error' | translate }}</p>
+} @else if (expenses.length === 0) {
+  <p class="ion-padding-horizontal">{{ 'groups.no-expenses' | translate }}</p>
+} @else {
+  <ion-list>
+    @for (expense of expenses; track expense.id) {
+      <ion-item>
+        <ion-label>
+          <h2>{{ expense.description }}</h2>
+          <p>{{ 'groups.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>
+          @if (expense.category) {
+            <ion-chip class="category-chip" [outline]="true" color="medium">
+              <ion-icon [name]="expense.category.icon"></ion-icon>
+              <ion-label>
+                @if (expense.category.name) {
+                  {{ expense.category.name }}
+                } @else {
+                  {{ 'categories.' + expense.category.slug | translate }}
+                }
+              </ion-label>
+            </ion-chip>
+          }
+        </ion-label>
+        <ion-note slot="end">
+          <div>{{ expense.amount }} {{ expense.currency }}</div>
+          <div>{{ expense.createdDate | date: 'dd/MM/yyyy' }}</div>
+        </ion-note>
+      </ion-item>
+    }
+  </ion-list>
+}

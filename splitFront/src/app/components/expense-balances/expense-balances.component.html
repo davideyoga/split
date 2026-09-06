@@ -1,0 +1,61 @@
+<ion-list-header>
+  <ion-label>{{ titleKey() | translate }}</ion-label>
+</ion-list-header>
+
+@if (summary().balances.length === 0) {
+  <p class="ion-padding-horizontal">{{ 'balances.none' | translate }}</p>
+} @else {
+  <ion-list>
+    @for (balance of summary().balances; track balance.user.publicId) {
+      <ion-item>
+        <ion-label>
+          @if (balance.cents > 0) {
+            <h2>
+              {{
+                'balances.owes-you'
+                  | translate: { name: balance.user.nickName }
+              }}
+            </h2>
+          } @else {
+            <h2>
+              {{
+                'balances.you-owe' | translate: { name: balance.user.nickName }
+              }}
+            </h2>
+          }
+        </ion-label>
+        <ion-note
+          slot="end"
+          [color]="balance.cents > 0 ? 'success' : 'danger'"
+          class="balance-amount"
+        >
+          {{ format(balance.cents) }} {{ currency() }}
+        </ion-note>
+      </ion-item>
+    }
+  </ion-list>
+
+  @if (showTotals()) {
+    <ion-item lines="none" class="totals">
+      <ion-label>
+        <p>
+          {{ 'balances.total-owed-to-you' | translate }}:
+          {{ format(summary().owedToMeCents) }} {{ currency() }}
+        </p>
+        <p>
+          {{ 'balances.total-you-owe' | translate }}:
+          {{ format(summary().iOweCents) }} {{ currency() }}
+        </p>
+      </ion-label>
+      <ion-note
+        slot="end"
+        [color]="summary().netCents >= 0 ? 'success' : 'danger'"
+      >
+        <div>{{ 'balances.net' | translate }}</div>
+        <div class="net-amount">
+          {{ formatSigned(summary().netCents) }} {{ currency() }}
+        </div>
+      </ion-note>
+    </ion-item>
+  }
+}

@@ -44,6 +44,12 @@ export class ExpenseService {
     return this.http.get<ExpenseListItem[]>(`${this.baseUrl}/expense`);
   }
 
+  listByGroup(groupPublicId: string): Observable<ExpenseListItem[]> {
+    return this.http.get<ExpenseListItem[]>(
+      `${this.baseUrl}/expense/group/${groupPublicId}`,
+    );
+  }
+
   create(payload: CreateExpensePayload): Observable<unknown> {
     return this.http.post(`${this.baseUrl}/expense`, payload);
   }

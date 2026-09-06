@@ -34,6 +34,15 @@
     "no-expenses": "Nessuna spesa presente",
     "load-error": "Impossibile caricare le spese, riprova"
   },
+  "balances": {
+    "title": "Saldi",
+    "none": "Nessun saldo aperto",
+    "owes-you": "{{name}} ti deve",
+    "you-owe": "Devi a {{name}}",
+    "total-owed-to-you": "Ti devono",
+    "total-you-owe": "Tu devi",
+    "net": "Saldo netto"
+  },
   "categories": {
     "title": "Categoria",
     "new": "Nuova",
@@ -69,6 +78,12 @@
     "load-error": "Impossibile caricare i gruppi, riprova",
     "create-error": "Impossibile creare il gruppo, riprova",
     "rename-error": "Impossibile rinominare il gruppo, riprova",
-    "member-error": "Impossibile aggiornare i membri, riprova"
+    "member-error": "Impossibile aggiornare i membri, riprova",
+    "balances-title": "Saldi del gruppo",
+    "expenses-title": "Spese del gruppo",
+    "expenses-loading": "Caricamento spese...",
+    "expenses-load-error": "Impossibile caricare le spese del gruppo, riprova",
+    "no-expenses": "Nessuna spesa in questo gruppo",
+    "paid-by": "Pagata da"
   }
 }

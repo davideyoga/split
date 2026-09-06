@@ -26,6 +26,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { addIcons } from 'ionicons';
 import { add, logOutOutline, people } from 'ionicons/icons';
+import { ExpenseBalancesComponent } from '../../components/expense-balances/expense-balances.component';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { CATEGORY_ICONS } from '../../models/category.model';
@@ -39,6 +40,7 @@ import { GroupService } from '../../services/group.service';
   standalone: true,
   imports: [
     CommonModule,
+    ExpenseBalancesComponent,
     IonButtons,
     IonButton,
     IonCard,

@@ -43,6 +43,46 @@ export class ExpenseService {
     });
   }
 
+  // Spese di un gruppo: visibili solo ai suoi membri.
+  async findByGroup(userPublicId: string, groupPublicId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { publicId: userPublicId },
+    });
+    if (!user) {
+      throw new NotFoundException('Utente non trovato');
+    }
+
+    const group = await this.prisma.group.findUnique({
+      where: { publicId: groupPublicId },
+      include: { usersOnGroup: true },
+    });
+    if (!group) {
+      throw new NotFoundException('Gruppo non trovato');
+    }
+    if (!group.usersOnGroup.some((link) => link.userId === user.id)) {
+      throw new ForbiddenException('Non fai parte di questo gruppo');
+    }
+
+    return this.prisma.expense.findMany({
+      where: { groupId: group.id },
+      orderBy: { createdDate: 'desc' },
+      include: {
+        paidBy: true,
+        group: { select: { publicId: true, name: true } },
+        category: {
+          select: {
+            publicId: true,
+            slug: true,
+            name: true,
+            icon: true,
+            color: true,
+          },
+        },
+        expenseContributions: { include: { user: true } },
+      },
+    });
+  }
+
   async create(creatorPublicId: string, dto: CreateExpenseDto) {
     const creator = await this.prisma.user.findUnique({
       where: { publicId: creatorPublicId },

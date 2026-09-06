@@ -24,9 +24,12 @@ import { addIcons } from 'ionicons';
 import { personAddOutline, trashOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 
+import { ExpenseBalancesComponent } from '../../../components/expense-balances/expense-balances.component';
+import { GroupExpensesComponent } from '../../../components/group-expenses/group-expenses.component';
 import { SelectParticipantComponent } from '../../../components/select-participant/select-participant.component';
 import { Group } from '../../../models/group.model';
 import { User } from '../../../models/user.model';
+import { ExpenseListItem } from '../../../services/expense.service';
 import { GroupService } from '../../../services/group.service';
 import { ParticipantSelectionService } from '../../../services/participant-selection-service';
 
@@ -39,6 +42,8 @@ import { ParticipantSelectionService } from '../../../services/participant-selec
     CommonModule,
     ReactiveFormsModule,
     TranslatePipe,
+    ExpenseBalancesComponent,
+    GroupExpensesComponent,
     IonBackButton,
     IonButton,
     IonButtons,
@@ -64,6 +69,8 @@ export class GroupDetail implements OnInit, OnDestroy {
   private participantSelectionService = inject(ParticipantSelectionService);
 
   group: Group | null = null;
+  // Popolata da `app-group-expenses`, che le carica gia' per la sua lista.
+  groupExpenses: ExpenseListItem[] = [];
   loadError = false;
   errorMessage = '';
 
@@ -71,7 +78,7 @@ export class GroupDetail implements OnInit, OnDestroy {
     name: ['', Validators.required],
   });
 
-  private publicId = '';
+  publicId = '';
   private participantSubscription!: Subscription;
 
   constructor() {

@@ -61,5 +61,17 @@
         {{ 'groups.add-member' | translate }}
       </ion-button>
     </div>
+
+    <!-- SALDI DEL GRUPPO -->
+    <app-expense-balances
+      [expenses]="groupExpenses"
+      titleKey="groups.balances-title"
+    ></app-expense-balances>
+
+    <!-- SPESE DEL GRUPPO -->
+    <app-group-expenses
+      [groupPublicId]="publicId"
+      (expensesLoaded)="groupExpenses = $event"
+    ></app-group-expenses>
   }
 </ion-content>

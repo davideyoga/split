@@ -10,6 +10,8 @@ export interface CreateExpensePayload {
   description: string;
   amount: number;
   participantPublicIds: string[];
+  // Chi ha pagato: se omesso il backend usa il creatore della spesa.
+  paidByPublicId?: string;
   groupPublicId?: string;
   categoryPublicId?: string;
 }

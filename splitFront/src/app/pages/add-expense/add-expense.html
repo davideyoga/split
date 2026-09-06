@@ -16,6 +16,34 @@
         <ion-label>{{ 'add-expense.created-by' | translate }}: {{ creator?.nickName }}</ion-label>
       </ion-item>
 
+      <!-- PAGATA DA: il creatore e' il default, ma si puo' scegliere chiunque
+           partecipi alla spesa (partecipanti scelti + membri del gruppo).
+           Con un solo candidato (nessun altro contributore ancora) la select
+           non avrebbe senso da aprire: mostriamo invece un avviso che dice di
+           aggiungere prima un partecipante o un gruppo. -->
+      @if (payerCandidates.length > 1) {
+        <ion-item>
+          <ion-select
+            label="{{ 'add-expense.paid-by' | translate }}"
+            labelPlacement="floating"
+            interface="popover"
+            [(ngModel)]="paidByPublicId"
+            [ngModelOptions]="{ standalone: true }"
+          >
+            @for (candidate of payerCandidates; track candidate.publicId) {
+              <ion-select-option [value]="candidate.publicId">{{ candidate.nickName }}</ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      } @else {
+        <ion-item lines="none" button="false" [disabled]="true">
+          <ion-label>
+            <p>{{ 'add-expense.paid-by' | translate }}</p>
+            <p>{{ 'add-expense.paid-by-need-participant' | translate }}</p>
+          </ion-label>
+        </ion-item>
+      }
+
       <!--
       <div *ngIf="selectedParticipantEmail" class="ion-padding-start">
         <p>Spesa da dividere con: <strong>{{ selectedParticipantEmail }}</strong></p>
@@ -103,7 +131,6 @@
       </ion-text>
     }
 
-    <!--TODO: Pagata Da-->
     <!--TODO: Aggiungere la divisione in partidisuguali-->
 
   </form>

@@ -139,6 +139,26 @@ export class ExpenseService {
       ]),
     ];
 
+    // Chi ha pagato: di default il creatore. Se indicato esplicitamente deve
+    // essere uno dei contributori, cosi' la spesa resta sempre visibile a chi
+    // l'ha pagata (findMine filtra sulle ExpenseContribution) e i saldi restano
+    // completi.
+    let payerId = creator.id;
+    if (dto.paidByPublicId && dto.paidByPublicId !== creator.publicId) {
+      const payer = await this.prisma.user.findUnique({
+        where: { publicId: dto.paidByPublicId },
+      });
+      if (!payer) {
+        throw new BadRequestException('Chi ha pagato non esiste');
+      }
+      if (!contributorIds.includes(payer.id)) {
+        throw new BadRequestException(
+          'Chi ha pagato deve essere tra i partecipanti alla spesa',
+        );
+      }
+      payerId = payer.id;
+    }
+
     // TODO: permettere quote diverse invece di una divisione sempre equa tra i contributori.
     // TODO: gestire l'arrotondamento quando amount non è divisibile esattamente per il numero
     // di contributori (vale anche per lo split di gruppo: la somma delle share potrebbe non
@@ -151,7 +171,7 @@ export class ExpenseService {
         description: dto.description,
         amount: dto.amount,
         createdBy: { connect: { id: creator.id } },
-        paidBy: { connect: { id: creator.id } },
+        paidBy: { connect: { id: payerId } },
         ...(groupId ? { group: { connect: { id: groupId } } } : {}),
         ...(categoryId ? { category: { connect: { id: categoryId } } } : {}),
         expenseContributions: {

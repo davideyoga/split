@@ -5,6 +5,8 @@
     "amount": "Importo",
     "new-expense": "Nuova spesa",
     "created-by": "Creata da",
+    "paid-by": "Pagata da",
+    "paid-by-need-participant": "Aggiungi un partecipante o un gruppo per scegliere chi ha pagato",
     "description-label": "Descrizione",
     "description-placeholder": "es. Cena",
     "amount-invalid": "Inserisci un importo valido (solo numeri)",

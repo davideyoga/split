@@ -19,6 +19,11 @@ export class CreateExpenseDto {
   @IsString({ each: true })
   participantPublicIds: string[] = [];
 
+  // Chi ha effettivamente pagato. Se omesso e' il creatore della spesa.
+  @IsOptional()
+  @IsString()
+  paidByPublicId?: string;
+
   @IsOptional()
   @IsString()
   groupPublicId?: string;

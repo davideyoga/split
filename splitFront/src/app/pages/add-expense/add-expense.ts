@@ -2,7 +2,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController, IonChip, IonText, IonInput } from '@ionic/angular/standalone';
+import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController, IonChip, IonText, IonInput, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
@@ -24,7 +24,8 @@ import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
   styleUrls: ['./add-expense.scss'],
   standalone: true,
   imports: [IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList,
-    IonBackButton, TranslatePipe, TranslateDirective, IonChip, IonChip, IonIcon, IonLabel, IonText, IonInput
+    IonBackButton, TranslatePipe, TranslateDirective, IonChip, IonChip, IonIcon, IonLabel, IonText, IonInput,
+    IonSelect, IonSelectOption
   ]
 })
 export class addExpense implements OnInit, OnDestroy {
@@ -41,6 +42,11 @@ export class addExpense implements OnInit, OnDestroy {
 
   //lista contributori alla spesa
   participants: User[] = [];
+
+  // Chi ha pagato la spesa: di default il creatore, ma si puo' scegliere
+  // chiunque partecipi (vedi payerCandidates).
+  paidByPublicId = '';
+  payerCandidates: User[] = [];
 
   // Gruppo opzionale a cui legare la spesa: il backend espande i membri in
   // singole quote. Una sola spesa -> un solo gruppo (schema Expense.groupId).
@@ -88,7 +94,9 @@ export class addExpense implements OnInit, OnDestroy {
     this.creator = this.authService.currentUser();
     if (this.creator) {
       this.expenseForm.get('creator')?.patchValue(this.creator);
+      this.paidByPublicId = this.creator.publicId;
     }
+    this.refreshPayerCandidates();
 
     // Mettiamoci in ascolto dei cambiamenti dal servizio
     this.participantSubscription = this.participantSelection.selectedParticipant$
@@ -98,6 +106,7 @@ export class addExpense implements OnInit, OnDestroy {
           !this.participants.some((p) => p.publicId === newParticipant.publicId)
         ) {
           this.participants.push(newParticipant);
+          this.refreshPayerCandidates();
         }
       });
 
@@ -105,6 +114,7 @@ export class addExpense implements OnInit, OnDestroy {
       .subscribe((group: Group) => {
         if (group) {
           this.selectedGroup = group;
+          this.refreshPayerCandidates();
         }
       });
 
@@ -163,10 +173,39 @@ export class addExpense implements OnInit, OnDestroy {
 
   removeParticipant(participant: User) {
     this.participants = this.participants.filter(p => p !== participant);
+    this.refreshPayerCandidates();
   }
 
   removeGroup() {
     this.selectedGroup = null;
+    this.refreshPayerCandidates();
+  }
+
+  // Chi puo' aver pagato = creatore + partecipanti scelti + membri del gruppo,
+  // deduplicati: e' lo stesso insieme di contributori che ricostruisce il
+  // backend, che rifiuta un pagante fuori da questo insieme.
+  private refreshPayerCandidates() {
+    const candidates: User[] = [];
+    const seen = new Set<string>();
+
+    for (const user of [
+      ...(this.creator ? [this.creator] : []),
+      ...this.participants,
+      ...(this.selectedGroup?.members ?? []),
+    ]) {
+      if (user?.publicId && !seen.has(user.publicId)) {
+        seen.add(user.publicId);
+        candidates.push(user);
+      }
+    }
+
+    this.payerCandidates = candidates;
+
+    // Se chi avevo scelto non partecipa piu' (partecipante o gruppo rimosso),
+    // il pagante torna a essere il creatore.
+    if (!seen.has(this.paidByPublicId)) {
+      this.paidByPublicId = this.creator?.publicId ?? '';
+    }
   }
 
   // Ripulisce l'importo digitato lasciando solo cifre e un'unica virgola/punto decimale
@@ -200,6 +239,7 @@ export class addExpense implements OnInit, OnDestroy {
       description: this.expenseForm.value.description,
       amount: Number(this.expenseForm.value.amount),
       participantPublicIds: this.participants.map((p) => p.publicId),
+      paidByPublicId: this.paidByPublicId || undefined,
       groupPublicId: this.selectedGroup?.publicId,
       categoryPublicId: this.selectedCategory?.publicId,
     }).subscribe({

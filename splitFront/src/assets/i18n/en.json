@@ -5,6 +5,8 @@
     "amount": "Amount",
     "new-expense": "New Expense",
     "created-by": "Created by",
+    "paid-by": "Paid by",
+    "paid-by-need-participant": "Add a participant or a group to choose who paid",
     "description-label": "Description",
     "description-placeholder": "e.g. Dinner",
     "amount-invalid": "Enter a valid amount (numbers only)",

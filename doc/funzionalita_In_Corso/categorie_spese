@@ -1,0 +1,223 @@
+# Categorie delle spese — analisi
+
+Stato: **implementata** il 2026-08-31 (migration `20260831230000_add_category`).
+Analisi originale: 2026-08-31.
+
+Le sezioni seguenti descrivono il modello e le decisioni cosi' come sono state
+realizzate; in fondo, "Scelte emerse in fase di implementazione" e "Cosa resta
+fuori" raccolgono le aggiunte rispetto alla proposta iniziale.
+
+## Obiettivo
+
+Aggiungere la categoria alle spese, sia condivise (gruppo / piu' partecipanti) sia
+individuali. Gli utenti devono avere un set di categorie **preconfigurate** e poter
+aggiungere le **proprie** categorie custom.
+
+## Situazione attuale
+
+Oggi esiste solo `Expense.category String?` (`splitBack/prisma/schema.prisma:50`),
+un campo di testo libero mai valorizzato, marcato "Pronto per V3.0". Non c'e'
+nessuna tabella categoria, nessun endpoint, nessuna UI.
+
+## Modello dati proposto: una sola tabella `Category` con `ownerId` nullable
+
+```prisma
+model Category {
+  id          Int       @id @default(autoincrement())
+  publicId    String    @unique @default(uuid())
+  slug        String?   @unique // solo per le preconfigurate: "food", "transport", ... -> chiave i18n
+  name        String?   // solo per quelle utente (le globali si traducono dallo slug)
+  icon        String    @default("pricetag-outline") // nome ionicon
+  color       String?
+  owner       User?     @relation(fields: [ownerId], references: [id])
+  ownerId     Int?      // null = categoria di sistema, visibile a tutti
+  archived    Boolean   @default(false)
+  createdDate DateTime  @default(now())
+  expenses    Expense[]
+
+  @@unique([ownerId, name])
+}
+```
+
+Su `Expense` si sostituisce `category String?` con la relazione:
+
+```prisma
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  Int?
+```
+
+`User` guadagna il lato inverso `categories Category[]`.
+
+Con `ownerId` nullable la query "categorie che posso usare" e' una sola:
+
+```ts
+where: { archived: false, OR: [{ ownerId: null }, { ownerId: userId }] }
+```
+
+### Alternative valutate e scartate
+
+- **Due tabelle separate** (`SystemCategory` + `UserCategory`): costringerebbe
+  `Expense` a due FK nullable mutuamente esclusive, con query e validazione
+  peggiori.
+- **Copiare le categorie default in righe per-utente alla registrazione**:
+  permetterebbe di rinominare/nascondere le default per singolo utente, ma duplica
+  i dati, richiede un hook su `UserService.create` (e un backfill per gli utenti
+  gia' seedati) e i cambiamenti futuri al set di default non si propagano agli
+  utenti esistenti. Non vale il costo in alpha.
+
+## Decisioni prese
+
+**1. i18n delle preconfigurate.**
+Le categorie globali non hanno un `name` in DB ma uno `slug`; il frontend traduce
+`categories.<slug>` da `src/assets/i18n/en.json` e `it.json`. In caso contrario si
+finirebbe con nomi in italiano hardcoded in DB, violando la regola i18n del
+progetto (vedi CLAUDE.md, sezione "Localization"). Le categorie utente hanno
+`name` libero e nessuna traduzione.
+
+**2. La categoria appartiene alla spesa, non al singolo utente.**
+Su una spesa condivisa o di gruppo la categoria scelta da chi la crea la vedono
+tutti i partecipanti, anche se e' una categoria custom di quell'utente. E' il
+comportamento naturale ed evita una tabella `ExpenseCategoryPerUser`. Il caso
+"ognuno classifica la spesa a modo suo per le proprie statistiche" (come fa
+Splitwise nei report personali) e' rimandato a una V3.x — gia' registrato in
+`TODO.md`, sezione "Funzionalita' da aggiungere".
+
+**3. Cancellazione = `archived`, non delete.**
+Se un utente elimina una categoria usata da spese passate, un hard delete rompe lo
+storico o costringe a `onDelete: SetNull`. Con `archived: true` la categoria
+sparisce dal picker ma le spese vecchie continuano a mostrarla.
+
+**4. Niente categorie di gruppo.**
+`ownerId` resta l'utente. Se in futuro servissero, il campo puo' diventare
+`ownerUserId` / `ownerGroupId` senza rompere il modello esistente.
+
+**5. Vincolo di unicita': `@@unique([ownerId, name])` + `@unique` sullo `slug`.**
+
+In SQL un indice UNIQUE tratta i `NULL` come valori sempre diversi tra loro
+(default `NULLS DISTINCT`). Quindi `@@unique([ownerId, name])` si comporta cosi':
+
+| righe | esito |
+|---|---|
+| `(5, 'Barca')` + `(5, 'Barca')` | bloccato — e' il vincolo che vogliamo |
+| `(5, 'Barca')` + `(7, 'Barca')` | permesso — utenti diversi, corretto |
+| `(NULL, 'Cibo')` + `(NULL, 'Cibo')` | permesso — `NULL <> NULL`, il DB non le vede duplicate |
+
+Cioe': il vincolo copre perfettamente le categorie **utente**, e lascia scoperte
+solo le **globali** (`ownerId IS NULL`).
+
+La soluzione non richiede indici parziali ne' SQL a mano: le globali sono gia'
+identificate dallo `slug`, quindi basta marcarlo `@unique`. La stessa regola sui
+NULL qui gioca a favore — due globali non possono condividere lo slug, mentre
+infinite categorie utente possono avere `slug = NULL`. I due vincoli insieme
+coprono tutto:
+
+- `@@unique([ownerId, name])` -> nessun doppione tra le categorie di uno stesso utente;
+- `@unique` su `slug` -> nessun doppione tra le globali.
+
+Nota: `@@unique([ownerId, name])` non impedisce a un utente di crearsi una
+categoria custom con lo stesso nome di una globale. E' voluto: e' la scappatoia con
+cui si "personalizza" una default, visto che le globali non sono modificabili. Al
+massimo il frontend mostra un avviso non bloccante.
+
+## API (`splitBack/src/app/category/`)
+
+Tutti gli endpoint guardati da `JwtAuthGuard`, chiavati su `publicId` (mai l'`id`
+int), sulla falsariga del modulo `group/`:
+
+- `GET /api/category` — categorie globali + proprie, non archiviate.
+- `POST /api/category` — `{ name, icon, color }`, `ownerId` sempre = chiamante.
+- `PATCH /api/category/:publicId` — `403` se `ownerId !== caller`; le globali non
+  si modificano.
+- `DELETE /api/category/:publicId` — archiviazione (`archived: true`), stesse
+  regole di permesso della PATCH.
+
+Impatto sul modulo `expense/`:
+
+- `CreateExpenseDto` guadagna `categoryPublicId?: string`.
+- `ExpenseService.create` valida che la categoria esista e sia globale o del
+  chiamante (altrimenti `400`/`403`).
+- `ExpenseService.findMine` aggiunge la categoria alla `include`.
+
+## Frontend (`splitFront`)
+
+- `CategoryService` in `src/app/services/`, modellato su `GroupService`
+  (`environment.apiUrl`, `catchError` -> `of([])` sulle read, token via
+  `authInterceptor`).
+- Modello `src/app/models/category.model.ts`.
+- `add-expense`: picker categoria come griglia di chip con icona, piu' un
+  "+ Nuova categoria" inline che crea al volo una categoria utente.
+- `home`: badge categoria nella lista spese.
+- i18n: nuova sezione `categories.*` in **entrambi** `en.json` e `it.json`, con una
+  chiave per ogni slug preconfigurato piu' le label della UI.
+
+## Seed delle preconfigurate
+
+In `splitBack/prisma/seed.ts`, idempotente per `slug` (upsert), coerente con come
+sono gia' seedati gli utenti alpha. Set iniziale:
+
+`food`, `restaurant`, `groceries`, `transport`, `fuel`, `accommodation`,
+`activities`, `shopping`, `health`, `other`.
+
+## Scelte emerse in fase di implementazione
+
+**Ricreare una categoria archiviata la riattiva.**
+`@@unique([ownerId, name])` vale anche per le righe archiviate: senza
+accorgimenti, un utente che archivia "Barca" non potrebbe piu' ricrearla (vincolo
+violato per sempre). `CategoryService.create` quindi cerca prima una categoria
+omonima dello stesso utente: se esiste ed e' archiviata la riattiva
+(`archived: false`) e la restituisce, se esiste ed e' attiva risponde `409`.
+
+**`409 Conflict` sui nomi duplicati.**
+Senza gestione esplicita, la violazione del vincolo usciva come `500` (errore
+Prisma P2002 non catturato). Ora sia `POST` sia `PATCH` controllano il nome prima
+di scrivere e rispondono `409`; il frontend mostra `categories.duplicate-error`.
+
+**`isCustom` nella risposta.**
+`GET /api/category` espone `isCustom` (= `ownerId !== null`) per distinguere le
+preconfigurate. Nei template la label si risolve comunque con la regola "se c'e'
+`name` mostralo, altrimenti traduci lo slug", che funziona anche per la categoria
+annidata dentro una spesa (dove `isCustom` non viene selezionato).
+
+**Registrazione delle icone lato Ionic.**
+Il nome dell'icona arriva dal DB, non dal template, quindi `addIcons()` non puo'
+dedurlo: `splitFront/src/app/models/category.model.ts` esporta `CATEGORY_ICONS`
+(mappa nome-icona -> SVG di ionicons) che `home` e `add-expense` passano ad
+`addIcons()`. Aggiungendo una nuova icona nel seed va aggiunta anche li'.
+
+## Cosa resta fuori (per ora)
+
+- **Nessuna UI di rinomina/archiviazione.** `PATCH /api/category/:publicId` e
+  `DELETE /api/category/:publicId` esistono e sono testati, ma il frontend le
+  categorie sa solo elencarle, sceglierle e crearne di nuove.
+- **Nessun selettore di icona/colore.** Le categorie custom nascono con l'icona di
+  default (`pricetag-outline`) e `color` null; i campi esistono gia' in DB e nel
+  DTO.
+- **Nessun filtro o statistica per categoria** nella lista spese: per ora la
+  categoria e' solo un badge.
+
+## Nota operativa sulla migration
+
+Come da CLAUDE.md, in questo workspace `prisma migrate dev` e'
+non-interactive-hostile: la cartella della migration e il relativo SQL sono stati
+generati con `prisma migrate diff` e applicati con `prisma migrate deploy`. **Non**
+passare il `DATABASE_URL` reale come `--shadow-database-url`.
+
+`migrate diff --from-migrations` richiede pero' uno shadow database, e `psql` non
+e' installato su questa macchina: lo si crea e distrugge con Prisma stesso —
+
+```
+echo 'CREATE DATABASE split_shadow_tmp;' | npx prisma db execute --url "$DATABASE_URL" --stdin
+npx prisma migrate diff --from-migrations splitBack/prisma/migrations \
+  --to-schema-datamodel splitBack/prisma/schema.prisma \
+  --shadow-database-url "<stesso URL con /split_shadow_tmp>" --script \
+  > splitBack/prisma/migrations/<timestamp>_<nome>/migration.sql
+npx prisma migrate deploy --schema=splitBack/prisma/schema.prisma
+echo 'DROP DATABASE IF EXISTS split_shadow_tmp;' | npx prisma db execute --url "$DATABASE_URL" --stdin
+```
+
+Il campo `Expense.category String?` e' stato rimosso nella stessa migration: era
+sempre `NULL`, quindi non e' servita nessuna conversione dei dati esistenti.
+
+Dopo la migration va rilanciato il seed (`set -a && . ./.env && set +a && node
+splitBack/prisma/seed.ts`) per creare le 10 categorie preconfigurate: e'
+idempotente, fa upsert per slug.

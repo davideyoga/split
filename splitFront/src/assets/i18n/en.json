@@ -34,6 +34,24 @@
     "no-expenses": "No expenses yet",
     "load-error": "Couldn't load expenses, please try again"
   },
+  "categories": {
+    "title": "Category",
+    "new": "New",
+    "create": "Create",
+    "name-placeholder": "Category name",
+    "create-error": "Couldn't create the category, please try again",
+    "duplicate-error": "You already have a category with this name",
+    "food": "Food",
+    "restaurant": "Restaurant",
+    "groceries": "Groceries",
+    "transport": "Transport",
+    "fuel": "Fuel",
+    "accommodation": "Accommodation",
+    "activities": "Activities",
+    "shopping": "Shopping",
+    "health": "Health",
+    "other": "Other"
+  },
   "groups": {
     "title": "Groups",
     "manage": "Manage",

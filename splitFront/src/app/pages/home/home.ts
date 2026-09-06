@@ -8,6 +8,7 @@ import {
   IonCardContent,
   IonCardHeader,
   IonCardTitle,
+  IonChip,
   IonContent,
   IonFab,
   IonFabButton,
@@ -27,6 +28,7 @@ import { addIcons } from 'ionicons';
 import { add, logOutOutline, people } from 'ionicons/icons';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
+import { CATEGORY_ICONS } from '../../models/category.model';
 import { Group } from '../../models/group.model';
 import { GroupService } from '../../services/group.service';
 
@@ -43,6 +45,7 @@ import { GroupService } from '../../services/group.service';
     IonCardContent,
     IonCardHeader,
     IonCardTitle,
+    IonChip,
     IonContent,
     IonFab,
     IonFabButton,
@@ -70,7 +73,8 @@ export class Home implements OnInit {
   loadError = false;
 
   constructor() {
-    addIcons({ add, 'log-out-outline': logOutOutline, people });
+    // Le icone delle categorie arrivano dal DB: vanno registrate tutte.
+    addIcons({ add, 'log-out-outline': logOutOutline, people, ...CATEGORY_ICONS });
   }
 
   ngOnInit() {

@@ -1,0 +1,23 @@
+.category-section {
+  padding: 8px 16px 0;
+}
+
+.category-title {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  margin-bottom: 8px;
+}
+
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.new-category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}

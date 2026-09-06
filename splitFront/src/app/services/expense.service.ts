@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../environments/environment';
+import { ExpenseCategory } from '../models/category.model';
 import { User } from '../models/user.model';
 
 export interface CreateExpensePayload {
@@ -10,6 +11,7 @@ export interface CreateExpensePayload {
   amount: number;
   participantPublicIds: string[];
   groupPublicId?: string;
+  categoryPublicId?: string;
 }
 
 export interface ExpenseContribution {
@@ -26,6 +28,7 @@ export interface ExpenseListItem {
   createdDate: string;
   paidBy: User;
   group: { publicId: string; name: string } | null;
+  category: ExpenseCategory | null;
   expenseContributions: ExpenseContribution[];
 }
 

@@ -52,6 +52,51 @@
       }
     </ion-list>
 
+    <!-- CATEGORIA (facoltativa): preconfigurate + custom dell'utente -->
+    <div class="category-section">
+      <ion-label class="category-title">{{ 'categories.title' | translate }}</ion-label>
+
+      <div class="category-chips">
+        @for (category of categories; track category.publicId) {
+          <ion-chip
+            [outline]="selectedCategory?.publicId !== category.publicId"
+            [color]="selectedCategory?.publicId === category.publicId ? 'primary' : 'medium'"
+            (click)="toggleCategory(category)"
+          >
+            <ion-icon [name]="category.icon"></ion-icon>
+            <ion-label>
+              @if (category.name) {
+                {{ category.name }}
+              } @else {
+                {{ 'categories.' + category.slug | translate }}
+              }
+            </ion-label>
+          </ion-chip>
+        }
+
+        <ion-chip [outline]="true" color="medium" (click)="toggleNewCategoryInput()">
+          <ion-icon name="add"></ion-icon>
+          <ion-label>{{ 'categories.new' | translate }}</ion-label>
+        </ion-chip>
+      </div>
+
+      @if (showNewCategoryInput) {
+        <div class="new-category">
+          <ion-input
+            fill="outline"
+            type="text"
+            [(ngModel)]="newCategoryName"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="{{ 'categories.name-placeholder' | translate }}"
+            (keyup.enter)="createCategory()"
+          ></ion-input>
+          <ion-button size="small" type="button" [disabled]="!newCategoryName.trim()" (click)="createCategory()">
+            {{ 'categories.create' | translate }}
+          </ion-button>
+        </div>
+      }
+    </div>
+
     @if (errorMessage) {
       <ion-text color="danger">
         <p class="ion-padding-start">{{ errorMessage | translate }}</p>

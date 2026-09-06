@@ -14,3 +14,8 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 - [user.controller.ts:22](splitBack/src/app/user/user.controller.ts#L22) — la ricerca utenti dovrebbe filtrare solo utenti già registrati/confermati.
 - [expense.service.ts:78](splitBack/src/app/expense/expense.service.ts#L78) — permettere quote diverse invece di una divisione sempre equa tra i contributori (creatore + partecipanti + membri del gruppo).
 - [expense.service.ts:79](splitBack/src/app/expense/expense.service.ts#L79) — gestire l'arrotondamento quando `amount` non è divisibile esattamente per il numero di contributori (vale anche per lo split di gruppo: la somma delle `share` potrebbe non coincidere con `amount`).
+
+
+## Funzionalita' da aggiungere
+- Aggiungere valuta (Priorita' Bassa)
+- Categorizzazione per-utente delle spese condivise (Priorita' Bassa): oggi la categoria e' della spesa, quindi su una spesa di gruppo tutti i partecipanti vedono quella scelta da chi l'ha creata. In una V3.x si potrebbe permettere a ogni partecipante di categorizzare la spesa a modo suo per le proprie statistiche (servirebbe una tabella tipo `ExpenseCategoryPerUser`). Vedi [doc/funzionalita_In_Corso/categorie_spese](doc/funzionalita_In_Corso/categorie_spese), decisione 2.

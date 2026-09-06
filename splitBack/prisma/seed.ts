@@ -23,7 +23,35 @@ const users: { email: string; nickName: string }[] = [
   { email: 'amelia@disney.test', nickName: 'Amelia' },
 ];
 
+/**
+ * Categorie preconfigurate (ownerId null = visibili a tutti gli utenti).
+ * Il nome mostrato NON sta in DB: il frontend traduce `categories.<slug>` da
+ * en.json / it.json. Idempotente: upsert per slug.
+ */
+const categories: { slug: string; icon: string }[] = [
+  { slug: 'food', icon: 'fast-food-outline' },
+  { slug: 'restaurant', icon: 'restaurant-outline' },
+  { slug: 'groceries', icon: 'cart-outline' },
+  { slug: 'transport', icon: 'bus-outline' },
+  { slug: 'fuel', icon: 'car-outline' },
+  { slug: 'accommodation', icon: 'bed-outline' },
+  { slug: 'activities', icon: 'ticket-outline' },
+  { slug: 'shopping', icon: 'bag-handle-outline' },
+  { slug: 'health', icon: 'medkit-outline' },
+  { slug: 'other', icon: 'pricetag-outline' },
+];
+
 async function main() {
+  for (const c of categories) {
+    const category = await prisma.category.upsert({
+      where: { slug: c.slug },
+      update: { icon: c.icon, archived: false },
+      create: { slug: c.slug, icon: c.icon },
+    });
+    console.log(`✔ ${category.slug?.padEnd(14)} icon=${category.icon}`);
+  }
+  console.log(`\nDone: ${categories.length} categories upserted.\n`);
+
   for (const u of users) {
     const user = await prisma.user.upsert({
       where: { email: u.email },

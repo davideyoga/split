@@ -22,4 +22,8 @@ export class CreateExpenseDto {
   @IsOptional()
   @IsString()
   groupPublicId?: string;
+
+  @IsOptional()
+  @IsString()
+  categoryPublicId?: string;
 }

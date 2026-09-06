@@ -34,6 +34,24 @@
     "no-expenses": "Nessuna spesa presente",
     "load-error": "Impossibile caricare le spese, riprova"
   },
+  "categories": {
+    "title": "Categoria",
+    "new": "Nuova",
+    "create": "Crea",
+    "name-placeholder": "Nome della categoria",
+    "create-error": "Impossibile creare la categoria, riprova",
+    "duplicate-error": "Hai già una categoria con questo nome",
+    "food": "Cibo",
+    "restaurant": "Ristorante",
+    "groceries": "Spesa",
+    "transport": "Trasporti",
+    "fuel": "Carburante",
+    "accommodation": "Alloggio",
+    "activities": "Attività",
+    "shopping": "Shopping",
+    "health": "Salute",
+    "other": "Altro"
+  },
   "groups": {
     "title": "Gruppi",
     "manage": "Gestisci",

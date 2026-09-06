@@ -4,12 +4,16 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { CategoryService } from '../category/category.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 
 @Injectable()
 export class ExpenseService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private categoryService: CategoryService,
+  ) {}
 
   async findMine(userPublicId: string) {
     const user = await this.prisma.user.findUnique({
@@ -25,6 +29,15 @@ export class ExpenseService {
       include: {
         paidBy: true,
         group: { select: { publicId: true, name: true } },
+        category: {
+          select: {
+            publicId: true,
+            slug: true,
+            name: true,
+            icon: true,
+            color: true,
+          },
+        },
         expenseContributions: { include: { user: true } },
       },
     });
@@ -64,6 +77,17 @@ export class ExpenseService {
       groupMemberIds = group.usersOnGroup.map((link) => link.userId);
     }
 
+    // La categoria e' facoltativa: deve essere una preconfigurata o una del
+    // creatore (la validazione sta in CategoryService).
+    let categoryId: number | null = null;
+    if (dto.categoryPublicId) {
+      const category = await this.categoryService.assertUsable(
+        creator.id,
+        dto.categoryPublicId,
+      );
+      categoryId = category.id;
+    }
+
     // Unione deduplicata: creatore + partecipanti + membri del gruppo.
     // (Chiude anche il vecchio buco del doppio conteggio quando lo stesso
     // utente compariva due volte tra i partecipanti.)
@@ -89,6 +113,7 @@ export class ExpenseService {
         createdBy: { connect: { id: creator.id } },
         paidBy: { connect: { id: creator.id } },
         ...(groupId ? { group: { connect: { id: groupId } } } : {}),
+        ...(categoryId ? { category: { connect: { id: categoryId } } } : {}),
         expenseContributions: {
           create: contributorIds.map((userId) => ({
             share,

@@ -1,17 +1,20 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController, IonChip, IonText, IonInput } from '@ionic/angular/standalone';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { addIcons } from 'ionicons';
-import { checkmarkDoneOutline, close, people, personAddOutline } from 'ionicons/icons';
+import { add, checkmarkDoneOutline, close, people, personAddOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
+import { Category, CATEGORY_ICONS } from '../../models/category.model';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
 import { ParticipantSelectionService } from '../../services/participant-selection-service';
 import { SelectParticipantComponent } from '../../components/select-participant/select-participant.component';
 import { AuthService } from '../../services/auth.service';
+import { CategoryService } from '../../services/category.service';
 import { ExpenseService } from '../../services/expense.service';
 import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
 
@@ -31,6 +34,7 @@ export class addExpense implements OnInit, OnDestroy {
   private participantSelection = inject(ParticipantSelectionService);
   private authService = inject(AuthService);
   private expenseService = inject(ExpenseService);
+  private categoryService = inject(CategoryService);
   private router = inject(Router);
 
   creator: User | null = null;
@@ -42,6 +46,12 @@ export class addExpense implements OnInit, OnDestroy {
   // singole quote. Una sola spesa -> un solo gruppo (schema Expense.groupId).
   selectedGroup: Group | null = null;
 
+  // Categorie disponibili: preconfigurate + quelle create dall'utente.
+  categories: Category[] = [];
+  selectedCategory: Category | null = null;
+  showNewCategoryInput = false;
+  newCategoryName = '';
+
   selectedParticipantEmail: User | null = null;
   errorMessage = '';
   private participantSubscription!: Subscription;
@@ -52,10 +62,12 @@ export class addExpense implements OnInit, OnDestroy {
 
   constructor() {
     addIcons({
+      add,
       people,
       close,
       'person-add-outline': personAddOutline,
       'checkmark-done-outline': checkmarkDoneOutline,
+      ...CATEGORY_ICONS,
     });
   }
 
@@ -95,6 +107,49 @@ export class addExpense implements OnInit, OnDestroy {
           this.selectedGroup = group;
         }
       });
+
+    this.loadCategories();
+  }
+
+  loadCategories() {
+    this.categoryService.getCategories().subscribe({
+      next: (categories) => (this.categories = categories),
+    });
+  }
+
+  // La categoria è facoltativa: ricliccando su quella selezionata si deseleziona.
+  toggleCategory(category: Category) {
+    this.selectedCategory =
+      this.selectedCategory?.publicId === category.publicId ? null : category;
+  }
+
+  toggleNewCategoryInput() {
+    this.showNewCategoryInput = !this.showNewCategoryInput;
+    this.newCategoryName = '';
+  }
+
+  // Crea al volo una categoria custom dell'utente e la seleziona.
+  createCategory() {
+    const name = this.newCategoryName.trim();
+    if (!name) {
+      return;
+    }
+
+    this.categoryService.createCategory(name).subscribe({
+      next: (category) => {
+        this.categories = [...this.categories, category];
+        this.selectedCategory = category;
+        this.showNewCategoryInput = false;
+        this.newCategoryName = '';
+      },
+      error: (err: HttpErrorResponse) => {
+        // 409 = l'utente ha già una categoria con quel nome.
+        this.errorMessage =
+          err.status === 409
+            ? 'categories.duplicate-error'
+            : 'categories.create-error';
+      },
+    });
   }
 
 
@@ -146,6 +201,7 @@ export class addExpense implements OnInit, OnDestroy {
       amount: Number(this.expenseForm.value.amount),
       participantPublicIds: this.participants.map((p) => p.publicId),
       groupPublicId: this.selectedGroup?.publicId,
+      categoryPublicId: this.selectedCategory?.publicId,
     }).subscribe({
       next: () => this.router.navigateByUrl('/home'),
       error: () => {

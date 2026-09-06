@@ -56,6 +56,18 @@
           <ion-label>
             <h2>{{ expense.description }}</h2>
             <p>{{ 'home.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>
+            @if (expense.category) {
+              <ion-chip class="category-chip" [outline]="true" color="medium">
+                <ion-icon [name]="expense.category.icon"></ion-icon>
+                <ion-label>
+                  @if (expense.category.name) {
+                    {{ expense.category.name }}
+                  } @else {
+                    {{ 'categories.' + expense.category.slug | translate }}
+                  }
+                </ion-label>
+              </ion-chip>
+            }
           </ion-label>
           <ion-note slot="end">
             <div>{{ expense.amount }} {{ expense.currency }}</div>

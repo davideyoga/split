@@ -1,56 +1,113 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
-import { IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList, IonBackButton, ModalController, IonChip, IonText, IonInput, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
-import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import {
+  IonButton,
+  IonButtons,
+  IonChip,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonList,
+  IonNote,
+  IonSelect,
+  IonSelectOption,
+  IonText,
+  IonTitle,
+  IonToolbar,
+  ModalController,
+  ToastController,
+} from '@ionic/angular/standalone';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add, checkmarkDoneOutline, close, people, personAddOutline } from 'ionicons/icons';
-import { Subscription } from 'rxjs';
+import {
+  add,
+  cardOutline,
+  close,
+  people,
+  peopleOutline,
+  pieChartOutline,
+} from 'ionicons/icons';
+
+import {
+  ParticipantSelection,
+  SelectParticipantComponent,
+} from '../../components/select-participant/select-participant.component';
 import { Category, CATEGORY_ICONS } from '../../models/category.model';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
-import { ParticipantSelectionService } from '../../services/participant-selection-service';
-import { SelectParticipantComponent } from '../../components/select-participant/select-participant.component';
 import { AuthService } from '../../services/auth.service';
 import { CategoryService } from '../../services/category.service';
 import { ExpenseService } from '../../services/expense.service';
-import {TranslatePipe, TranslateDirective} from "@ngx-translate/core";
+import { formatCents, toCents } from '../../utils/balance';
 
+// Nuova spesa come modale, pre-contestualizzata dal punto di partenza: aperta
+// dal dettaglio di un gruppo riceve `group` gia' selezionato. Chiude con
+// `dismiss(null, 'created')` dopo il salvataggio (il chiamante ricarica la sua
+// lista) o `dismiss(null, 'cancel')`. Solo creazione: la modifica richiede
+// endpoint GET/PATCH /api/expense/:id che il backend non ha ancora.
 @Component({
-  selector: 'app-add-expense',
-  templateUrl: './add-expense.html',
-  styleUrls: ['./add-expense.scss'],
+  selector: 'app-expense-form',
+  templateUrl: './expense-form.modal.html',
+  styleUrls: ['./expense-form.modal.scss'],
   standalone: true,
-  imports: [IonLabel, IonContent, IonHeader, IonTitle, IonToolbar, CommonModule, FormsModule, ReactiveFormsModule, IonFooter, IonIcon, IonButton, IonButtons, IonItem, IonList,
-    IonBackButton, TranslatePipe, TranslateDirective, IonChip, IonChip, IonIcon, IonLabel, IonText, IonInput,
-    IonSelect, IonSelectOption
-  ]
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TranslatePipe,
+    IonButton,
+    IonButtons,
+    IonChip,
+    IonContent,
+    IonHeader,
+    IonIcon,
+    IonInput,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonNote,
+    IonSelect,
+    IonSelectOption,
+    IonText,
+    IonTitle,
+    IonToolbar,
+  ],
 })
-export class addExpense implements OnInit, OnDestroy {
+export class ExpenseFormModal implements OnInit {
+  // Gruppo precompilato (componentProps). Resta rimovibile dall'utente.
+  @Input() group?: Group;
 
   private fb = inject(FormBuilder);
-  private modalCtrl= inject(ModalController);
-  private participantSelection = inject(ParticipantSelectionService);
+  private modalCtrl = inject(ModalController);
+  private toastCtrl = inject(ToastController);
+  private translate = inject(TranslateService);
   private authService = inject(AuthService);
   private expenseService = inject(ExpenseService);
   private categoryService = inject(CategoryService);
-  private router = inject(Router);
 
   creator: User | null = null;
 
-  //lista contributori alla spesa
+  // Partecipanti singoli aggiunti oltre al gruppo.
   participants: User[] = [];
 
-  // Chi ha pagato la spesa: di default il creatore, ma si puo' scegliere
-  // chiunque partecipi (vedi payerCandidates).
+  // Una spesa -> al massimo un gruppo (schema Expense.groupId): il backend
+  // espande i membri in singole quote.
+  selectedGroup: Group | null = null;
+
+  // Chi ha pagato: di default il creatore, ma si puo' scegliere chiunque
+  // partecipi (vedi payerCandidates).
   paidByPublicId = '';
   payerCandidates: User[] = [];
-
-  // Gruppo opzionale a cui legare la spesa: il backend espande i membri in
-  // singole quote. Una sola spesa -> un solo gruppo (schema Expense.groupId).
-  selectedGroup: Group | null = null;
 
   // Categorie disponibili: preconfigurate + quelle create dall'utente.
   categories: Category[] = [];
@@ -58,67 +115,42 @@ export class addExpense implements OnInit, OnDestroy {
   showNewCategoryInput = false;
   newCategoryName = '';
 
-  selectedParticipantEmail: User | null = null;
   errorMessage = '';
-  private participantSubscription!: Subscription;
-  private groupSubscription!: Subscription;
+  saving = false;
 
-  // 1. Dichiara la variabile per il nostro form
-  expenseForm!: FormGroup;
+  expenseForm = this.fb.group({
+    amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.01)]],
+    description: [''],
+  });
 
   constructor() {
     addIcons({
       add,
-      people,
       close,
-      'person-add-outline': personAddOutline,
-      'checkmark-done-outline': checkmarkDoneOutline,
+      people,
+      'people-outline': peopleOutline,
+      'card-outline': cardOutline,
+      'pie-chart-outline': pieChartOutline,
       ...CATEGORY_ICONS,
     });
   }
 
   ngOnInit() {
-
-    // Creiamo la struttura del form e le sue regole di validazione
-    this.expenseForm = this.fb.group({
-      creator: this.fb.group({
-        publicId: [''],
-        nickName: ['']
-      }),
-      participants: this.fb.array([]),
-      amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.01)]],
-      description: ['', Validators.required],
-    });
-
-    // Precompiliamo il creatore con l'utente attualmente loggato
     this.creator = this.authService.currentUser();
-    if (this.creator) {
-      this.expenseForm.get('creator')?.patchValue(this.creator);
-      this.paidByPublicId = this.creator.publicId;
-    }
+    this.paidByPublicId = this.creator?.publicId ?? '';
+    this.selectedGroup = this.group ?? null;
     this.refreshPayerCandidates();
-
-    // Mettiamoci in ascolto dei cambiamenti dal servizio
-    this.participantSubscription = this.participantSelection.selectedParticipant$
-      .subscribe((newParticipant: User) => {
-        if (
-          newParticipant &&
-          !this.participants.some((p) => p.publicId === newParticipant.publicId)
-        ) {
-          this.participants.push(newParticipant);
-          this.refreshPayerCandidates();
-        }
-      });
-
-    this.groupSubscription = this.participantSelection.selectedGroup$
-      .subscribe((group: Group) => {
-        if (group) {
-          this.selectedGroup = group;
-          this.refreshPayerCandidates();
-        }
-      });
-
     this.loadCategories();
+  }
+
+  // Quota equa a testa, come la calcola il backend (round a 2 decimali).
+  // null se l'importo non e' ancora valido.
+  get sharePerHead(): string | null {
+    const amount = this.expenseForm.get('amount');
+    if (!amount?.valid || this.payerCandidates.length === 0) {
+      return null;
+    }
+    return formatCents(Math.round(toCents(amount.value) / this.payerCandidates.length));
   }
 
   loadCategories() {
@@ -162,17 +194,25 @@ export class addExpense implements OnInit, OnDestroy {
     });
   }
 
-
-
   async openParticipantModal() {
     const modal = await this.modalCtrl.create({
-      component: SelectParticipantComponent, // Specifica quale componente aprire
+      component: SelectParticipantComponent,
     });
     await modal.present();
+
+    const { data } = await modal.onWillDismiss<ParticipantSelection>();
+    const user = data?.user;
+    if (user && !this.participants.some((p) => p.publicId === user.publicId)) {
+      this.participants = [...this.participants, user];
+    }
+    if (data?.group) {
+      this.selectedGroup = data.group;
+    }
+    this.refreshPayerCandidates();
   }
 
   removeParticipant(participant: User) {
-    this.participants = this.participants.filter(p => p !== participant);
+    this.participants = this.participants.filter((p) => p !== participant);
     this.refreshPayerCandidates();
   }
 
@@ -221,33 +261,44 @@ export class addExpense implements OnInit, OnDestroy {
     this.expenseForm.get('amount')?.setValue(value);
   }
 
-  // È una best practice cancellare le iscrizioni per evitare memory leak
-  ngOnDestroy() {
-    this.participantSubscription?.unsubscribe();
-    this.groupSubscription?.unsubscribe();
+  cancel() {
+    this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  // 4. Questo è il metodo che verrà chiamato al submit del form
   createExpense() {
-    if (this.expenseForm.invalid) {
+    if (this.expenseForm.invalid || this.saving) {
       return;
     }
 
     this.errorMessage = '';
+    this.saving = true;
 
     this.expenseService.create({
-      description: this.expenseForm.value.description,
+      description: this.expenseForm.value.description?.trim() || undefined,
       amount: Number(this.expenseForm.value.amount),
       participantPublicIds: this.participants.map((p) => p.publicId),
       paidByPublicId: this.paidByPublicId || undefined,
       groupPublicId: this.selectedGroup?.publicId,
       categoryPublicId: this.selectedCategory?.publicId,
     }).subscribe({
-      next: () => this.router.navigateByUrl('/tabs/activity'),
+      next: async () => {
+        await this.presentCreatedToast();
+        this.modalCtrl.dismiss(null, 'created');
+      },
       error: () => {
-        this.errorMessage = 'add-expense.create-error';
-      }
+        this.saving = false;
+        this.errorMessage = 'expense-form.create-error';
+      },
     });
   }
 
+  private async presentCreatedToast() {
+    const toast = await this.toastCtrl.create({
+      message: this.translate.instant('expense-form.created'),
+      duration: 2000,
+      position: 'bottom',
+      color: 'success',
+    });
+    await toast.present();
+  }
 }

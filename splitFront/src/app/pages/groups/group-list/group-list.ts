@@ -1,151 +1,101 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
-  IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardTitle,
-  IonChip,
   IonContent,
+  IonFab,
+  IonFabButton,
   IonHeader,
   IonIcon,
-  IonInput,
   IonItem,
   IonLabel,
   IonList,
   IonListHeader,
   IonNote,
-  IonText,
+  IonRefresher,
+  IonRefresherContent,
   IonTitle,
   IonToolbar,
   ModalController,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { close, people, personAddOutline } from 'ionicons/icons';
-import { Subscription } from 'rxjs';
+import { add, people } from 'ionicons/icons';
 
-import { SelectParticipantComponent } from '../../../components/select-participant/select-participant.component';
 import { Group } from '../../../models/group.model';
-import { User } from '../../../models/user.model';
 import { GroupService } from '../../../services/group.service';
-import { ParticipantSelectionService } from '../../../services/participant-selection-service';
+import { NewGroupModal } from '../new-group/new-group.modal';
 
+// Tab Gruppi: la lista e' il contenuto principale. La creazione e' una modale
+// (NewGroupModal) aperta dal FAB o dall'empty state.
 @Component({
   selector: 'app-group-list',
   templateUrl: './group-list.html',
-  styleUrls: ['./group-list.scss'],
   standalone: true,
   imports: [
-    CommonModule,
-    ReactiveFormsModule,
     RouterLink,
     TranslatePipe,
     IonButton,
-    IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardTitle,
-    IonChip,
     IonContent,
+    IonFab,
+    IonFabButton,
     IonHeader,
     IonIcon,
-    IonInput,
     IonItem,
     IonLabel,
     IonList,
     IonListHeader,
     IonNote,
-    IonText,
+    IonRefresher,
+    IonRefresherContent,
     IonTitle,
     IonToolbar,
   ],
 })
-export class GroupList implements OnInit, OnDestroy {
-  private fb = inject(FormBuilder);
+export class GroupList {
   private modalCtrl = inject(ModalController);
   private groupService = inject(GroupService);
-  private participantSelectionService = inject(ParticipantSelectionService);
 
   groups: Group[] = [];
   loadError = false;
-
-  // Membri scelti per il nuovo gruppo (oltre al creatore, aggiunto lato server).
-  selectedMembers: User[] = [];
-  errorMessage = '';
-
-  groupForm = this.fb.group({
-    name: ['', Validators.required],
-  });
-
-  private participantSubscription!: Subscription;
+  loaded = false;
 
   constructor() {
-    addIcons({ close, people, 'person-add-outline': personAddOutline });
+    addIcons({ add, people });
   }
 
-  ngOnInit() {
+  // Non ngOnInit: la pagina resta montata nella tab, e un gruppo puo' sparire
+  // altrove (es. togliendo se stessi da group-settings, che torna qui).
+  ionViewWillEnter() {
     this.loadGroups();
-
-    this.participantSubscription =
-      this.participantSelectionService.selectedParticipant$.subscribe(
-        (member: User) => {
-          if (member && !this.selectedMembers.some((m) => m.publicId === member.publicId)) {
-            this.selectedMembers.push(member);
-          }
-        },
-      );
   }
 
-  ngOnDestroy() {
-    this.participantSubscription?.unsubscribe();
-  }
-
-  loadGroups() {
+  loadGroups(onDone?: () => void) {
     this.loadError = false;
     this.groupService.getMyGroups().subscribe({
-      next: (groups) => (this.groups = groups),
-      error: () => (this.loadError = true),
+      next: (groups) => {
+        this.groups = groups;
+        this.loaded = true;
+        onDone?.();
+      },
+      error: () => {
+        this.loadError = true;
+        onDone?.();
+      },
     });
   }
 
-  async openMemberModal() {
-    const modal = await this.modalCtrl.create({
-      component: SelectParticipantComponent,
-    });
+  refresh(event: Event) {
+    this.loadGroups(() => (event.target as HTMLIonRefresherElement).complete());
+  }
+
+  async openNewGroup() {
+    const modal = await this.modalCtrl.create({ component: NewGroupModal });
     await modal.present();
-  }
 
-  removeMember(member: User) {
-    this.selectedMembers = this.selectedMembers.filter(
-      (m) => m.publicId !== member.publicId,
-    );
-  }
-
-  createGroup() {
-    if (this.groupForm.invalid) {
-      return;
+    const { role } = await modal.onWillDismiss();
+    if (role === 'created') {
+      this.loadGroups();
     }
-
-    this.errorMessage = '';
-
-    this.groupService
-      .createGroup(
-        this.groupForm.value.name as string,
-        this.selectedMembers.map((m) => m.publicId),
-      )
-      .subscribe({
-        next: () => {
-          this.groupForm.reset();
-          this.selectedMembers = [];
-          this.loadGroups();
-        },
-        error: () => {
-          this.errorMessage = 'groups.create-error';
-        },
-      });
   }
 }

@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'groups.cancel' | translate }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'groups.new-group' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        [strong]="true"
+        [disabled]="groupForm.invalid || saving"
+        (click)="createGroup()"
+      >
+        {{ 'groups.create' | translate }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="groupForm">
+    <ion-list>
+      <ion-item>
+        <ion-input
+          label="{{ 'groups.name-label' | translate }}"
+          labelPlacement="floating"
+          type="text"
+          formControlName="name"
+          placeholder="{{ 'groups.name-placeholder' | translate }}"
+        ></ion-input>
+      </ion-item>
+      <ion-item button="true" [detail]="true" (click)="openMemberModal()">
+        <ion-icon slot="start" name="person-add-outline"></ion-icon>
+        <ion-label>{{ 'groups.add-member' | translate }}</ion-label>
+      </ion-item>
+      @if (selectedMembers.length > 0) {
+        <ion-item lines="full">
+          <div class="members-chips">
+            @for (member of selectedMembers; track member.publicId) {
+              <ion-chip color="medium">
+                <ion-label>{{ member.nickName }}</ion-label>
+                <ion-icon name="close" (click)="removeMember(member)"></ion-icon>
+              </ion-chip>
+            }
+          </div>
+        </ion-item>
+      }
+    </ion-list>
+
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="ion-padding-start">{{ errorMessage | translate }}</p>
+      </ion-text>
+    }
+  </form>
+</ion-content>

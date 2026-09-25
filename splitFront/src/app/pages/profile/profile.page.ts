@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import {
   AlertController,
   IonContent,
@@ -7,16 +6,19 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonSelect,
+  IonSelectOption,
   IonTitle,
   IonToolbar,
+  NavController,
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { AuthService } from '../../services/auth.service';
+import { AppLang, LanguageService } from '../../services/language.service';
 
-// Tab Profilo (versione minima). Il selettore lingua (LanguageService) e la
-// gestione del 401 arrivano nella fase 4: per ora la pagina mostra chi sei e
-// centralizza il logout, che esce cosi' dall'header di Attivita'.
+// Tab Profilo: chi sei, lingua (it/en, persistita da LanguageService) e
+// logout con conferma. E' l'unico punto dell'app da cui si esce.
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
@@ -27,6 +29,8 @@ import { AuthService } from '../../services/auth.service';
     IonItem,
     IonLabel,
     IonList,
+    IonSelect,
+    IonSelectOption,
     IonTitle,
     IonToolbar,
     TranslatePipe,
@@ -34,11 +38,21 @@ import { AuthService } from '../../services/auth.service';
 })
 export class ProfilePage {
   private authService = inject(AuthService);
-  private router = inject(Router);
+  private navCtrl = inject(NavController);
   private alertCtrl = inject(AlertController);
   private translate = inject(TranslateService);
+  private languageService = inject(LanguageService);
 
   user = this.authService.currentUser;
+  languages = this.languageService.supported;
+  language = this.languageService.current;
+
+  onLanguageChange(event: Event) {
+    const lang = (event as CustomEvent<{ value?: AppLang }>).detail.value;
+    if (lang) {
+      this.languageService.set(lang);
+    }
+  }
 
   async confirmLogout() {
     const alert = await this.alertCtrl.create({
@@ -57,6 +71,9 @@ export class ProfilePage {
 
   private logout() {
     this.authService.logout();
-    this.router.navigateByUrl('/login');
+    // navigateRoot azzera lo stack: le tab della sessione appena chiusa non
+    // restano montate, quindi un nuovo login (anche con un altro utente) non
+    // ritrova i dati del precedente.
+    this.navCtrl.navigateRoot('/login');
   }
 }

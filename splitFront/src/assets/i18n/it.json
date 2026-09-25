@@ -1,17 +1,35 @@
 {
-  "add-expense": {
-    "add-participant": "Seleziona partecipante",
-    "create-expense": "Crea spesa",
+  "expense-form": {
+    "title-new": "Nuova spesa",
+    "cancel": "Annulla",
+    "save": "Salva",
     "amount": "Importo",
-    "new-expense": "Nuova spesa",
-    "created-by": "Creata da",
+    "amount-invalid": "Inserisci un importo valido (solo numeri)",
+    "description-label": "Descrizione (facoltativa)",
+    "description-placeholder": "es. Cena",
+    "split-with": "Dividi con",
+    "only-you": "Solo tu",
+    "people-count": "{{count}} persone",
     "paid-by": "Pagata da",
     "paid-by-need-participant": "Aggiungi un partecipante o un gruppo per scegliere chi ha pagato",
-    "description-label": "Descrizione",
-    "description-placeholder": "es. Cena",
-    "amount-invalid": "Inserisci un importo valido (solo numeri)",
-    "create-error": "Impossibile creare la spesa, riprova",
-    "group-members-count": "{{count}} membri"
+    "you": "tu",
+    "split-mode": "Divisione",
+    "split-equal": "Equa",
+    "split-each": "{{amount}} a testa",
+    "created": "Spesa aggiunta",
+    "create-error": "Impossibile creare la spesa, riprova"
+  },
+  "expense-detail": {
+    "title": "Spesa",
+    "untitled": "Spesa senza descrizione",
+    "paid-by": "Pagata da",
+    "date": "Data",
+    "group": "Gruppo",
+    "category": "Categoria",
+    "participants": "Partecipanti",
+    "you": "tu",
+    "not-found": "Spesa non trovata",
+    "load-error": "Impossibile caricare la spesa, riprova"
   },
   "select-participant": {
     "title": "Seleziona partecipante",
@@ -30,11 +48,17 @@
     "submit": "Accedi",
     "user-not-found": "Nessun account trovato per questa email"
   },
-  "home": {
-    "expenses-title": "Spese",
+  "activity": {
+    "recent": "Spese recenti",
     "paid-by": "Pagata da",
-    "no-expenses": "Nessuna spesa presente",
-    "load-error": "Impossibile caricare le spese, riprova"
+    "load-error": "Impossibile caricare le spese, riprova",
+    "empty-title": "Nessuna spesa",
+    "empty-text": "Qui compaiono le spese che crei e quelle in cui sei incluso.",
+    "empty-cta": "Aggiungi la prima spesa",
+    "settle-cta": "Vedi i saldi",
+    "search": "Cerca",
+    "search-placeholder": "Descrizione, persona, gruppo o categoria",
+    "no-results": "Nessuna spesa trovata"
   },
   "tabs": {
     "activity": "Attività",
@@ -46,7 +70,10 @@
     "title": "Profilo",
     "logout": "Esci",
     "logout-confirm": "Vuoi uscire da Split?",
-    "cancel": "Annulla"
+    "cancel": "Annulla",
+    "language": "Lingua",
+    "language-it": "Italiano",
+    "language-en": "English"
   },
   "balances": {
     "title": "Saldi",
@@ -55,7 +82,12 @@
     "you-owe": "Devi a {{name}}",
     "total-owed-to-you": "Ti devono",
     "total-you-owe": "Tu devi",
-    "net": "Saldo netto"
+    "net": "Saldo netto",
+    "settle-up": "Salda",
+    "settle-title": "Salda con {{name}}",
+    "settle-coming-soon": "Presto potrai registrare qui un rimborso. Per ora i saldi non si possono azzerare.",
+    "ok": "OK",
+    "add-expense": "Aggiungi una spesa"
   },
   "categories": {
     "title": "Categoria",
@@ -77,7 +109,6 @@
   },
   "groups": {
     "title": "Gruppi",
-    "manage": "Gestisci",
     "new-group": "Nuovo gruppo",
     "your-groups": "I tuoi gruppi",
     "create": "Crea gruppo",
@@ -98,6 +129,23 @@
     "expenses-loading": "Caricamento spese...",
     "expenses-load-error": "Impossibile caricare le spese del gruppo, riprova",
     "no-expenses": "Nessuna spesa in questo gruppo",
-    "paid-by": "Pagata da"
+    "paid-by": "Pagata da",
+    "settings": "Impostazioni gruppo",
+    "segment-expenses": "Spese",
+    "segment-balances": "Saldi",
+    "segment-members": "Membri",
+    "you": "tu",
+    "remove": "Rimuovi",
+    "cancel": "Annulla",
+    "remove-member-confirm": "Rimuovere {{name}} dal gruppo?",
+    "member-added": "Membro aggiunto",
+    "member-removed": "Membro rimosso",
+    "empty-title": "Nessun gruppo",
+    "empty-cta": "Crea il primo gruppo",
+    "created": "Gruppo creato",
+    "add-first-expense": "Aggiungi la prima spesa"
+  },
+  "session": {
+    "expired": "Sessione scaduta, accedi di nuovo"
   }
 }

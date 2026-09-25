@@ -1,5 +1,5 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-button (click)="dismissModal()">
         {{ 'select-participant.close' | translate }}
@@ -8,16 +8,18 @@
     <ion-title>{{ 'select-participant.title' | translate }}</ion-title>
   </ion-toolbar>
 
-  <ion-toolbar>
-    <ion-segment [value]="mode" (ionChange)="onModeChange($event)">
-      <ion-segment-button value="person">
-        <ion-label>{{ 'select-participant.segment-person' | translate }}</ion-label>
-      </ion-segment-button>
-      <ion-segment-button value="group">
-        <ion-label>{{ 'select-participant.segment-group' | translate }}</ion-label>
-      </ion-segment-button>
-    </ion-segment>
-  </ion-toolbar>
+  @if (allowGroups) {
+    <ion-toolbar>
+      <ion-segment [value]="mode" (ionChange)="onModeChange($event)">
+        <ion-segment-button value="person">
+          <ion-label>{{ 'select-participant.segment-person' | translate }}</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="group">
+          <ion-label>{{ 'select-participant.segment-group' | translate }}</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+    </ion-toolbar>
+  }
 
   @if (mode === 'person') {
     <ion-toolbar>

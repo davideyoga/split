@@ -134,7 +134,14 @@ export class GroupService {
       where: { groupId: group.id, userId: target.id },
     });
 
-    return this.findOne(userPublicId, groupPublicId);
+    // Ricarica per id, senza ripassare da assertMember (come faceva findOne):
+    // chi ha tolto se stesso non e' piu' membro e riceveva un 403 su
+    // un'operazione in realta' riuscita.
+    const updated = await this.prisma.group.findUniqueOrThrow({
+      where: { id: group.id },
+      include: MEMBERS_INCLUDE,
+    });
+    return this.toResponse(updated);
   }
 
   // Carica gli utenti dai publicId e verifica che esistano tutti.

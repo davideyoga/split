@@ -5,5 +5,16 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <app-expense-balances [expenses]="expenses"></app-expense-balances>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <app-expense-balances
+    [expenses]="expenses"
+    titleKey=""
+    [showSettleAction]="true"
+    emptyCtaKey="balances.add-expense"
+    (settle)="settle($event)"
+    (emptyAction)="openExpenseForm()"
+  ></app-expense-balances>
 </ion-content>

@@ -1,64 +1,77 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> {{ 'tabs.activity' | translate }} </ion-title>
-    <ion-buttons slot="end">
-      <ion-button routerLink="/tabs/groups">
-        <ion-icon slot="icon-only" name="people"></ion-icon>
-      </ion-button>
-      <ion-button (click)="logout()">
-        <ion-icon slot="icon-only" name="log-out-outline"></ion-icon>
-      </ion-button>
-    </ion-buttons>
+    @if (expenses.length > 0) {
+      <ion-buttons slot="end">
+        <ion-button [attr.aria-label]="'activity.search' | translate" (click)="toggleSearch()">
+          <ion-icon slot="icon-only" name="search-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
   </ion-toolbar>
+  @if (searchOpen) {
+    <ion-toolbar>
+      <ion-searchbar
+        [value]="query"
+        [debounce]="250"
+        placeholder="{{ 'activity.search-placeholder' | translate }}"
+        (ionInput)="onSearch($event)"
+      ></ion-searchbar>
+    </ion-toolbar>
+  }
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <!-- GRUPPI -->
-  @if (groups.length > 0) {
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>{{ 'groups.title' | translate }}</ion-card-title>
-      </ion-card-header>
-      <ion-card-content class="ion-no-padding">
-        <ion-list lines="full">
-          @for (group of groups; track group.publicId) {
-            <ion-item button [routerLink]="['/tabs/groups', group.publicId]">
-              <ion-icon slot="start" name="people"></ion-icon>
-              <ion-label>{{ group.name }}</ion-label>
-              <ion-note slot="end">
-                {{ 'groups.members-count' | translate: { count: group.members.length } }}
-              </ion-note>
-            </ion-item>
-          }
-        </ion-list>
-        <div class="card-actions">
-          <ion-button fill="clear" size="small" routerLink="/tabs/groups">
-            {{ 'groups.manage' | translate }}
-          </ion-button>
-        </div>
-      </ion-card-content>
-    </ion-card>
-  }
-
-  <!-- SALDI -->
-  <app-expense-balances [expenses]="expenses"></app-expense-balances>
-
-  <!-- SPESE -->
-  <ion-list-header>
-    <ion-label>{{ 'home.expenses-title' | translate }}</ion-label>
-  </ion-list-header>
+<ion-content class="has-fab" [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   @if (loadError) {
-    <p class="ion-padding-horizontal">{{ 'home.load-error' | translate }}</p>
-  } @else if (expenses.length === 0) {
-    <p class="ion-padding-horizontal">{{ 'home.no-expenses' | translate }}</p>
-  } @else {
+    <p class="ion-padding-horizontal">{{ 'activity.load-error' | translate }}</p>
+  } @else if (loaded && expenses.length === 0) {
+    <!-- Empty state: titolo, frase e bottone verso l'azione. -->
+    <div class="ion-padding ion-text-center">
+      <h2>{{ 'activity.empty-title' | translate }}</h2>
+      <p>{{ 'activity.empty-text' | translate }}</p>
+      <ion-button (click)="openExpenseForm()">{{ 'activity.empty-cta' | translate }}</ion-button>
+    </div>
+  } @else if (expenses.length > 0) {
+    <!-- SALDO NETTO -> tab Saldi (nascosto durante la ricerca) -->
+    @if (!query) {
+      <ion-card>
+        <ion-card-header>
+          <ion-card-subtitle>{{ 'balances.net' | translate }}</ion-card-subtitle>
+          <ion-card-title>
+            <ion-text [color]="summary.netCents > 0 ? 'success' : summary.netCents < 0 ? 'danger' : 'medium'">
+              {{ formatSigned(summary.netCents) }} EUR
+            </ion-text>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          {{ 'balances.total-owed-to-you' | translate }}: {{ format(summary.owedToMeCents) }} EUR ·
+          {{ 'balances.total-you-owe' | translate }}: {{ format(summary.iOweCents) }} EUR
+        </ion-card-content>
+        <div class="card-actions">
+          <ion-button fill="clear" routerLink="/tabs/balances">
+            {{ 'activity.settle-cta' | translate }}
+          </ion-button>
+        </div>
+      </ion-card>
+    }
+
+    <!-- SPESE -->
+    <ion-list-header>
+      <ion-label>{{ 'activity.recent' | translate }}</ion-label>
+    </ion-list-header>
+    @if (filteredExpenses.length === 0) {
+      <p class="ion-padding-horizontal">{{ 'activity.no-results' | translate }}</p>
+    }
     <ion-list>
-      @for (expense of expenses; track expense.id) {
-        <ion-item>
+      @for (expense of filteredExpenses; track expense.id) {
+        <ion-item button [routerLink]="['/tabs/activity/expense', expense.id]">
           <ion-label>
-            <h2>{{ expense.description }}</h2>
-            <p>{{ 'home.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>
+            <h2>{{ expense.description || ('expense-detail.untitled' | translate) }}</h2>
+            <p>{{ 'activity.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>
             @if (expense.category) {
               <ion-chip class="category-chip" [outline]="true" color="medium">
                 <ion-icon [name]="expense.category.icon"></ion-icon>
@@ -73,7 +86,7 @@
             }
           </ion-label>
           <ion-note slot="end">
-            <div>{{ expense.amount }} {{ expense.currency }}</div>
+            <div>{{ expense.amount | amount }} {{ expense.currency }}</div>
             <div>{{ expense.createdDate | date: 'dd/MM/yyyy' }}</div>
           </ion-note>
         </ion-item>
@@ -82,8 +95,8 @@
   }
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">
-  <ion-fab-button routerLink="/add-expense">
-    <ion-icon name="add"></ion-icon>
-  </ion-fab-button>
-</ion-fab>
+    <ion-fab-button [attr.aria-label]="'expense-form.title-new' | translate" (click)="openExpenseForm()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

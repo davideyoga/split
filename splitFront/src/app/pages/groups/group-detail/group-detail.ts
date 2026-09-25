@@ -1,38 +1,42 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   IonBackButton,
   IonButton,
   IonButtons,
   IonContent,
+  IonFab,
+  IonFabButton,
   IonHeader,
   IonIcon,
-  IonInput,
   IonItem,
   IonLabel,
   IonList,
-  IonText,
+  IonRefresher,
+  IonRefresherContent,
+  IonSegment,
+  IonSegmentButton,
   IonTitle,
   IonToolbar,
   ModalController,
-  ToastController,
 } from '@ionic/angular/standalone';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { personAddOutline, trashOutline } from 'ionicons/icons';
-import { Subscription } from 'rxjs';
+import { add, ellipsisVertical, settingsOutline } from 'ionicons/icons';
 
 import { ExpenseBalancesComponent } from '../../../components/expense-balances/expense-balances.component';
 import { GroupExpensesComponent } from '../../../components/group-expenses/group-expenses.component';
-import { SelectParticipantComponent } from '../../../components/select-participant/select-participant.component';
+import { ExpenseFormModal } from '../../expense-form/expense-form.modal';
 import { Group } from '../../../models/group.model';
-import { User } from '../../../models/user.model';
+import { AuthService } from '../../../services/auth.service';
 import { ExpenseListItem } from '../../../services/expense.service';
 import { GroupService } from '../../../services/group.service';
-import { ParticipantSelectionService } from '../../../services/participant-selection-service';
 
+type GroupSegment = 'expenses' | 'balances' | 'members';
+
+// Dettaglio gruppo come contenitore a segmenti (Spese / Saldi / Membri).
+// Rinomina e gestione membri stanno in group-settings (⋮ nell'header).
 @Component({
   selector: 'app-group-detail',
   templateUrl: './group-detail.html',
@@ -40,7 +44,7 @@ import { ParticipantSelectionService } from '../../../services/participant-selec
   standalone: true,
   imports: [
     CommonModule,
-    ReactiveFormsModule,
+    RouterLink,
     TranslatePipe,
     ExpenseBalancesComponent,
     GroupExpensesComponent,
@@ -48,127 +52,107 @@ import { ParticipantSelectionService } from '../../../services/participant-selec
     IonButton,
     IonButtons,
     IonContent,
+    IonFab,
+    IonFabButton,
     IonHeader,
     IonIcon,
-    IonInput,
     IonItem,
     IonLabel,
     IonList,
-    IonText,
+    IonRefresher,
+    IonRefresherContent,
+    IonSegment,
+    IonSegmentButton,
     IonTitle,
     IonToolbar,
   ],
 })
-export class GroupDetail implements OnInit, OnDestroy {
+export class GroupDetail implements OnInit {
   private route = inject(ActivatedRoute);
-  private fb = inject(FormBuilder);
   private modalCtrl = inject(ModalController);
-  private toastCtrl = inject(ToastController);
-  private translate = inject(TranslateService);
+  private authService = inject(AuthService);
   private groupService = inject(GroupService);
-  private participantSelectionService = inject(ParticipantSelectionService);
 
   group: Group | null = null;
   // Popolata da `app-group-expenses`, che le carica gia' per la sua lista.
   groupExpenses: ExpenseListItem[] = [];
   loadError = false;
-  errorMessage = '';
-
-  nameForm = this.fb.group({
-    name: ['', Validators.required],
-  });
+  segment: GroupSegment = 'expenses';
 
   publicId = '';
-  private participantSubscription!: Subscription;
+  mePublicId = this.authService.currentUser()?.publicId ?? '';
+
+  // Serve per ricaricare la lista dopo aver creato una spesa dalla modale.
+  @ViewChild(GroupExpensesComponent) private expensesList?: GroupExpensesComponent;
 
   constructor() {
     addIcons({
-      'person-add-outline': personAddOutline,
-      'trash-outline': trashOutline,
+      add,
+      'ellipsis-vertical': ellipsisVertical,
+      'settings-outline': settingsOutline,
     });
   }
 
   ngOnInit() {
     this.publicId = this.route.snapshot.paramMap.get('publicId') ?? '';
+  }
+
+  // Non ngOnInit: tornando indietro da group-settings la pagina e' ancora
+  // montata, e nome/membri potrebbero essere cambiati.
+  ionViewWillEnter() {
     this.loadGroup();
-
-    this.participantSubscription =
-      this.participantSelectionService.selectedParticipant$.subscribe(
-        (member: User) => {
-          if (member) {
-            this.addMember(member);
-          }
-        },
-      );
   }
 
-  ngOnDestroy() {
-    this.participantSubscription?.unsubscribe();
-  }
-
-  loadGroup() {
+  loadGroup(onDone?: () => void) {
     this.loadError = false;
     this.groupService.getGroup(this.publicId).subscribe({
       next: (group) => {
         this.group = group;
-        this.nameForm.patchValue({ name: group.name });
+        onDone?.();
       },
-      error: () => (this.loadError = true),
+      error: () => {
+        this.loadError = true;
+        onDone?.();
+      },
     });
   }
 
-  rename() {
-    if (this.nameForm.invalid || !this.group) {
+  // Ricarica gruppo e spese (che alimentano anche il segmento Saldi); lo
+  // spinner si chiude quando sono arrivati entrambi.
+  refresh(event: Event) {
+    let pending = 2;
+    const done = () => {
+      if (--pending === 0) {
+        (event.target as HTMLIonRefresherElement).complete();
+      }
+    };
+    this.loadGroup(done);
+    if (this.expensesList) {
+      this.expensesList.loadExpenses(done);
+    } else {
+      done();
+    }
+  }
+
+  onSegmentChange(event: Event) {
+    const value = (event as CustomEvent<{ value?: GroupSegment }>).detail.value;
+    this.segment = value ?? 'expenses';
+  }
+
+  // Nuova spesa con il gruppo gia' selezionato: dal dettaglio gruppo e' 1 tap.
+  async openExpenseForm() {
+    if (!this.group) {
       return;
     }
-    this.errorMessage = '';
-    this.groupService
-      .renameGroup(this.publicId, this.nameForm.value.name as string)
-      .subscribe({
-        next: (group) => {
-          this.group = group;
-          this.presentToast('groups.rename-success');
-        },
-        error: () => (this.errorMessage = 'groups.rename-error'),
-      });
-  }
-
-  private async presentToast(
-    messageKey: string,
-    color: 'success' | 'danger' = 'success',
-  ) {
-    const toast = await this.toastCtrl.create({
-      message: this.translate.instant(messageKey),
-      duration: 2000,
-      position: 'bottom',
-      color,
-    });
-    await toast.present();
-  }
-
-  async openMemberModal() {
     const modal = await this.modalCtrl.create({
-      component: SelectParticipantComponent,
+      component: ExpenseFormModal,
+      componentProps: { group: this.group },
     });
     await modal.present();
-  }
 
-  addMember(member: User) {
-    if (this.group?.members.some((m) => m.publicId === member.publicId)) {
-      return;
+    const { role } = await modal.onWillDismiss();
+    if (role === 'created') {
+      this.expensesList?.loadExpenses();
     }
-    this.errorMessage = '';
-    this.groupService.addMembers(this.publicId, [member.publicId]).subscribe({
-      next: (group) => (this.group = group),
-      error: () => (this.errorMessage = 'groups.member-error'),
-    });
-  }
-
-  removeMember(member: User) {
-    this.errorMessage = '';
-    this.groupService.removeMember(this.publicId, member.publicId).subscribe({
-      next: () => this.loadGroup(),
-      error: () => (this.errorMessage = 'groups.member-error'),
-    });
   }
 }

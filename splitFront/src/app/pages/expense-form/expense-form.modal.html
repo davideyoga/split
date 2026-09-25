@@ -1,0 +1,184 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'expense-form.cancel' | translate }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'expense-form.title-new' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        [strong]="true"
+        [disabled]="expenseForm.invalid || saving"
+        (click)="createExpense()"
+      >
+        {{ 'expense-form.save' | translate }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form [formGroup]="expenseForm">
+    <!-- IMPORTO: campo grande in cima -->
+    <ion-item lines="none">
+      <ion-input
+        class="amount-input"
+        type="text"
+        inputmode="decimal"
+        formControlName="amount"
+        placeholder="0.00"
+        [attr.aria-label]="'expense-form.amount' | translate"
+        (ionInput)="sanitizeAmountInput($event)"
+      >
+        <ion-text slot="end" color="medium" class="amount-currency">EUR</ion-text>
+      </ion-input>
+    </ion-item>
+    @if (expenseForm.get('amount')?.touched && expenseForm.get('amount')?.invalid) {
+      <ion-text color="danger">
+        <p class="ion-padding-start ion-no-margin">{{ 'expense-form.amount-invalid' | translate }}</p>
+      </ion-text>
+    }
+
+    <ion-list>
+      <!-- DESCRIZIONE -->
+      <ion-item>
+        <ion-input
+          label="{{ 'expense-form.description-label' | translate }}"
+          labelPlacement="floating"
+          type="text"
+          formControlName="description"
+          placeholder="{{ 'expense-form.description-placeholder' | translate }}"
+        ></ion-input>
+      </ion-item>
+
+      <!-- DIVIDI CON: apre select-participant (persona o gruppo) -->
+      <ion-item button="true" [detail]="true" (click)="openParticipantModal()">
+        <ion-icon slot="start" name="people-outline"></ion-icon>
+        <ion-label>{{ 'expense-form.split-with' | translate }}</ion-label>
+        <ion-note slot="end">
+          @if (selectedGroup) {
+            {{ selectedGroup.name }} · {{ payerCandidates.length }}
+          } @else if (participants.length > 0) {
+            {{ 'expense-form.people-count' | translate: { count: payerCandidates.length } }}
+          } @else {
+            {{ 'expense-form.only-you' | translate }}
+          }
+        </ion-note>
+      </ion-item>
+      @if (selectedGroup || participants.length > 0) {
+        <ion-item lines="full">
+          <div class="selection-chips">
+            @if (selectedGroup) {
+              <ion-chip color="primary">
+                <ion-icon name="people"></ion-icon>
+                <ion-label>{{ selectedGroup.name }}</ion-label>
+                <ion-icon name="close" (click)="removeGroup()"></ion-icon>
+              </ion-chip>
+            }
+            @for (participant of participants; track participant.publicId) {
+              <ion-chip color="medium">
+                <ion-label>{{ participant.nickName }}</ion-label>
+                <ion-icon name="close" (click)="removeParticipant(participant)"></ion-icon>
+              </ion-chip>
+            }
+          </div>
+        </ion-item>
+      }
+
+      <!-- PAGATA DA: il creatore e' il default. Con un solo candidato (nessun
+           altro contributore ancora) la select non avrebbe senso da aprire:
+           mostriamo invece un avviso. -->
+      @if (payerCandidates.length > 1) {
+        <ion-item>
+          <ion-icon slot="start" name="card-outline"></ion-icon>
+          <ion-select
+            label="{{ 'expense-form.paid-by' | translate }}"
+            interface="popover"
+            [(ngModel)]="paidByPublicId"
+            [ngModelOptions]="{ standalone: true }"
+          >
+            @for (candidate of payerCandidates; track candidate.publicId) {
+              <ion-select-option [value]="candidate.publicId">
+                {{ candidate.nickName }}
+                @if (candidate.publicId === creator?.publicId) {
+                  ({{ 'expense-form.you' | translate }})
+                }
+              </ion-select-option>
+            }
+          </ion-select>
+        </ion-item>
+      } @else {
+        <ion-item [disabled]="true">
+          <ion-icon slot="start" name="card-outline"></ion-icon>
+          <ion-label>
+            <p>{{ 'expense-form.paid-by' | translate }}</p>
+            <p>{{ 'expense-form.paid-by-need-participant' | translate }}</p>
+          </ion-label>
+        </ion-item>
+      }
+
+      <!-- DIVISIONE: per ora sempre equa, solo informativa. -->
+      <!-- TODO: permettere la divisione in parti diseguali; oggi e' sempre equa tra i contributori. -->
+      <ion-item>
+        <ion-icon slot="start" name="pie-chart-outline"></ion-icon>
+        <ion-label>{{ 'expense-form.split-mode' | translate }}</ion-label>
+        <ion-note slot="end">
+          {{ 'expense-form.split-equal' | translate }}
+          @if (sharePerHead; as share) {
+            · {{ 'expense-form.split-each' | translate: { amount: share } }}
+          }
+        </ion-note>
+      </ion-item>
+    </ion-list>
+
+    <!-- CATEGORIA (facoltativa): preconfigurate + custom dell'utente -->
+    <div class="category-section">
+      <ion-label class="category-title">{{ 'categories.title' | translate }}</ion-label>
+
+      <div class="category-chips">
+        @for (category of categories; track category.publicId) {
+          <ion-chip
+            [outline]="selectedCategory?.publicId !== category.publicId"
+            [color]="selectedCategory?.publicId === category.publicId ? 'primary' : 'medium'"
+            (click)="toggleCategory(category)"
+          >
+            <ion-icon [name]="category.icon"></ion-icon>
+            <ion-label>
+              @if (category.name) {
+                {{ category.name }}
+              } @else {
+                {{ 'categories.' + category.slug | translate }}
+              }
+            </ion-label>
+          </ion-chip>
+        }
+
+        <ion-chip [outline]="true" color="medium" (click)="toggleNewCategoryInput()">
+          <ion-icon name="add"></ion-icon>
+          <ion-label>{{ 'categories.new' | translate }}</ion-label>
+        </ion-chip>
+      </div>
+
+      @if (showNewCategoryInput) {
+        <div class="new-category">
+          <ion-input
+            fill="outline"
+            type="text"
+            [(ngModel)]="newCategoryName"
+            [ngModelOptions]="{ standalone: true }"
+            placeholder="{{ 'categories.name-placeholder' | translate }}"
+            (keyup.enter)="createCategory()"
+          ></ion-input>
+          <ion-button size="small" type="button" [disabled]="!newCategoryName.trim()" (click)="createCategory()">
+            {{ 'categories.create' | translate }}
+          </ion-button>
+        </div>
+      }
+    </div>
+
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="ion-padding-start">{{ errorMessage | translate }}</p>
+      </ion-text>
+    }
+  </form>
+</ion-content>

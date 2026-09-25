@@ -14,6 +14,18 @@
         }
       </ion-label>
     </ion-item>
+    <ion-item>
+      <ion-select
+        label="{{ 'profile.language' | translate }}"
+        interface="popover"
+        [value]="language()"
+        (ionChange)="onLanguageChange($event)"
+      >
+        @for (lang of languages; track lang) {
+          <ion-select-option [value]="lang">{{ 'profile.language-' + lang | translate }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
     <ion-item button="true" (click)="confirmLogout()">
       <ion-label color="danger">{{ 'profile.logout' | translate }}</ion-label>
     </ion-item>

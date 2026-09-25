@@ -1,23 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
-import {
-    TranslateService,
-    TranslatePipe,
-    TranslateDirective
-} from "@ngx-translate/core";
+
+import { LanguageService } from './services/language.service';
 
 @Component({
   selector: 'app-root',
   templateUrl: 'app.component.html',
   standalone: true,
-  imports: [IonApp, IonRouterOutlet, TranslatePipe, TranslateDirective],
+  imports: [IonApp, IonRouterOutlet],
 })
 export class AppComponent {
-  private translate = inject(TranslateService);
-
-    constructor() {
-        this.translate.addLangs(['it', 'en']);
-        this.translate.setFallbackLang('en');
-        this.translate.use('en');
-    }
+  constructor() {
+    // La lingua non e' piu' forzata a 'en': la decide LanguageService.
+    inject(LanguageService).init();
+  }
 }

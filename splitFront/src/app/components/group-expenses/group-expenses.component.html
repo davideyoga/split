@@ -8,12 +8,17 @@
   <p class="ion-padding-horizontal">{{ 'groups.expenses-load-error' | translate }}</p>
 } @else if (expenses.length === 0) {
   <p class="ion-padding-horizontal">{{ 'groups.no-expenses' | translate }}</p>
+  <div class="ion-padding-horizontal">
+    <ion-button fill="outline" (click)="addExpense.emit()">
+      {{ 'groups.add-first-expense' | translate }}
+    </ion-button>
+  </div>
 } @else {
   <ion-list>
     @for (expense of expenses; track expense.id) {
-      <ion-item>
+      <ion-item button [routerLink]="['/tabs/groups', groupPublicId, 'expense', expense.id]">
         <ion-label>
-          <h2>{{ expense.description }}</h2>
+          <h2>{{ expense.description || ('expense-detail.untitled' | translate) }}</h2>
           <p>{{ 'groups.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>
           @if (expense.category) {
             <ion-chip class="category-chip" [outline]="true" color="medium">
@@ -29,7 +34,7 @@
           }
         </ion-label>
         <ion-note slot="end">
-          <div>{{ expense.amount }} {{ expense.currency }}</div>
+          <div>{{ expense.amount | amount }} {{ expense.currency }}</div>
           <div>{{ expense.createdDate | date: 'dd/MM/yyyy' }}</div>
         </ion-note>
       </ion-item>

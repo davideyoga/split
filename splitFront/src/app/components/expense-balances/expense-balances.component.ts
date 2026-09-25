@@ -1,5 +1,6 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import {
+  IonButton,
   IonItem,
   IonLabel,
   IonList,
@@ -10,6 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { AuthService } from '../../services/auth.service';
 import {
+  Balance,
   BalanceExpenseInput,
   computeBalances,
   formatCents,
@@ -25,7 +27,7 @@ import {
   templateUrl: './expense-balances.component.html',
   styleUrls: ['./expense-balances.component.scss'],
   standalone: true,
-  imports: [TranslatePipe, IonItem, IonLabel, IonList, IonListHeader, IonNote],
+  imports: [TranslatePipe, IonButton, IonItem, IonLabel, IonList, IonListHeader, IonNote],
 })
 export class ExpenseBalancesComponent {
   // Le spese su cui calcolare i saldi: qualunque lista con `paidBy` e
@@ -37,13 +39,24 @@ export class ExpenseBalancesComponent {
   // riusare il componente dal punto di vista di qualcun altro.
   readonly userPublicId = input('');
 
-  // Chiave i18n del titolo, cosi' ogni pagina puo' dargli il proprio.
+  // Chiave i18n del titolo, cosi' ogni pagina puo' dargli il proprio. Vuota =
+  // nessuna intestazione (es. la tab Saldi, che ha gia' "Saldi" come titolo).
   readonly titleKey = input('balances.title');
 
   // Valuta mostrata accanto agli importi: per ora sempre EUR (vedi V2.0).
   readonly currency = input('EUR');
 
   readonly showTotals = input(true);
+
+  // Bottone "Salda" per riga: emette `settle` con il saldo della controparte.
+  // Spento di default (lo accende la tab Saldi).
+  readonly showSettleAction = input(false);
+  readonly settle = output<Balance>();
+
+  // Se valorizzata, l'empty state mostra un bottone con questa label che
+  // emette `emptyAction` (es. "Aggiungi una spesa").
+  readonly emptyCtaKey = input('');
+  readonly emptyAction = output<void>();
 
   private authService = inject(AuthService);
 

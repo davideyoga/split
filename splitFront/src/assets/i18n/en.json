@@ -1,17 +1,35 @@
 {
-  "add-expense": {
-    "add-participant": "Select Participant",
-    "create-expense": "Create Expense",
+  "expense-form": {
+    "title-new": "New expense",
+    "cancel": "Cancel",
+    "save": "Save",
     "amount": "Amount",
-    "new-expense": "New Expense",
-    "created-by": "Created by",
+    "amount-invalid": "Enter a valid amount (numbers only)",
+    "description-label": "Description (optional)",
+    "description-placeholder": "e.g. Dinner",
+    "split-with": "Split with",
+    "only-you": "Only you",
+    "people-count": "{{count}} people",
     "paid-by": "Paid by",
     "paid-by-need-participant": "Add a participant or a group to choose who paid",
-    "description-label": "Description",
-    "description-placeholder": "e.g. Dinner",
-    "amount-invalid": "Enter a valid amount (numbers only)",
-    "create-error": "Couldn't create the expense, please try again",
-    "group-members-count": "{{count}} members"
+    "you": "you",
+    "split-mode": "Split",
+    "split-equal": "Equal",
+    "split-each": "{{amount}} each",
+    "created": "Expense added",
+    "create-error": "Couldn't create the expense, please try again"
+  },
+  "expense-detail": {
+    "title": "Expense",
+    "untitled": "Untitled expense",
+    "paid-by": "Paid by",
+    "date": "Date",
+    "group": "Group",
+    "category": "Category",
+    "participants": "Participants",
+    "you": "you",
+    "not-found": "Expense not found",
+    "load-error": "Couldn't load the expense, please try again"
   },
   "select-participant": {
     "title": "Select participant",
@@ -30,11 +48,17 @@
     "submit": "Log in",
     "user-not-found": "No account found for this email"
   },
-  "home": {
-    "expenses-title": "Expenses",
+  "activity": {
+    "recent": "Recent expenses",
     "paid-by": "Paid by",
-    "no-expenses": "No expenses yet",
-    "load-error": "Couldn't load expenses, please try again"
+    "load-error": "Couldn't load expenses, please try again",
+    "empty-title": "No expenses yet",
+    "empty-text": "Expenses you create or are included in show up here.",
+    "empty-cta": "Add your first expense",
+    "settle-cta": "See balances",
+    "search": "Search",
+    "search-placeholder": "Description, person, group or category",
+    "no-results": "No matching expenses"
   },
   "tabs": {
     "activity": "Activity",
@@ -46,7 +70,10 @@
     "title": "Profile",
     "logout": "Log out",
     "logout-confirm": "Log out of Split?",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "language": "Language",
+    "language-it": "Italiano",
+    "language-en": "English"
   },
   "balances": {
     "title": "Balances",
@@ -55,7 +82,12 @@
     "you-owe": "You owe {{name}}",
     "total-owed-to-you": "Owed to you",
     "total-you-owe": "You owe",
-    "net": "Net balance"
+    "net": "Net balance",
+    "settle-up": "Settle up",
+    "settle-title": "Settle up with {{name}}",
+    "settle-coming-soon": "Soon you'll be able to record a repayment here. For now balances can't be cleared.",
+    "ok": "OK",
+    "add-expense": "Add an expense"
   },
   "categories": {
     "title": "Category",
@@ -77,7 +109,6 @@
   },
   "groups": {
     "title": "Groups",
-    "manage": "Manage",
     "new-group": "New group",
     "your-groups": "Your groups",
     "create": "Create group",
@@ -98,6 +129,23 @@
     "expenses-loading": "Loading expenses...",
     "expenses-load-error": "Couldn't load the group expenses, please try again",
     "no-expenses": "No expenses in this group yet",
-    "paid-by": "Paid by"
+    "paid-by": "Paid by",
+    "settings": "Group settings",
+    "segment-expenses": "Expenses",
+    "segment-balances": "Balances",
+    "segment-members": "Members",
+    "you": "you",
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "remove-member-confirm": "Remove {{name}} from the group?",
+    "member-added": "Member added",
+    "member-removed": "Member removed",
+    "empty-title": "No groups yet",
+    "empty-cta": "Create your first group",
+    "created": "Group created",
+    "add-first-expense": "Add the first expense"
+  },
+  "session": {
+    "expired": "Session expired, please log in again"
   }
 }

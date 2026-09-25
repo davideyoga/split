@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   IonButton,
@@ -21,10 +21,18 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
 import { GroupService } from '../../services/group.service';
-import { ParticipantSelectionService } from '../../services/participant-selection-service';
 import { UserService } from '../../services/user.service';
 
 type SelectMode = 'person' | 'group';
+
+// Risultato restituito con `dismiss(data, 'selected')`: il chiamante lo legge
+// da `modal.onWillDismiss()`. Passare il dato col dismiss (invece che da un
+// servizio globale) evita che altre pagine ancora montate sotto la modale
+// reagiscano a una scelta che non era per loro.
+export interface ParticipantSelection {
+  user?: User;
+  group?: Group;
+}
 
 @Component({
   selector: 'app-select-participant',
@@ -51,10 +59,13 @@ type SelectMode = 'person' | 'group';
   ],
 })
 export class SelectParticipantComponent {
+  // false = solo persone (es. aggiunta membri a un gruppo): il segmento
+  // "Gruppo" non viene mostrato.
+  @Input() allowGroups = true;
+
   private userService = inject(UserService);
   private groupService = inject(GroupService);
   private modalCtrl = inject(ModalController);
-  private participantSelectionService = inject(ParticipantSelectionService);
 
   mode: SelectMode = 'person';
 
@@ -95,13 +106,13 @@ export class SelectParticipantComponent {
   }
 
   selectParticipant(selectedParticipant: User) {
-    this.participantSelectionService.selectParticipant(selectedParticipant);
-    this.modalCtrl.dismiss();
+    const data: ParticipantSelection = { user: selectedParticipant };
+    this.modalCtrl.dismiss(data, 'selected');
   }
 
   selectGroup(group: Group) {
-    this.participantSelectionService.selectGroup(group);
-    this.modalCtrl.dismiss();
+    const data: ParticipantSelection = { group };
+    this.modalCtrl.dismiss(data, 'selected');
   }
 
   dismissModal() {

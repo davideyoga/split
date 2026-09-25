@@ -17,6 +17,7 @@ import {provideTranslateService} from "@ngx-translate/core";
 import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
 import {provideHttpClient, withInterceptors} from "@angular/common/http";
 import {authInterceptor} from "./app/services/auth.interceptor";
+import {detectInitialLang} from "./app/services/language.service";
 
 
 bootstrapApplication(AppComponent, {
@@ -31,8 +32,9 @@ bootstrapApplication(AppComponent, {
         prefix: '/assets/i18n/',
         suffix: '.json'
       }),
+      // Scelta salvata dal Profilo, altrimenti lingua del dispositivo.
+      lang: detectInitialLang(),
       fallbackLang: 'en',
-      lang: 'en'
     })
   ],
 });

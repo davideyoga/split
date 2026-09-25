@@ -1,9 +1,18 @@
-<ion-list-header>
-  <ion-label>{{ titleKey() | translate }}</ion-label>
-</ion-list-header>
+@if (titleKey()) {
+  <ion-list-header>
+    <ion-label>{{ titleKey() | translate }}</ion-label>
+  </ion-list-header>
+}
 
 @if (summary().balances.length === 0) {
   <p class="ion-padding-horizontal">{{ 'balances.none' | translate }}</p>
+  @if (emptyCtaKey()) {
+    <div class="ion-padding-horizontal">
+      <ion-button fill="outline" (click)="emptyAction.emit()">
+        {{ emptyCtaKey() | translate }}
+      </ion-button>
+    </div>
+  }
 } @else {
   <ion-list>
     @for (balance of summary().balances; track balance.user.publicId) {
@@ -31,6 +40,11 @@
         >
           {{ format(balance.cents) }} {{ currency() }}
         </ion-note>
+        @if (showSettleAction()) {
+          <ion-button slot="end" fill="clear" (click)="settle.emit(balance)">
+            {{ 'balances.settle-up' | translate }}
+          </ion-button>
+        }
       </ion-item>
     }
   </ion-list>

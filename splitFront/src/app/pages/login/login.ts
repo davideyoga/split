@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { IonContent, IonHeader, IonTitle, IonToolbar, IonItem, IonList, IonButton, IonInput, IonText } from '@ionic/angular/standalone';
+import { ActivatedRoute } from '@angular/router';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonItem, IonList, IonButton, IonInput, IonText, NavController } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +18,8 @@ export class Login {
 
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private navCtrl = inject(NavController);
 
   errorMessage = '';
 
@@ -39,10 +40,23 @@ export class Login {
     this.errorMessage = '';
 
     this.authService.login(email).subscribe({
-      next: () => this.router.navigateByUrl('/tabs/activity'),
+      // navigateRoot: la shell riparte da zero, senza pagine della sessione
+      // precedente nello stack.
+      next: () => this.navCtrl.navigateRoot(this.returnUrl()),
       error: () => {
         this.errorMessage = 'login.user-not-found';
       }
     });
+  }
+
+  // returnUrl arriva dalla guard (deep link senza sessione) o dall'interceptor
+  // (401). Solo percorsi interni: niente URL assoluti o protocol-relative
+  // ("//host"), per non trasformare il login in un open redirect.
+  private returnUrl(): string {
+    const url = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (url && url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/login')) {
+      return url;
+    }
+    return '/tabs/activity';
   }
 }

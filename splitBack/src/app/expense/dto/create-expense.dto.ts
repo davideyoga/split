@@ -7,8 +7,11 @@ import {
 } from 'class-validator';
 
 export class CreateExpenseDto {
+  // Facoltativa: se omessa si salva '' (la colonna resta NOT NULL) e il
+  // frontend mostra un testo di fallback.
+  @IsOptional()
   @IsString()
-  description: string;
+  description?: string;
 
   @IsNumber()
   @Min(0.01)

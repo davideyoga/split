@@ -168,7 +168,7 @@ export class ExpenseService {
 
     return this.prisma.expense.create({
       data: {
-        description: dto.description,
+        description: dto.description?.trim() ?? '',
         amount: dto.amount,
         createdBy: { connect: { id: creator.id } },
         paidBy: { connect: { id: payerId } },

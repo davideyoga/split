@@ -7,7 +7,8 @@ import { ExpenseCategory } from '../models/category.model';
 import { User } from '../models/user.model';
 
 export interface CreateExpensePayload {
-  description: string;
+  // Facoltativa: se omessa il backend salva '' (vedi fallback nelle liste).
+  description?: string;
   amount: number;
   participantPublicIds: string[];
   // Chi ha pagato: se omesso il backend usa il creatore della spesa.

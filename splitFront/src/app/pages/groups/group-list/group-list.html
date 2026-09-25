@@ -1,67 +1,27 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-title>{{ 'groups.title' | translate }}</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <!-- NUOVO GRUPPO -->
-  <ion-card>
-    <ion-card-header>
-      <ion-card-title>{{ 'groups.new-group' | translate }}</ion-card-title>
-    </ion-card-header>
-    <ion-card-content>
-      <form [formGroup]="groupForm" (ngSubmit)="createGroup()">
-        <ion-input
-          class="name-input"
-          fill="outline"
-          label="{{ 'groups.name-label' | translate }}"
-          labelPlacement="floating"
-          type="text"
-          formControlName="name"
-          placeholder="{{ 'groups.name-placeholder' | translate }}"
-        ></ion-input>
-
-        @if (selectedMembers.length > 0) {
-          <div class="members-chips">
-            @for (member of selectedMembers; track member.publicId) {
-              <ion-chip color="medium">
-                <ion-label>{{ member.nickName }}</ion-label>
-                <ion-icon name="close" (click)="removeMember(member)"></ion-icon>
-              </ion-chip>
-            }
-          </div>
-        }
-
-        @if (errorMessage) {
-          <ion-text color="danger">
-            <p class="ion-no-margin">{{ errorMessage | translate }}</p>
-          </ion-text>
-        }
-
-        <div class="form-actions">
-          <ion-button fill="outline" type="button" (click)="openMemberModal()">
-            <ion-icon slot="start" name="person-add-outline"></ion-icon>
-            {{ 'groups.add-member' | translate }}
-          </ion-button>
-          <ion-button type="submit" [disabled]="groupForm.invalid">
-            {{ 'groups.create' | translate }}
-          </ion-button>
-        </div>
-      </form>
-    </ion-card-content>
-  </ion-card>
-
-  <!-- GRUPPI ESISTENTI -->
-  <ion-list-header>
-    <ion-label>{{ 'groups.your-groups' | translate }}</ion-label>
-  </ion-list-header>
+<ion-content class="has-fab">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   @if (loadError) {
     <p class="ion-padding-horizontal">{{ 'groups.load-error' | translate }}</p>
-  } @else if (groups.length === 0) {
-    <p class="ion-padding-horizontal">{{ 'groups.empty' | translate }}</p>
-  } @else {
+  } @else if (loaded && groups.length === 0) {
+    <!-- Empty state: titolo, frase e bottone verso l'azione. -->
+    <div class="ion-padding ion-text-center">
+      <h2>{{ 'groups.empty-title' | translate }}</h2>
+      <p>{{ 'groups.empty' | translate }}</p>
+      <ion-button (click)="openNewGroup()">{{ 'groups.empty-cta' | translate }}</ion-button>
+    </div>
+  } @else if (groups.length > 0) {
+    <ion-list-header>
+      <ion-label>{{ 'groups.your-groups' | translate }}</ion-label>
+    </ion-list-header>
     <ion-list>
       @for (group of groups; track group.publicId) {
         <ion-item button [routerLink]="['/tabs/groups', group.publicId]">
@@ -74,4 +34,10 @@
       }
     </ion-list>
   }
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button [attr.aria-label]="'groups.new-group' | translate" (click)="openNewGroup()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
 </ion-content>

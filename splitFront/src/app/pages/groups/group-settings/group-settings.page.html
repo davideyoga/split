@@ -1,0 +1,74 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [defaultHref]="'/tabs/groups/' + publicId"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'groups.settings' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (loadError) {
+    <p>{{ 'groups.load-error' | translate }}</p>
+  } @else if (group) {
+    <!-- RINOMINA -->
+    <form [formGroup]="nameForm" (ngSubmit)="rename()">
+      <ion-input
+        fill="outline"
+        label="{{ 'groups.name-label' | translate }}"
+        labelPlacement="floating"
+        type="text"
+        formControlName="name"
+      ></ion-input>
+      <div class="ion-padding-top ion-text-end">
+        <ion-button
+          size="small"
+          fill="outline"
+          type="submit"
+          [disabled]="nameForm.invalid"
+        >
+          {{ 'groups.rename' | translate }}
+        </ion-button>
+      </div>
+    </form>
+
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="ion-padding-start">{{ errorMessage | translate }}</p>
+      </ion-text>
+    }
+
+    <!-- MEMBRI -->
+    <ion-list-header>
+      <ion-label>{{ 'groups.segment-members' | translate }}</ion-label>
+    </ion-list-header>
+    <ion-list>
+      @for (member of group.members; track member.publicId) {
+        <ion-item>
+          <ion-label>
+            {{ member.nickName }}
+            @if (member.publicId === mePublicId) {
+              ({{ 'groups.you' | translate }})
+            }
+          </ion-label>
+          <ion-button
+            slot="end"
+            fill="clear"
+            color="danger"
+            [attr.aria-label]="'groups.remove' | translate"
+            (click)="confirmRemoveMember(member)"
+          >
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      }
+    </ion-list>
+
+    <div class="ion-padding-top ion-text-center">
+      <ion-button fill="outline" (click)="openMemberModal()">
+        <ion-icon slot="start" name="person-add-outline"></ion-icon>
+        {{ 'groups.add-member' | translate }}
+      </ion-button>
+    </div>
+  }
+</ion-content>

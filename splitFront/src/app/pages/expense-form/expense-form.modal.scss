@@ -1,0 +1,41 @@
+// Unici valori stilistici custom, presi dal design (doc/ToDo_Navigabilita,
+// proposta 2c): l'importo in grande in cima alla modale e la valuta accanto,
+// piu' piccola. Il resto e' Ionic di default.
+.amount-input {
+  font-size: 40px;
+}
+
+.amount-currency {
+  font-size: 18px;
+}
+
+.selection-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.category-section {
+  padding: 8px 16px 0;
+}
+
+.category-title {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium);
+  margin-bottom: 8px;
+}
+
+.category-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.new-category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}

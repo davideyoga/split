@@ -1,77 +1,84 @@
 <ion-header>
-  <ion-toolbar color="primary">
+  <ion-toolbar>
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/groups"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ 'groups.detail-title' | translate }}</ion-title>
+    <ion-title>{{ group?.name ?? ('groups.detail-title' | translate) }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button
+        [routerLink]="['/tabs/groups', publicId, 'settings']"
+        [attr.aria-label]="'groups.settings' | translate"
+      >
+        <ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+  <ion-toolbar>
+    <ion-segment [value]="segment" (ionChange)="onSegmentChange($event)">
+      <ion-segment-button value="expenses">
+        <ion-label>{{ 'groups.segment-expenses' | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="balances">
+        <ion-label>{{ 'groups.segment-balances' | translate }}</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="members">
+        <ion-label>{{ 'groups.segment-members' | translate }}</ion-label>
+      </ion-segment-button>
+    </ion-segment>
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content class="has-fab">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
   @if (loadError) {
     <p class="ion-padding">{{ 'groups.load-error' | translate }}</p>
   } @else if (group) {
-    <!-- RINOMINA -->
-    <form [formGroup]="nameForm" (ngSubmit)="rename()">
-      <ion-input
-        fill="outline"
-        label="{{ 'groups.name-label' | translate }}"
-        labelPlacement="floating"
-        type="text"
-        formControlName="name"
-      ></ion-input>
-      <div class="ion-padding-top ion-text-end">
-        <ion-button
-          size="small"
-          fill="outline"
-          type="submit"
-          [disabled]="nameForm.invalid"
-        >
-          {{ 'groups.rename' | translate }}
-        </ion-button>
-      </div>
-    </form>
-
-    @if (errorMessage) {
-      <ion-text color="danger">
-        <p class="ion-padding-start">{{ errorMessage | translate }}</p>
-      </ion-text>
-    }
-
-    <!-- MEMBRI -->
-    <ion-list>
-      @for (member of group.members; track member.publicId) {
-        <ion-item>
-          <ion-label>{{ member.nickName }}</ion-label>
-          <ion-button
-            slot="end"
-            fill="clear"
-            color="danger"
-            (click)="removeMember(member)"
-          >
-            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-          </ion-button>
-        </ion-item>
-      }
-    </ion-list>
-
-    <div class="ion-padding-top ion-text-center">
-      <ion-button fill="outline" (click)="openMemberModal()">
-        <ion-icon slot="start" name="person-add-outline"></ion-icon>
-        {{ 'groups.add-member' | translate }}
-      </ion-button>
+    <!-- I segmenti sono nascosti con [hidden], non distrutti: app-group-expenses
+         deve restare montato perche' e' lui a caricare le spese che alimentano
+         anche il segmento Saldi (expensesLoaded). -->
+    <div [hidden]="segment !== 'expenses'">
+      <app-group-expenses
+        [groupPublicId]="publicId"
+        (expensesLoaded)="groupExpenses = $event"
+        (addExpense)="openExpenseForm()"
+      ></app-group-expenses>
     </div>
 
-    <!-- SALDI DEL GRUPPO -->
-    <app-expense-balances
-      [expenses]="groupExpenses"
-      titleKey="groups.balances-title"
-    ></app-expense-balances>
+    <div [hidden]="segment !== 'balances'">
+      <app-expense-balances
+        [expenses]="groupExpenses"
+        titleKey="groups.balances-title"
+        emptyCtaKey="balances.add-expense"
+        (emptyAction)="openExpenseForm()"
+      ></app-expense-balances>
+    </div>
 
-    <!-- SPESE DEL GRUPPO -->
-    <app-group-expenses
-      [groupPublicId]="publicId"
-      (expensesLoaded)="groupExpenses = $event"
-    ></app-group-expenses>
+    <div [hidden]="segment !== 'members'">
+      <ion-list>
+        @for (member of group.members; track member.publicId) {
+          <ion-item>
+            <ion-label>
+              {{ member.nickName }}
+              @if (member.publicId === mePublicId) {
+                ({{ 'groups.you' | translate }})
+              }
+            </ion-label>
+          </ion-item>
+        }
+        <ion-item button="true" [detail]="true" [routerLink]="['/tabs/groups', publicId, 'settings']">
+          <ion-icon slot="start" name="settings-outline"></ion-icon>
+          <ion-label>{{ 'groups.settings' | translate }}</ion-label>
+        </ion-item>
+      </ion-list>
+    </div>
+
+    <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+      <ion-fab-button (click)="openExpenseForm()">
+        <ion-icon name="add"></ion-icon>
+      </ion-fab-button>
+    </ion-fab>
   }
 </ion-content>

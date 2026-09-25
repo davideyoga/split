@@ -1,0 +1,21 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>{{ 'profile.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-list>
+    <ion-item lines="full">
+      <ion-label>
+        <h2>{{ user()?.nickName }}</h2>
+        @if (user()?.email) {
+          <p>{{ user()?.email }}</p>
+        }
+      </ion-label>
+    </ion-item>
+    <ion-item button="true" (click)="confirmLogout()">
+      <ion-label color="danger">{{ 'profile.logout' | translate }}</ion-label>
+    </ion-item>
+  </ion-list>
+</ion-content>

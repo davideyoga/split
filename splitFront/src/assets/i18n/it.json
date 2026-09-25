@@ -36,6 +36,18 @@
     "no-expenses": "Nessuna spesa presente",
     "load-error": "Impossibile caricare le spese, riprova"
   },
+  "tabs": {
+    "activity": "Attività",
+    "groups": "Gruppi",
+    "balances": "Saldi",
+    "profile": "Profilo"
+  },
+  "profile": {
+    "title": "Profilo",
+    "logout": "Esci",
+    "logout-confirm": "Vuoi uscire da Split?",
+    "cancel": "Annulla"
+  },
   "balances": {
     "title": "Saldi",
     "none": "Nessun saldo aperto",

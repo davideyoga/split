@@ -36,6 +36,18 @@
     "no-expenses": "No expenses yet",
     "load-error": "Couldn't load expenses, please try again"
   },
+  "tabs": {
+    "activity": "Activity",
+    "groups": "Groups",
+    "balances": "Balances",
+    "profile": "Profile"
+  },
+  "profile": {
+    "title": "Profile",
+    "logout": "Log out",
+    "logout-confirm": "Log out of Split?",
+    "cancel": "Cancel"
+  },
   "balances": {
     "title": "Balances",
     "none": "No open balances",

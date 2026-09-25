@@ -39,7 +39,7 @@ export class Login {
     this.errorMessage = '';
 
     this.authService.login(email).subscribe({
-      next: () => this.router.navigateByUrl('/home'),
+      next: () => this.router.navigateByUrl('/tabs/activity'),
       error: () => {
         this.errorMessage = 'login.user-not-found';
       }

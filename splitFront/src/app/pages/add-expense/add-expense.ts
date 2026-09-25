@@ -243,7 +243,7 @@ export class addExpense implements OnInit, OnDestroy {
       groupPublicId: this.selectedGroup?.publicId,
       categoryPublicId: this.selectedCategory?.publicId,
     }).subscribe({
-      next: () => this.router.navigateByUrl('/home'),
+      next: () => this.router.navigateByUrl('/tabs/activity'),
       error: () => {
         this.errorMessage = 'add-expense.create-error';
       }

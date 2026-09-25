@@ -1,0 +1,9 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>{{ 'tabs.balances' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <app-expense-balances [expenses]="expenses"></app-expense-balances>
+</ion-content>

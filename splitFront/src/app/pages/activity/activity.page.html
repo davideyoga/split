@@ -1,8 +1,8 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title> Home </ion-title>
+    <ion-title> {{ 'tabs.activity' | translate }} </ion-title>
     <ion-buttons slot="end">
-      <ion-button routerLink="/groups">
+      <ion-button routerLink="/tabs/groups">
         <ion-icon slot="icon-only" name="people"></ion-icon>
       </ion-button>
       <ion-button (click)="logout()">
@@ -22,7 +22,7 @@
       <ion-card-content class="ion-no-padding">
         <ion-list lines="full">
           @for (group of groups; track group.publicId) {
-            <ion-item button [routerLink]="['/groups', group.publicId]">
+            <ion-item button [routerLink]="['/tabs/groups', group.publicId]">
               <ion-icon slot="start" name="people"></ion-icon>
               <ion-label>{{ group.name }}</ion-label>
               <ion-note slot="end">
@@ -32,7 +32,7 @@
           }
         </ion-list>
         <div class="card-actions">
-          <ion-button fill="clear" size="small" routerLink="/groups">
+          <ion-button fill="clear" size="small" routerLink="/tabs/groups">
             {{ 'groups.manage' | translate }}
           </ion-button>
         </div>

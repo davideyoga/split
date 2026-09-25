@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import {
-  IonBackButton,
   IonButton,
-  IonButtons,
   IonCard,
   IonCardContent,
   IonCardHeader,
@@ -46,9 +44,7 @@ import { ParticipantSelectionService } from '../../../services/participant-selec
     ReactiveFormsModule,
     RouterLink,
     TranslatePipe,
-    IonBackButton,
     IonButton,
-    IonButtons,
     IonCard,
     IonCardContent,
     IonCardHeader,

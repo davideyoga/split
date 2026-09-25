@@ -33,10 +33,13 @@ import { CATEGORY_ICONS } from '../../models/category.model';
 import { Group } from '../../models/group.model';
 import { GroupService } from '../../services/group.service';
 
+// Ex `home`: spostata dentro la shell a tab senza redesign. Il redesign
+// (rimozione della card Gruppi e delle icone nell'header, item spesa tappabili,
+// ion-refresher, empty state con CTA) e' previsto nelle fasi successive.
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.html',
-  styleUrls: ['./home.scss'],
+  selector: 'app-activity',
+  templateUrl: './activity.page.html',
+  styleUrls: ['./activity.page.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -64,7 +67,7 @@ import { GroupService } from '../../services/group.service';
     TranslatePipe,
   ],
 })
-export class Home implements OnInit {
+export class ActivityPage implements OnInit {
   private authService = inject(AuthService);
   private expenseService = inject(ExpenseService);
   private groupService = inject(GroupService);

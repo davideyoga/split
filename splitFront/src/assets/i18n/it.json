@@ -86,7 +86,11 @@
     "settle-cta": "Vedi i saldi",
     "search": "Cerca",
     "search-placeholder": "Descrizione, persona, gruppo o categoria",
-    "no-results": "Nessuna spesa trovata"
+    "no-results": "Nessuna spesa trovata",
+    "month-spent": "Speso questo mese",
+    "month-none": "Nessuna spesa questo mese",
+    "month-count": "Spese del mese: {{count}}",
+    "month-paid": "Hai pagato"
   },
   "tabs": {
     "activity": "Attività",

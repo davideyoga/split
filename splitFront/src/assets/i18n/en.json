@@ -86,7 +86,11 @@
     "settle-cta": "See balances",
     "search": "Search",
     "search-placeholder": "Description, person, group or category",
-    "no-results": "No matching expenses"
+    "no-results": "No matching expenses",
+    "month-spent": "Spent this month",
+    "month-none": "No expenses this month",
+    "month-count": "Expenses this month: {{count}}",
+    "month-paid": "You paid"
   },
   "tabs": {
     "activity": "Activity",

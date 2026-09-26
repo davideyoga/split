@@ -43,6 +43,7 @@ import {
 } from '../../utils/balance';
 import { AmountPipe } from '../../pipes/amount.pipe';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
+import { MonthlySpendingComponent } from '../../components/monthly-spending/monthly-spending.component';
 
 // Tab Attivita': card saldo netto (-> tab Saldi) + spese recenti. Gruppi e
 // saldi per persona hanno ciascuno la propria tab, quindi qui non si ripetono.
@@ -78,6 +79,7 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
     IonText,
     IonTitle,
     IonToolbar,
+    MonthlySpendingComponent,
     RouterLink,
     TranslatePipe,
   ],

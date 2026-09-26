@@ -155,14 +155,18 @@ export class GroupSettingsPage implements OnInit {
       }),
       buttons: [
         { text: this.translate.instant('groups.cancel'), role: 'cancel' },
-        {
-          text: this.translate.instant('groups.remove'),
-          role: 'destructive',
-          handler: () => this.removeMember(member),
-        },
+        { text: this.translate.instant('groups.remove'), role: 'destructive' },
       ],
     });
     await alert.present();
+
+    // Si aspetta la chiusura dell'alert invece di usare `handler`: Ionic
+    // esegue gli handler dei bottoni fuori dalla zona di Angular, quindi quello
+    // che cambia dopo (liste ricaricate, errori) non verrebbe ridisegnato.
+    const { role } = await alert.onWillDismiss();
+    if (role === 'destructive') {
+      this.removeMember(member);
+    }
   }
 
   private removeMember(member: User) {

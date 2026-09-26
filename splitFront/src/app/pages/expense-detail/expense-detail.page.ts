@@ -147,14 +147,18 @@ export class ExpenseDetailPage implements OnInit {
       message: this.translate.instant('expense-detail.delete-confirm-message'),
       buttons: [
         { text: this.translate.instant('expense-detail.cancel'), role: 'cancel' },
-        {
-          text: this.translate.instant('expense-detail.delete'),
-          role: 'destructive',
-          handler: () => this.deleteExpense(),
-        },
+        { text: this.translate.instant('expense-detail.delete'), role: 'destructive' },
       ],
     });
     await alert.present();
+
+    // Si aspetta la chiusura dell'alert invece di usare `handler`: Ionic
+    // esegue gli handler dei bottoni fuori dalla zona di Angular, quindi quello
+    // che cambia dopo (liste ricaricate, errori) non verrebbe ridisegnato.
+    const { role } = await alert.onWillDismiss();
+    if (role === 'destructive') {
+      this.deleteExpense();
+    }
   }
 
   private deleteExpense() {

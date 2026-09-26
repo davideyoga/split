@@ -59,14 +59,18 @@ export class ProfilePage {
       header: this.translate.instant('profile.logout-confirm'),
       buttons: [
         { text: this.translate.instant('profile.cancel'), role: 'cancel' },
-        {
-          text: this.translate.instant('profile.logout'),
-          role: 'confirm',
-          handler: () => this.logout(),
-        },
+        { text: this.translate.instant('profile.logout'), role: 'confirm' },
       ],
     });
     await alert.present();
+
+    // Si aspetta la chiusura dell'alert invece di usare `handler`: Ionic
+    // esegue gli handler dei bottoni fuori dalla zona di Angular, quindi quello
+    // che cambia dopo (liste ricaricate, errori) non verrebbe ridisegnato.
+    const { role } = await alert.onWillDismiss();
+    if (role === 'confirm') {
+      this.logout();
+    }
   }
 
   private logout() {

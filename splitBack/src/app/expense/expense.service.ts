@@ -8,6 +8,7 @@ import { Prisma } from '@prisma/client';
 import { CategoryService } from '../category/category.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateExpenseDto } from './dto/create-expense.dto';
+import { ExpenseShareDto } from './dto/expense-share.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 
 // Degli utenti collegati a una spesa si espongono solo publicId e nickName:
@@ -148,6 +149,9 @@ export class ExpenseService {
       dto.paidByPublicId ?? creator.publicId,
       contributorIds,
     );
+    const contributions = dto.shares
+      ? await this.customContributions(dto.amount, contributorIds, dto.shares)
+      : this.equalContributions(dto.amount, contributorIds);
 
     return this.prisma.expense.create({
       data: {
@@ -157,9 +161,7 @@ export class ExpenseService {
         paidBy: { connect: { id: payerId } },
         ...(groupId ? { group: { connect: { id: groupId } } } : {}),
         ...(categoryId ? { category: { connect: { id: categoryId } } } : {}),
-        expenseContributions: {
-          create: this.contributions(dto.amount, contributorIds),
-        },
+        expenseContributions: { create: contributions },
       },
       include: EXPENSE_INCLUDE,
     });
@@ -240,6 +242,31 @@ export class ExpenseService {
 
     const amount = dto.amount ?? expense.amount.toNumber();
 
+    // Quote: array = diseguali, null = eque. Omesse = restano quelle attuali
+    // finche' valgono (stesso importo, stessi contributori), altrimenti eque.
+    let contributions: Prisma.ExpenseContributionCreateWithoutExpenseInput[];
+    if (dto.shares) {
+      contributions = await this.customContributions(
+        amount,
+        contributorIds,
+        dto.shares,
+      );
+    } else if (
+      dto.shares === undefined &&
+      toCents(amount) === toCents(expense.amount.toNumber()) &&
+      this.sameIds(
+        contributorIds,
+        expense.expenseContributions.map((c) => c.userId),
+      )
+    ) {
+      contributions = expense.expenseContributions.map((c) => ({
+        share: c.share,
+        user: { connect: { id: c.userId } },
+      }));
+    } else {
+      contributions = this.equalContributions(amount, contributorIds);
+    }
+
     // Nested write: Prisma la esegue in un'unica transazione.
     return this.prisma.expense.update({
       where: { id: expense.id },
@@ -256,7 +283,7 @@ export class ExpenseService {
           : { disconnect: true },
         expenseContributions: {
           deleteMany: {},
-          create: this.contributions(amount, contributorIds),
+          create: contributions,
         },
       },
       include: EXPENSE_INCLUDE,
@@ -295,7 +322,7 @@ export class ExpenseService {
         paidBy: { select: USER_SELECT },
         category: { select: { publicId: true } },
         group: { select: { publicId: true, usersOnGroup: true } },
-        expenseContributions: { select: { userId: true } },
+        expenseContributions: { select: { userId: true, share: true } },
       },
     });
     if (!expense) {
@@ -365,15 +392,68 @@ export class ExpenseService {
     return payer.id;
   }
 
-  private contributions(amount: number, contributorIds: number[]) {
-    // TODO: permettere quote diverse invece di una divisione sempre equa tra i contributori.
-    // TODO: gestire l'arrotondamento quando amount non è divisibile esattamente per il numero
-    // di contributori (vale anche per lo split di gruppo: la somma delle share potrebbe non
-    // coincidere con amount).
-    const share = Math.round((amount / contributorIds.length) * 100) / 100;
-    return contributorIds.map((userId) => ({
-      share,
+  // Divisione equa al centesimo: i centesimi che avanzano (10 EUR in 3 = 3,33
+  // con 1 cent di resto) vanno uno a testa ai primi contributori, cioe' al
+  // creatore per primo. Cosi' la somma delle quote fa sempre esattamente
+  // `amount`, come nella divisione diseguale. Il frontend (utils/split.ts)
+  // divide allo stesso modo.
+  private equalContributions(amount: number, contributorIds: number[]) {
+    const total = toCents(amount);
+    const base = Math.floor(total / contributorIds.length);
+    const remainder = total - base * contributorIds.length;
+    return contributorIds.map((userId, index) => ({
+      share: (base + (index < remainder ? 1 : 0)) / 100,
       user: { connect: { id: userId } },
     }));
   }
+
+  // Divisione diseguale: una quota per ciascun contributore, nessuno escluso e
+  // nessuno in piu', e somma (in centesimi) uguale all'importo.
+  private async customContributions(
+    amount: number,
+    contributorIds: number[],
+    shares: ExpenseShareDto[],
+  ) {
+    const publicIds = shares.map((s) => s.userPublicId);
+    if (new Set(publicIds).size !== publicIds.length) {
+      throw new BadRequestException('Una persona compare due volte nelle quote');
+    }
+
+    const users = await this.prisma.user.findMany({
+      where: { publicId: { in: publicIds } },
+      select: { id: true, publicId: true },
+    });
+    const idByPublicId = new Map(users.map((u) => [u.publicId, u.id]));
+    const shareIds = publicIds.map((publicId) => idByPublicId.get(publicId));
+    if (
+      shareIds.some((id) => id === undefined) ||
+      !this.sameIds(shareIds as number[], contributorIds)
+    ) {
+      throw new BadRequestException(
+        'Le quote devono riguardare esattamente i partecipanti alla spesa',
+      );
+    }
+
+    const sum = shares.reduce((acc, s) => acc + toCents(s.share), 0);
+    if (sum !== toCents(amount)) {
+      throw new BadRequestException(
+        "La somma delle quote deve essere uguale all'importo della spesa",
+      );
+    }
+
+    return shares.map((s, index) => ({
+      share: toCents(s.share) / 100,
+      user: { connect: { id: shareIds[index] as number } },
+    }));
+  }
+
+  private sameIds(a: number[], b: number[]) {
+    const setA = new Set(a);
+    return setA.size === new Set(b).size && b.every((id) => setA.has(id));
+  }
+}
+
+// Importi in centesimi interi: confronti e somme senza errori di virgola mobile.
+function toCents(value: number) {
+  return Math.round(value * 100);
 }

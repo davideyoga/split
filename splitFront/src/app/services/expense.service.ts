@@ -15,6 +15,14 @@ export interface CreateExpensePayload {
   paidByPublicId?: string;
   groupPublicId?: string;
   categoryPublicId?: string;
+  // Divisione diseguale: una quota per contributore, somma = amount.
+  // Omessa = divisione equa.
+  shares?: ExpenseSharePayload[];
+}
+
+export interface ExpenseSharePayload {
+  userPublicId: string;
+  share: number;
 }
 
 // PATCH /api/expense/:publicId. Un campo omesso resta invariato; `null` su
@@ -26,6 +34,8 @@ export interface UpdateExpensePayload {
   paidByPublicId?: string;
   groupPublicId?: string | null;
   categoryPublicId?: string | null;
+  // `null` = torna alla divisione equa.
+  shares?: ExpenseSharePayload[] | null;
 }
 
 export interface ExpenseContribution {

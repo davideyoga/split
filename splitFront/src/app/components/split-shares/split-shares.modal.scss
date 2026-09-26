@@ -1,0 +1,26 @@
+.summary {
+  display: flex;
+  justify-content: space-around;
+  padding: 8px 16px;
+  text-align: center;
+}
+
+.summary-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  ion-note {
+    font-size: 0.8rem;
+  }
+}
+
+.share-input {
+  max-width: 96px;
+  text-align: end;
+}
+
+.hint {
+  margin: 12px 0;
+  font-size: 0.85rem;
+}

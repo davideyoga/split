@@ -42,6 +42,10 @@ import {
   ParticipantSelection,
   SelectParticipantComponent,
 } from '../../components/select-participant/select-participant.component';
+import {
+  ShareMap,
+  SplitSharesModal,
+} from '../../components/split-shares/split-shares.modal';
 import { Category, CATEGORY_ICONS } from '../../models/category.model';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
@@ -50,6 +54,7 @@ import { CategoryService } from '../../services/category.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { GroupService } from '../../services/group.service';
 import { formatCents, toCents } from '../../utils/balance';
+import { isEqualSplit } from '../../utils/split';
 
 // Nuova spesa o modifica di una esistente, come modale.
 // - Creazione: pre-contestualizzata dal punto di partenza (aperta dal dettaglio
@@ -123,6 +128,12 @@ export class ExpenseFormModal implements OnInit {
   paidByPublicId = '';
   payerCandidates: User[] = [];
 
+  // Divisione diseguale (modale SplitSharesModal): centesimi per publicId,
+  // null = divisione equa. Chi non compare ha quota 0. Non si ricalcola quando
+  // cambiano importo o partecipanti: se le quote non fanno piu' il totale la
+  // riga "Divisione" lo segnala e il salvataggio resta bloccato.
+  customShares: ShareMap | null = null;
+
   // Categorie disponibili: preconfigurate + quelle create dall'utente.
   categories: Category[] = [];
   selectedCategory: Category | null = null;
@@ -180,6 +191,17 @@ export class ExpenseFormModal implements OnInit {
       ? { ...expense.category, isCustom: !expense.category.slug }
       : null;
 
+    // Il backend non salva la modalita' di divisione: quote che differiscono di
+    // piu' di un centesimo = divisione personalizzata.
+    const shareCents = expense.expenseContributions.map((c) => toCents(c.share));
+    if (!isEqualSplit(shareCents)) {
+      const shares: ShareMap = {};
+      expense.expenseContributions.forEach((c, i) => {
+        shares[c.user.publicId] = shareCents[i];
+      });
+      this.customShares = shares;
+    }
+
     const contributors = expense.expenseContributions.map((c) => c.user);
     const group = expense.group;
     if (!group) {
@@ -222,6 +244,64 @@ export class ExpenseFormModal implements OnInit {
       return null;
     }
     return formatCents(Math.round(toCents(amount.value) / this.payerCandidates.length));
+  }
+
+  // Importo in centesimi, null se non ancora valido.
+  get amountCents(): number | null {
+    const amount = this.expenseForm.get('amount');
+    return amount?.valid ? toCents(amount.value) : null;
+  }
+
+  // Con quote personalizzate: quanto manca (> 0) o avanza (< 0) al totale.
+  // 0 con divisione equa o importo non ancora valido.
+  get splitRemainingCents(): number {
+    const total = this.amountCents;
+    if (!this.customShares || total === null) {
+      return 0;
+    }
+    const assigned = this.payerCandidates.reduce(
+      (sum, user) => sum + (this.customShares?.[user.publicId] ?? 0),
+      0,
+    );
+    return total - assigned;
+  }
+
+  formatCents(cents: number): string {
+    return formatCents(cents);
+  }
+
+  async openSplitModal() {
+    const totalCents = this.amountCents;
+    if (totalCents === null || this.payerCandidates.length < 2) {
+      return;
+    }
+
+    const modal = await this.modalCtrl.create({
+      component: SplitSharesModal,
+      componentProps: {
+        totalCents,
+        people: this.payerCandidates,
+        shares: this.customShares,
+        paidByPublicId: this.paidByPublicId,
+        mePublicId: this.mePublicId,
+      },
+    });
+    await modal.present();
+
+    const { data, role } = await modal.onWillDismiss<ShareMap | null>();
+    if (role === 'confirmed') {
+      this.customShares = data ?? null;
+    }
+  }
+
+  // Quote da mandare al backend: una per contributore, in euro.
+  private sharesPayload() {
+    return this.customShares
+      ? this.payerCandidates.map((user) => ({
+          userPublicId: user.publicId,
+          share: (this.customShares?.[user.publicId] ?? 0) / 100,
+        }))
+      : null;
   }
 
   loadCategories() {
@@ -321,6 +401,11 @@ export class ExpenseFormModal implements OnInit {
 
     this.payerCandidates = candidates;
 
+    // Rimasto solo il creatore non c'e' niente da dividere: torna equa.
+    if (candidates.length < 2) {
+      this.customShares = null;
+    }
+
     // Se chi avevo scelto non partecipa piu' (partecipante o gruppo rimosso),
     // il pagante torna a essere il creatore.
     if (!seen.has(this.paidByPublicId)) {
@@ -345,8 +430,17 @@ export class ExpenseFormModal implements OnInit {
     this.modalCtrl.dismiss(null, 'cancel');
   }
 
+  get canSave(): boolean {
+    return (
+      this.expenseForm.valid &&
+      !this.saving &&
+      this.ready &&
+      this.splitRemainingCents === 0
+    );
+  }
+
   save() {
-    if (this.expenseForm.invalid || this.saving || !this.ready) {
+    if (!this.canSave) {
       return;
     }
 
@@ -370,6 +464,7 @@ export class ExpenseFormModal implements OnInit {
       paidByPublicId: this.paidByPublicId || undefined,
       groupPublicId: this.selectedGroup?.publicId ?? null,
       categoryPublicId: this.selectedCategory?.publicId ?? null,
+      shares: this.sharesPayload(),
     }).subscribe({
       next: async (updated) => {
         await this.presentSuccessToast('expense-form.updated');
@@ -390,6 +485,7 @@ export class ExpenseFormModal implements OnInit {
       paidByPublicId: this.paidByPublicId || undefined,
       groupPublicId: this.selectedGroup?.publicId,
       categoryPublicId: this.selectedCategory?.publicId,
+      shares: this.sharesPayload() ?? undefined,
     }).subscribe({
       next: async () => {
         await this.presentSuccessToast('expense-form.created');

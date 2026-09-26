@@ -7,7 +7,7 @@
     <ion-buttons slot="end">
       <ion-button
         [strong]="true"
-        [disabled]="expenseForm.invalid || saving || !ready"
+        [disabled]="!canSave"
         (click)="save()"
       >
         {{ 'expense-form.save' | translate }}
@@ -116,18 +116,39 @@
         </ion-item>
       }
 
-      <!-- DIVISIONE: per ora sempre equa, solo informativa. -->
-      <!-- TODO: permettere la divisione in parti diseguali; oggi e' sempre equa tra i contributori. -->
-      <ion-item>
+      <!-- DIVISIONE: equa di default; con almeno 2 contributori e un importo
+           valido apre SplitSharesModal per le quote diseguali. -->
+      <ion-item
+        [button]="true"
+        [detail]="true"
+        [disabled]="amountCents === null || payerCandidates.length < 2"
+        (click)="openSplitModal()"
+      >
         <ion-icon slot="start" name="pie-chart-outline"></ion-icon>
         <ion-label>{{ 'expense-form.split-mode' | translate }}</ion-label>
-        <ion-note slot="end">
-          {{ 'expense-form.split-equal' | translate }}
-          @if (sharePerHead; as share) {
-            · {{ 'expense-form.split-each' | translate: { amount: share } }}
-          }
-        </ion-note>
+        @if (customShares) {
+          <ion-note slot="end" [color]="splitRemainingCents !== 0 ? 'danger' : undefined">
+            {{ 'expense-form.split-custom' | translate }}
+            @if (splitRemainingCents > 0) {
+              · {{ 'expense-form.split-left' | translate: { amount: formatCents(splitRemainingCents) } }}
+            } @else if (splitRemainingCents < 0) {
+              · {{ 'expense-form.split-over' | translate: { amount: formatCents(splitRemainingCents) } }}
+            }
+          </ion-note>
+        } @else {
+          <ion-note slot="end">
+            {{ 'expense-form.split-equal' | translate }}
+            @if (sharePerHead; as share) {
+              · {{ 'expense-form.split-each' | translate: { amount: share } }}
+            }
+          </ion-note>
+        }
       </ion-item>
+      @if (splitRemainingCents !== 0) {
+        <ion-text color="danger">
+          <p class="ion-padding-start ion-no-margin split-error">{{ 'expense-form.split-mismatch' | translate }}</p>
+        </ion-text>
+      }
     </ion-list>
 
     <!-- CATEGORIA (facoltativa): preconfigurate + custom dell'utente -->

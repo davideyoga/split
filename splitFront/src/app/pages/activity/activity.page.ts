@@ -32,8 +32,10 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { addIcons } from 'ionicons';
 import { add, searchOutline } from 'ionicons/icons';
+import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
+import { SettlementService } from '../../services/settlement.service';
 import { CATEGORY_ICONS } from '../../models/category.model';
 import {
   BalanceSummary,
@@ -87,6 +89,7 @@ import { MonthlySpendingComponent } from '../../components/monthly-spending/mont
 export class ActivityPage {
   private authService = inject(AuthService);
   private expenseService = inject(ExpenseService);
+  private settlementService = inject(SettlementService);
   private modalCtrl = inject(ModalController);
   private translate = inject(TranslateService);
 
@@ -115,13 +118,22 @@ export class ActivityPage {
     this.loadExpenses();
   }
 
+  // I rimborsi servono solo al saldo netto (la lista mostra le spese): senza,
+  // la card direbbe una cifra diversa dalla tab Saldi.
   loadExpenses(onDone?: () => void) {
     this.loadError = false;
-    this.expenseService.list().subscribe({
-      next: (expenses) => {
+    forkJoin({
+      expenses: this.expenseService.list(),
+      settlements: this.settlementService.list(),
+    }).subscribe({
+      next: ({ expenses, settlements }) => {
         this.expenses = expenses;
         this.applyFilter();
-        this.summary = computeBalances(expenses, this.authService.currentUser()?.publicId);
+        this.summary = computeBalances(
+          expenses,
+          this.authService.currentUser()?.publicId,
+          settlements,
+        );
         this.loaded = true;
         onDone?.();
       },

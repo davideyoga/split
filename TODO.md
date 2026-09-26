@@ -14,7 +14,7 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 
 
 ## Funzionalita' da aggiungere Priorita' alta
-- Saldare i debiti: il componente `expense-balances` mostra i saldi cumulativi ma non esiste nessun modo di azzerarli quando qualcuno restituisce i soldi. Con le quote diseguali (2026-09-26) si puo' aggirare registrando il rimborso come spesa (pagante = chi restituisce, quota 0 a lui e l'intero importo a chi riceve), ma e' un ripiego: il rimborso compare fra le spese. Serve un modello `Settlement` dedicato. Vedi CLAUDE.md, sezione "Balances".
+- (nessuna)
 
 
 ## Funzionalita' da aggiungere priorita' bassa
@@ -25,3 +25,5 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 - Categorizzazione per-utente delle spese condivise (Priorita' Bassa): oggi la categoria e' della spesa, quindi su una spesa di gruppo tutti i partecipanti vedono quella scelta da chi l'ha creata. In una V3.x si potrebbe permettere a ogni partecipante di categorizzare la spesa a modo suo per le proprie statistiche (servirebbe una tabella tipo `ExpenseCategoryPerUser`). Vedi [doc/funzionalita_In_Corso/categorie_spese](doc/funzionalita_In_Corso/categorie_spese), decisione 2.
 
 - Data della spesa (Priorita' Bassa): `Expense` ha solo `createdDate` (momento dell'inserimento), quindi una spesa registrata a posteriori (es. a fine viaggio) risulta con la data sbagliata. Aggiungere un campo `date` (default oggi, modificabile nella modale) e ordinare le liste per quella invece che per `createdDate`.
+
+- Da valutare se dare la possibilita' di aggiungere spese personali al gruppo in modo da sapere quanto si e' speso per persona in quel viaggio 

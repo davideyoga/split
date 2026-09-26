@@ -17,6 +17,9 @@ model User {
   expensesPaidByMe     Expense[]          @relation("PaidBy")
   userOnGroups         UserOnGroup[]
   categories           Category[]
+  settlementsPaid      Settlement[]       @relation("SettlementFrom")
+  settlementsReceived  Settlement[]       @relation("SettlementTo")
+  settlementsCreated   Settlement[]       @relation("SettlementCreatedBy")
   createdDate          DateTime           @default(now())
   confirmed            Boolean            @default(false)
   confirmationCodes    ConfirmationCode[]
@@ -60,6 +63,29 @@ model Expense {
   description          String
   paidBy               User                  @relation("PaidBy", fields: [paidById], references: [id])
   paidById             Int
+}
+
+// Rimborso fra due utenti: `from` da' `amount` a `to`. Non appartiene a nessun
+// gruppo (decisione di prodotto, 2026-09-26: i gruppi servono solo a non
+// reinserire sempre le stesse persone), quindi azzera il saldo complessivo fra
+// i due, non quello di un gruppo. Lo puo' registrare ed eliminare uno qualsiasi
+// dei due.
+model Settlement {
+  id          Int      @id @default(autoincrement())
+  publicId    String   @unique @default(uuid())
+  from        User     @relation("SettlementFrom", fields: [fromId], references: [id])
+  fromId      Int
+  to          User     @relation("SettlementTo", fields: [toId], references: [id])
+  toId        Int
+  amount      Decimal
+  currency    String   @default("EUR") // Pronto per V2.0
+  note        String?
+  createdBy   User     @relation("SettlementCreatedBy", fields: [createdById], references: [id])
+  createdById Int
+  createdDate DateTime @default(now())
+
+  @@index([fromId])
+  @@index([toId])
 }
 
 model Group {

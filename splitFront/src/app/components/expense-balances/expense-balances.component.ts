@@ -13,6 +13,7 @@ import { AuthService } from '../../services/auth.service';
 import {
   Balance,
   BalanceExpenseInput,
+  BalanceSettlementInput,
   computeBalances,
   formatCents,
   formatSignedCents,
@@ -34,6 +35,11 @@ export class ExpenseBalancesComponent {
   // `expenseContributions` (es. il risultato di `ExpenseService.list()` o di
   // `listByGroup()`). I saldi si ricalcolano da soli quando l'input cambia.
   readonly expenses = input.required<readonly BalanceExpenseInput[]>();
+
+  // Rimborsi da scalare dai saldi (es. `SettlementService.list()`). Vuoti di
+  // default: il segmento Saldi del gruppo non li passa, perche' un rimborso
+  // non appartiene a nessun gruppo.
+  readonly settlements = input<readonly BalanceSettlementInput[]>([]);
 
   // Punto di vista del calcolo. Di norma l'utente loggato; sovrascrivibile per
   // riusare il componente dal punto di vista di qualcun altro.
@@ -65,7 +71,7 @@ export class ExpenseBalancesComponent {
   );
 
   readonly summary = computed(() =>
-    computeBalances(this.expenses(), this.mePublicId()),
+    computeBalances(this.expenses(), this.mePublicId(), this.settlements()),
   );
 
   format = formatCents;

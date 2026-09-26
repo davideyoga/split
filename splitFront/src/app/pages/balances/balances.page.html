@@ -9,12 +9,56 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <app-expense-balances
-    [expenses]="expenses"
-    titleKey=""
-    [showSettleAction]="true"
-    emptyCtaKey="balances.add-expense"
-    (settle)="settle($event)"
-    (emptyAction)="openExpenseForm()"
-  ></app-expense-balances>
+  @if (loadError) {
+    <p class="ion-padding-horizontal">{{ 'settlements.load-error' | translate }}</p>
+  } @else {
+    <app-expense-balances
+      [expenses]="expenses"
+      [settlements]="settlements"
+      titleKey=""
+      [showSettleAction]="true"
+      emptyCtaKey="balances.add-expense"
+      (settle)="settle($event)"
+      (emptyAction)="openExpenseForm()"
+    ></app-expense-balances>
+
+    <!-- STORICO RIMBORSI: ognuno coinvolge me, come chi da' o chi riceve -->
+    @if (settlements.length > 0) {
+      <ion-list>
+        <ion-list-header>
+          <ion-label>{{ 'settlements.history-title' | translate }}</ion-label>
+        </ion-list-header>
+        @for (settlement of settlements; track settlement.publicId) {
+          <ion-item>
+            <ion-icon slot="start" name="cash-outline" color="medium"></ion-icon>
+            <ion-label>
+              <h2>
+                @if (settlement.to.publicId === mePublicId) {
+                  {{ 'settlements.they-paid-you' | translate: { name: settlement.from.nickName } }}
+                } @else {
+                  {{ 'settlements.you-paid-them' | translate: { name: settlement.to.nickName } }}
+                }
+              </h2>
+              <p>
+                {{ settlement.createdDate | date: 'dd/MM/yyyy' }}
+                @if (settlement.note) {
+                  · {{ settlement.note }}
+                }
+              </p>
+            </ion-label>
+            <ion-note slot="end">{{ settlement.amount | amount }} {{ settlement.currency }}</ion-note>
+            <ion-button
+              slot="end"
+              fill="clear"
+              color="medium"
+              [attr.aria-label]="'settlements.delete' | translate"
+              (click)="confirmDelete(settlement)"
+            >
+              <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+            </ion-button>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  }
 </ion-content>

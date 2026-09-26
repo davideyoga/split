@@ -2,7 +2,7 @@ import { User } from '../models/user.model';
 
 /**
  * Calcolo dei saldi fra l'utente corrente e le sue controparti, a partire da una
- * lista di spese gia' caricata.
+ * lista di spese (e, facoltativamente, di rimborsi) gia' caricata.
  *
  * Funzioni pure, senza dipendenze da Angular ne' da HTTP: il componente
  * `app-expense-balances` le usa per la UI, ma restano riutilizzabili altrove
@@ -20,6 +20,14 @@ export interface BalanceContributionInput {
 export interface BalanceExpenseInput {
   paidBy: User;
   expenseContributions: BalanceContributionInput[];
+}
+
+// Forma minima richiesta a un rimborso: `from` ha dato `amount` a `to`.
+// `Settlement` (models/settlement.model.ts) la soddisfa gia'.
+export interface BalanceSettlementInput {
+  from: User;
+  to: User;
+  amount: string | number;
 }
 
 export interface Balance {
@@ -52,11 +60,16 @@ export function toCents(value: string | number | null | undefined): number {
 export function computeBalances(
   expenses: readonly BalanceExpenseInput[] | null | undefined,
   mePublicId: string | null | undefined,
+  settlements: readonly BalanceSettlementInput[] | null | undefined = [],
 ): BalanceSummary {
   const byCounterpart = new Map<string, Balance>();
+  const entries = [
+    ...(expenses ?? []),
+    ...(settlements ?? []).map(settlementAsExpense),
+  ];
 
   if (mePublicId) {
-    for (const expense of expenses ?? []) {
+    for (const expense of entries) {
       const payer = expense?.paidBy;
       if (!payer?.publicId) {
         continue;
@@ -128,6 +141,18 @@ export function formatSignedCents(cents: number): string {
     return `-${formatCents(cents)}`;
   }
   return formatCents(cents);
+}
+
+// Per i saldi un rimborso vale come una spesa pagata da chi da' i soldi, con
+// l'intera quota a chi li riceve: "Pippo mi da' 15" riduce di 15 quello che
+// Pippo mi deve, esattamente come se Pippo avesse pagato 15 per me.
+function settlementAsExpense(
+  settlement: BalanceSettlementInput,
+): BalanceExpenseInput {
+  return {
+    paidBy: settlement.from,
+    expenseContributions: [{ user: settlement.to, share: settlement.amount }],
+  };
 }
 
 function accumulate(

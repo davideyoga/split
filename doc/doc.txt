@@ -39,3 +39,13 @@ TERMINI
 - npx: npx sta per Node Package eXecute, e' un tool CLI (incluso automaticamente con npm dalla versione 5.2 in poi) che serve a eseguire binari Node.js
 - node_modules: directory di installazione locale di tutte le librerie esterne necessarie al tuo progetto per funzionare (runtime) o per essere sviluppato (dev time).
 
+
+
+
+per creare db su postgre: 
+sudo -u postgres psql //apre interfsaccia postgres
+
+//crea DB
+CREATE DATABASE "split-db" OWNER admin;
+\q
+

@@ -1,0 +1,80 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'settlements.cancel' | translate }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'balances.settle-title' | translate: { name: balance.user.nickName } }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [strong]="true" [disabled]="!canSave" (click)="save()">
+        {{ 'settlements.save' | translate }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <!-- Cosa si sta registrando: chi da' i soldi a chi -->
+  <p class="direction ion-padding-horizontal">
+    {{
+      (theyPay ? 'settlements.they-paid-you' : 'settlements.you-paid-them')
+        | translate: { name: balance.user.nickName }
+    }}
+  </p>
+
+  <!-- IMPORTO: campo grande, precompilato col saldo intero -->
+  <ion-item lines="none">
+    <ion-input
+      class="amount-input"
+      type="text"
+      inputmode="decimal"
+      placeholder="0.00"
+      [value]="amount"
+      [attr.aria-label]="'settlements.amount' | translate"
+      (ionInput)="sanitizeAmountInput($event)"
+    >
+      <ion-text slot="end" color="medium" class="amount-currency">EUR</ion-text>
+    </ion-input>
+  </ion-item>
+
+  <div class="ion-padding-horizontal">
+    <ion-text color="medium">
+      <p class="ion-no-margin">
+        {{ 'settlements.current-balance' | translate }}:
+        {{
+          (theyPay ? 'balances.owes-you' : 'balances.you-owe')
+            | translate: { name: balance.user.nickName }
+        }}
+        {{ format(balance.cents) }} EUR
+      </p>
+    </ion-text>
+    @if (amountInvalid) {
+      <ion-text color="danger">
+        <p>{{ 'settlements.amount-invalid' | translate }}</p>
+      </ion-text>
+    } @else if (exceedsBalance) {
+      <ion-text color="warning">
+        <p>{{ 'settlements.exceeds-balance' | translate }}</p>
+      </ion-text>
+    }
+  </div>
+
+  <ion-list>
+    <ion-item>
+      <ion-input
+        label="{{ 'settlements.note-label' | translate }}"
+        labelPlacement="floating"
+        type="text"
+        [maxlength]="200"
+        placeholder="{{ 'settlements.note-placeholder' | translate }}"
+        [value]="note"
+        (ionInput)="onNoteInput($event)"
+      ></ion-input>
+    </ion-item>
+  </ion-list>
+
+  @if (errorMessage) {
+    <ion-text color="danger">
+      <p class="ion-padding-start">{{ errorMessage | translate }}</p>
+    </ion-text>
+  }
+</ion-content>

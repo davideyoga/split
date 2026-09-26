@@ -15,8 +15,8 @@
   </div>
 } @else {
   <ion-list>
-    @for (expense of expenses; track expense.id) {
-      <ion-item button [routerLink]="['/tabs/groups', groupPublicId, 'expense', expense.id]">
+    @for (expense of expenses; track expense.publicId) {
+      <ion-item button [routerLink]="['/tabs/groups', groupPublicId, 'expense', expense.publicId]">
         <ion-label>
           <h2>{{ expense.description || ('expense-detail.untitled' | translate) }}</h2>
           <p>{{ 'groups.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>

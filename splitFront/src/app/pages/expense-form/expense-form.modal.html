@@ -3,12 +3,12 @@
     <ion-buttons slot="start">
       <ion-button (click)="cancel()">{{ 'expense-form.cancel' | translate }}</ion-button>
     </ion-buttons>
-    <ion-title>{{ 'expense-form.title-new' | translate }}</ion-title>
+    <ion-title>{{ (isEdit ? 'expense-form.title-edit' : 'expense-form.title-new') | translate }}</ion-title>
     <ion-buttons slot="end">
       <ion-button
         [strong]="true"
-        [disabled]="expenseForm.invalid || saving"
-        (click)="createExpense()"
+        [disabled]="expenseForm.invalid || saving || !ready"
+        (click)="save()"
       >
         {{ 'expense-form.save' | translate }}
       </ion-button>
@@ -99,7 +99,7 @@
             @for (candidate of payerCandidates; track candidate.publicId) {
               <ion-select-option [value]="candidate.publicId">
                 {{ candidate.nickName }}
-                @if (candidate.publicId === creator?.publicId) {
+                @if (candidate.publicId === mePublicId) {
                   ({{ 'expense-form.you' | translate }})
                 }
               </ion-select-option>

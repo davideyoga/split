@@ -18,7 +18,7 @@ export const routes: Routes = [
           import('./pages/activity/activity.page').then((m) => m.ActivityPage),
       },
       {
-        path: 'activity/expense/:id',
+        path: 'activity/expense/:expensePublicId',
         loadComponent: () =>
           import('./pages/expense-detail/expense-detail.page').then(
             (m) => m.ExpenseDetailPage,
@@ -43,10 +43,10 @@ export const routes: Routes = [
             (m) => m.GroupSettingsPage,
           ),
       },
-      // Stesso dettaglio spesa di activity/expense/:id, ma dentro la tab
+      // Stesso dettaglio spesa di activity/expense/:expensePublicId, ma dentro la tab
       // Gruppi: aperto dal gruppo, non fa saltare l'utente in un'altra tab.
       {
-        path: 'groups/:publicId/expense/:id',
+        path: 'groups/:publicId/expense/:expensePublicId',
         loadComponent: () =>
           import('./pages/expense-detail/expense-detail.page').then(
             (m) => m.ExpenseDetailPage,

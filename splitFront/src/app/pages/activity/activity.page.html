@@ -67,8 +67,8 @@
       <p class="ion-padding-horizontal">{{ 'activity.no-results' | translate }}</p>
     }
     <ion-list>
-      @for (expense of filteredExpenses; track expense.id) {
-        <ion-item button [routerLink]="['/tabs/activity/expense', expense.id]">
+      @for (expense of filteredExpenses; track expense.publicId) {
+        <ion-item button [routerLink]="['/tabs/activity/expense', expense.publicId]">
           <ion-label>
             <h2>{{ expense.description || ('expense-detail.untitled' | translate) }}</h2>
             <p>{{ 'activity.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>

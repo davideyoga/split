@@ -17,6 +17,17 @@ export interface CreateExpensePayload {
   categoryPublicId?: string;
 }
 
+// PATCH /api/expense/:publicId. Un campo omesso resta invariato; `null` su
+// gruppo/categoria li toglie. La modale di modifica li manda sempre tutti.
+export interface UpdateExpensePayload {
+  description?: string;
+  amount?: number;
+  participantPublicIds?: string[];
+  paidByPublicId?: string;
+  groupPublicId?: string | null;
+  categoryPublicId?: string | null;
+}
+
 export interface ExpenseContribution {
   id: number;
   share: string;
@@ -24,11 +35,13 @@ export interface ExpenseContribution {
 }
 
 export interface ExpenseListItem {
-  id: number;
+  publicId: string;
   description: string;
   amount: string;
   currency: string;
   createdDate: string;
+  // Il creatore resta sempre fra i contributori, anche dopo una modifica.
+  createdBy: User;
   paidBy: User;
   group: { publicId: string; name: string } | null;
   category: ExpenseCategory | null;
@@ -53,7 +66,20 @@ export class ExpenseService {
     );
   }
 
+  get(publicId: string): Observable<ExpenseListItem> {
+    return this.http.get<ExpenseListItem>(`${this.baseUrl}/expense/${publicId}`);
+  }
+
   create(payload: CreateExpensePayload): Observable<unknown> {
     return this.http.post(`${this.baseUrl}/expense`, payload);
+  }
+
+  // Modifica/eliminazione: permesse a qualsiasi contributore (403 altrimenti).
+  update(publicId: string, payload: UpdateExpensePayload): Observable<ExpenseListItem> {
+    return this.http.patch<ExpenseListItem>(`${this.baseUrl}/expense/${publicId}`, payload);
+  }
+
+  remove(publicId: string): Observable<unknown> {
+    return this.http.delete(`${this.baseUrl}/expense/${publicId}`);
   }
 }

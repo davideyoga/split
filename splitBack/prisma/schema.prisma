@@ -46,6 +46,7 @@ model ExpenseContribution {
 model Expense {
 
   id                   Int                   @id @default(autoincrement())
+  publicId             String                @unique @default(uuid())
   amount               Decimal
   currency             String                @default("EUR") // Pronto per V2.0
   category             Category?             @relation(fields: [categoryId], references: [id])

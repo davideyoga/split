@@ -17,7 +17,10 @@
     "split-equal": "Equal",
     "split-each": "{{amount}} each",
     "created": "Expense added",
-    "create-error": "Couldn't create the expense, please try again"
+    "create-error": "Couldn't create the expense, please try again",
+    "title-edit": "Edit expense",
+    "updated": "Expense updated",
+    "update-error": "Couldn't save the changes, please try again"
   },
   "expense-detail": {
     "title": "Expense",
@@ -29,7 +32,14 @@
     "participants": "Participants",
     "you": "you",
     "not-found": "Expense not found",
-    "load-error": "Couldn't load the expense, please try again"
+    "load-error": "Couldn't load the expense, please try again",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "delete-confirm": "Delete this expense?",
+    "delete-confirm-message": "It will be removed for all participants and balances will be recalculated. This cannot be undone.",
+    "deleted": "Expense deleted",
+    "delete-error": "Couldn't delete the expense, please try again"
   },
   "select-participant": {
     "title": "Select participant",

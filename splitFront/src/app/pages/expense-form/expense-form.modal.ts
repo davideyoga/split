@@ -47,14 +47,18 @@ import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { CategoryService } from '../../services/category.service';
-import { ExpenseService } from '../../services/expense.service';
+import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
+import { GroupService } from '../../services/group.service';
 import { formatCents, toCents } from '../../utils/balance';
 
-// Nuova spesa come modale, pre-contestualizzata dal punto di partenza: aperta
-// dal dettaglio di un gruppo riceve `group` gia' selezionato. Chiude con
-// `dismiss(null, 'created')` dopo il salvataggio (il chiamante ricarica la sua
-// lista) o `dismiss(null, 'cancel')`. Solo creazione: la modifica richiede
-// endpoint GET/PATCH /api/expense/:id che il backend non ha ancora.
+// Nuova spesa o modifica di una esistente, come modale.
+// - Creazione: pre-contestualizzata dal punto di partenza (aperta dal dettaglio
+//   di un gruppo riceve `group` gia' selezionato). Chiude con
+//   `dismiss(null, 'created')` dopo il salvataggio (il chiamante ricarica la
+//   sua lista).
+// - Modifica (`expense` in componentProps, dal dettaglio spesa): precompila
+//   tutto e chiude con `dismiss(spesaAggiornata, 'updated')`.
+// In entrambi i casi `dismiss(null, 'cancel')` se si annulla.
 @Component({
   selector: 'app-expense-form',
   templateUrl: './expense-form.modal.html',
@@ -86,6 +90,8 @@ import { formatCents, toCents } from '../../utils/balance';
 export class ExpenseFormModal implements OnInit {
   // Gruppo precompilato (componentProps). Resta rimovibile dall'utente.
   @Input() group?: Group;
+  // Spesa da modificare: se presente la modale e' in modalita' modifica.
+  @Input() expense?: ExpenseListItem;
 
   private fb = inject(FormBuilder);
   private modalCtrl = inject(ModalController);
@@ -94,8 +100,16 @@ export class ExpenseFormModal implements OnInit {
   private authService = inject(AuthService);
   private expenseService = inject(ExpenseService);
   private categoryService = inject(CategoryService);
+  private groupService = inject(GroupService);
 
+  // Chi ha creato la spesa: e' sempre un contributore (lo impone il backend) e
+  // non si puo' togliere. In creazione e' l'utente loggato, in modifica il
+  // creatore originale, che puo' essere un altro.
   creator: User | null = null;
+  mePublicId = '';
+  // In modifica, false finche' non si conoscono i membri del gruppo (servono per
+  // distinguere i partecipanti singoli da quelli portati dal gruppo).
+  ready = true;
 
   // Partecipanti singoli aggiunti oltre al gruppo.
   participants: User[] = [];
@@ -135,12 +149,69 @@ export class ExpenseFormModal implements OnInit {
     });
   }
 
+  get isEdit(): boolean {
+    return !!this.expense;
+  }
+
   ngOnInit() {
-    this.creator = this.authService.currentUser();
-    this.paidByPublicId = this.creator?.publicId ?? '';
-    this.selectedGroup = this.group ?? null;
-    this.refreshPayerCandidates();
+    const me = this.authService.currentUser();
+    this.mePublicId = me?.publicId ?? '';
+
+    if (this.expense) {
+      this.initFromExpense(this.expense);
+    } else {
+      this.creator = me;
+      this.paidByPublicId = this.creator?.publicId ?? '';
+      this.selectedGroup = this.group ?? null;
+      this.refreshPayerCandidates();
+    }
     this.loadCategories();
+  }
+
+  private initFromExpense(expense: ExpenseListItem) {
+    this.ready = false;
+    this.creator = expense.createdBy;
+    this.paidByPublicId = expense.paidBy.publicId;
+    this.expenseForm.patchValue({
+      amount: formatCents(toCents(expense.amount)),
+      description: expense.description,
+    });
+    this.selectedCategory = expense.category
+      ? { ...expense.category, isCustom: !expense.category.slug }
+      : null;
+
+    const contributors = expense.expenseContributions.map((c) => c.user);
+    const group = expense.group;
+    if (!group) {
+      this.setEditParticipants(contributors, []);
+      return;
+    }
+
+    this.groupService.getGroup(group.publicId).subscribe({
+      next: (loaded) => {
+        this.selectedGroup = loaded;
+        this.setEditParticipants(contributors, loaded.members);
+      },
+      // Non sono (piu') membro del gruppo, quindi non ne conosco i membri:
+      // tratto tutti i contributori come membri. Non mando partecipanti singoli
+      // e il backend ricalcola le quote dai membri attuali del gruppo.
+      error: () => {
+        this.selectedGroup = { ...group, members: contributors };
+        this.setEditParticipants(contributors, contributors);
+      },
+    });
+  }
+
+  // Partecipanti singoli = contributori tolti il creatore e i membri del
+  // gruppo: e' la stessa regola con cui il backend li ricava se omessi.
+  private setEditParticipants(contributors: User[], groupMembers: User[]) {
+    const excluded = new Set([
+      this.creator?.publicId,
+      ...groupMembers.map((m) => m.publicId),
+    ]);
+    this.participants = contributors.filter((u) => !excluded.has(u.publicId));
+    this.refreshPayerCandidates();
+    this.ready = true;
   }
 
   // Quota equa a testa, come la calcola il backend (round a 2 decimali).
@@ -155,7 +226,16 @@ export class ExpenseFormModal implements OnInit {
 
   loadCategories() {
     this.categoryService.getCategories().subscribe({
-      next: (categories) => (this.categories = categories),
+      next: (categories) => {
+        // In modifica la categoria della spesa puo' non essere fra le mie
+        // (custom di chi l'ha creata, o archiviata): la aggiungo per mostrarla
+        // selezionata. Il backend non la ricontrolla se resta invariata.
+        const selected = this.selectedCategory;
+        this.categories =
+          selected && !categories.some((c) => c.publicId === selected.publicId)
+            ? [...categories, selected]
+            : categories;
+      },
     });
   }
 
@@ -265,14 +345,44 @@ export class ExpenseFormModal implements OnInit {
     this.modalCtrl.dismiss(null, 'cancel');
   }
 
-  createExpense() {
-    if (this.expenseForm.invalid || this.saving) {
+  save() {
+    if (this.expenseForm.invalid || this.saving || !this.ready) {
       return;
     }
 
     this.errorMessage = '';
     this.saving = true;
 
+    if (this.expense) {
+      this.updateExpense(this.expense.publicId);
+    } else {
+      this.createExpense();
+    }
+  }
+
+  // Manda sempre tutti i campi: `null` toglie gruppo/categoria, una
+  // descrizione vuota la cancella.
+  private updateExpense(publicId: string) {
+    this.expenseService.update(publicId, {
+      description: this.expenseForm.value.description?.trim() ?? '',
+      amount: Number(this.expenseForm.value.amount),
+      participantPublicIds: this.participants.map((p) => p.publicId),
+      paidByPublicId: this.paidByPublicId || undefined,
+      groupPublicId: this.selectedGroup?.publicId ?? null,
+      categoryPublicId: this.selectedCategory?.publicId ?? null,
+    }).subscribe({
+      next: async (updated) => {
+        await this.presentSuccessToast('expense-form.updated');
+        this.modalCtrl.dismiss(updated, 'updated');
+      },
+      error: () => {
+        this.saving = false;
+        this.errorMessage = 'expense-form.update-error';
+      },
+    });
+  }
+
+  private createExpense() {
     this.expenseService.create({
       description: this.expenseForm.value.description?.trim() || undefined,
       amount: Number(this.expenseForm.value.amount),
@@ -282,7 +392,7 @@ export class ExpenseFormModal implements OnInit {
       categoryPublicId: this.selectedCategory?.publicId,
     }).subscribe({
       next: async () => {
-        await this.presentCreatedToast();
+        await this.presentSuccessToast('expense-form.created');
         this.modalCtrl.dismiss(null, 'created');
       },
       error: () => {
@@ -292,9 +402,9 @@ export class ExpenseFormModal implements OnInit {
     });
   }
 
-  private async presentCreatedToast() {
+  private async presentSuccessToast(messageKey: string) {
     const toast = await this.toastCtrl.create({
-      message: this.translate.instant('expense-form.created'),
+      message: this.translate.instant(messageKey),
       duration: 2000,
       position: 'bottom',
       color: 'success',

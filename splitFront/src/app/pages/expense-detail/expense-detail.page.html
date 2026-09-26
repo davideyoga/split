@@ -4,6 +4,21 @@
       <ion-back-button [defaultHref]="backHref"></ion-back-button>
     </ion-buttons>
     <ion-title>{{ expense?.description || ('expense-detail.title' | translate) }}</ion-title>
+    @if (canEdit) {
+      <ion-buttons slot="end">
+        <ion-button (click)="edit()" [attr.aria-label]="'expense-detail.edit' | translate">
+          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+        </ion-button>
+        <ion-button
+          color="danger"
+          [disabled]="deleting"
+          (click)="confirmDelete()"
+          [attr.aria-label]="'expense-detail.delete' | translate"
+        >
+          <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    }
   </ion-toolbar>
 </ion-header>
 

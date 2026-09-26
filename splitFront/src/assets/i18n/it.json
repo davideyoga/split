@@ -17,7 +17,10 @@
     "split-equal": "Equa",
     "split-each": "{{amount}} a testa",
     "created": "Spesa aggiunta",
-    "create-error": "Impossibile creare la spesa, riprova"
+    "create-error": "Impossibile creare la spesa, riprova",
+    "title-edit": "Modifica spesa",
+    "updated": "Spesa aggiornata",
+    "update-error": "Impossibile salvare le modifiche, riprova"
   },
   "expense-detail": {
     "title": "Spesa",
@@ -29,7 +32,14 @@
     "participants": "Partecipanti",
     "you": "tu",
     "not-found": "Spesa non trovata",
-    "load-error": "Impossibile caricare la spesa, riprova"
+    "load-error": "Impossibile caricare la spesa, riprova",
+    "edit": "Modifica",
+    "delete": "Elimina",
+    "cancel": "Annulla",
+    "delete-confirm": "Eliminare questa spesa?",
+    "delete-confirm-message": "Verrà eliminata per tutti i partecipanti e i saldi saranno ricalcolati. L'operazione non si può annullare.",
+    "deleted": "Spesa eliminata",
+    "delete-error": "Impossibile eliminare la spesa, riprova"
   },
   "select-participant": {
     "title": "Seleziona partecipante",

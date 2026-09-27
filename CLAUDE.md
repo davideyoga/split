@@ -72,6 +72,15 @@ added by putting their real email in `seed.ts` and re-running it. The
 `@disney.test` addresses can't receive mail, so they can log in only with
 `MAIL_TRANSPORT=console` (code in the server log) or `outbox` (e2e).
 
+Real alpha testers (2026-09-27) are added with a separate script, so their emails never enter the repo:
+```
+DATABASE_URL='<Neon connection string>' node splitBack/prisma/add-users.mts [file.json]
+```
+- It reads `splitBack/prisma/users.local.json` by default. That file is **gitignored**, and `users.example.json` shows the format `[{ "email", "nickName" }]`.
+- Emails are trimmed and lowercased. The script is idempotent: an existing email is skipped, or its nickname updated if it changed. A nickname already taken by someone else fails with a clear message for that one user, and the rest still go in.
+- It does not create categories (`seed.ts` does).
+- **Pitfall — importing `@prisma/client` loads the root `.env` by itself.** That is why `add-users.mts` checks `DATABASE_URL` *before* a dynamic `import('@prisma/client')`, and why it refuses to run without an explicit `DATABASE_URL`: with a static import, the check passed on the `.env` value and the script wrote to the local dev DB. `seed.ts` has no such check, so without an explicit `DATABASE_URL` it writes to whatever `.env` points at.
+
 > Note: there is only one Prisma setup — `splitBack/prisma/schema.prisma` plus its `splitBack/prisma.config.ts`. An earlier empty scaffold (`prisma/schema.prisma` + `prisma.config.ts` at the repo root, from the "refactor from old project" commit) was **deleted** on 2026-08-30: it had no models, its `generated/prisma` client was never built, and nothing imported it. Its root `prisma.config.ts` also carried a `migrations.path` that could hijack migrations run from the repo root, which is how the stray `prisma/migrations/20260329165712_init_db` got created. If you need a root-level Prisma config back, don't — run Prisma commands from inside `splitBack/`, or keep passing `--schema=splitBack/prisma/schema.prisma`.
 
 > Migrations (2026-08-30, groups work): `20260830163530_...` reconciled the earlier schema drift (`ExpenseContribution.share`, `Expense.paidById`/`currency`/`category`/`groupId`, drop of `ExpenseOnGroup`). `20260830183851_add_group_publicid_and_membership_unique` adds `Group.publicId` (uuid) + `@@unique([groupId, userId])` on `UserOnGroup`. `prisma migrate dev` is **non-interactive-hostile** here (it errors out); create the migration folder + SQL by hand (or via `prisma migrate diff --from-migrations … --to-schema-datamodel … --script`) and apply with `prisma db execute` / `prisma migrate deploy`. **Do not** pass the real `DATABASE_URL` as `--shadow-database-url` — Prisma wipes the shadow DB; doing so once during this work dropped the dev data (recovered by re-running `splitBack/prisma/seed.ts`).

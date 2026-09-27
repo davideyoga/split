@@ -1,0 +1,89 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'split-shares.cancel' | translate }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'split-shares.title' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [strong]="true" [disabled]="remainingCents !== 0" (click)="confirm()">
+        {{ 'split-shares.done' | translate }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- RIEPILOGO: fisso nell'header, resta visibile anche con molti partecipanti -->
+  <ion-toolbar>
+    <div class="summary">
+      <div class="summary-cell">
+        <ion-note>{{ 'split-shares.total' | translate }}</ion-note>
+        <strong>{{ format(totalCents) }}</strong>
+      </div>
+      <div class="summary-cell">
+        <ion-note>{{ 'split-shares.assigned' | translate }}</ion-note>
+        <strong>{{ format(assignedCents) }}</strong>
+      </div>
+      <div class="summary-cell">
+        @if (remainingCents > 0) {
+          <ion-note>{{ 'split-shares.remaining' | translate }}</ion-note>
+          <ion-text color="warning"><strong>{{ format(remainingCents) }}</strong></ion-text>
+        } @else if (remainingCents < 0) {
+          <ion-note>{{ 'split-shares.over' | translate }}</ion-note>
+          <ion-text color="danger"><strong>{{ format(remainingCents) }}</strong></ion-text>
+        } @else {
+          <ion-note>{{ 'split-shares.remaining' | translate }}</ion-note>
+          <ion-text color="success"><strong>{{ 'split-shares.complete' | translate }}</strong></ion-text>
+        }
+      </div>
+    </div>
+    <ion-progress-bar
+      [value]="progress"
+      [color]="remainingCents < 0 ? 'danger' : remainingCents === 0 ? 'success' : 'primary'"
+    ></ion-progress-bar>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    @for (person of people; track person.publicId) {
+      <ion-item>
+        <ion-label>
+          {{ person.nickName }}
+          @if (person.publicId === mePublicId) {
+            ({{ 'split-shares.you' | translate }})
+          }
+          @if (person.publicId === paidByPublicId) {
+            <p>{{ 'split-shares.paid' | translate }}</p>
+          }
+        </ion-label>
+        <!-- "+ quel che manca" a questa persona -->
+        @if (remainingCents > 0) {
+          <ion-button slot="end" fill="clear" size="small" (click)="assignRemaining(person)">
+            +{{ format(remainingCents) }}
+          </ion-button>
+        }
+        <ion-input
+          slot="end"
+          class="share-input"
+          type="text"
+          inputmode="decimal"
+          placeholder="0.00"
+          [value]="values[person.publicId]"
+          [attr.aria-label]="person.nickName"
+          (ionInput)="onInput(person, $event)"
+          (ionBlur)="onBlur(person)"
+        ></ion-input>
+      </ion-item>
+    }
+  </ion-list>
+
+  <p class="ion-padding-horizontal hint">
+    <ion-note>{{ 'split-shares.hint' | translate }}</ion-note>
+  </p>
+
+  <div class="ion-padding-horizontal">
+    <ion-button expand="block" fill="outline" [disabled]="equal" (click)="fillEqually()">
+      <ion-icon slot="start" name="pie-chart-outline"></ion-icon>
+      {{ 'split-shares.split-equally' | translate }}
+    </ion-button>
+  </div>
+</ion-content>

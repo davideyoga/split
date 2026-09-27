@@ -14,15 +14,21 @@
         "browser": "splitFront/src/main.ts",
         "polyfills": ["zone.js"],
         "tsConfig": "splitFront/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
         "assets": [
           {
             "glob": "**/*.svg",
             "input": "node_modules/ionicons/dist/ionicons/svg",
             "output": "./svg"
+          },
+          {
+            "glob": "**/*",
+            "input": "splitFront/src/assets",
+            "output": "assets"
           }
         ],
         "styles": [
-          "splitFront/src/styles.css",
+          "splitFront/src/styles.scss",
           "splitFront/src/theme/variables.scss",
           "node_modules/@ionic/angular/css/core.css",
           "node_modules/@ionic/angular/css/normalize.css",
@@ -57,6 +63,17 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "e2e": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "splitFront/src/environments/environment.ts",
+              "with": "splitFront/src/environments/environment.e2e.ts"
+            }
+          ]
         }
       },
       "defaultConfiguration": "production"
@@ -70,6 +87,10 @@
         },
         "development": {
           "buildTarget": "splitFront:build:development"
+        },
+        "e2e": {
+          "buildTarget": "splitFront:build:e2e",
+          "port": 4300
         }
       },
       "defaultConfiguration": "development"

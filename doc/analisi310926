@@ -1,0 +1,178 @@
+# Analisi del progetto Split — problemi e migliorie individuate (2026-08-31)
+
+## Contesto
+
+Analisi generale del codice per individuare margini di miglioramento, condotta
+esplorando in parallelo backend (`splitBack`), frontend (`splitFront`) e
+aspetti trasversali del monorepo (Nx, workspace, sicurezza, CI). L'analisi
+esclude deliberatamente quanto già documentato come shortcut noto/TODO in
+`CLAUDE.md` e `TODO.md`, concentrandosi su problemi **non ancora tracciati**.
+Nessuna modifica è stata applicata al codice: questo documento è solo il
+report dell'analisi, con una proposta di priorità in fondo nel caso si voglia
+procedere a sistemare qualcosa.
+
+## 🔴 Bug/rischi reali non documentati (priorità alta)
+
+1. **Endpoint utenti senza autenticazione** — `splitBack/src/app/user/user.controller.ts:22-25`.
+   `GET /api/user/:nickname` non ha `@UseGuards(JwtAuthGuard)`: chiunque, senza
+   login, può enumerare nickname/publicId di tutti gli utenti registrati
+   (ricerca `contains` case-insensitive, nessuna lunghezza minima, stringa
+   vuota ritorna comunque righe). Fix: aggiungere il guard come sugli altri
+   endpoint.
+
+2. **`.env` con credenziali reali committato nella history git** — introdotto
+   nel commit `7050408`, aggiornato in `72a4e6a`. Il `.gitignore` è stato
+   aggiunto dopo, quindi non ha effetto sul tracking già esistente. Contiene
+   password Postgres e `JWT_SECRET` reali, ora nella history pubblica del
+   branch `dev`. Da fare: ruotare le credenziali (nuova password DB, nuovo
+   `JWT_SECRET`), `git rm --cached .env`, valutare riscrittura storia se il
+   repo è condiviso.
+
+3. **Validazione partecipanti non deduplicata** — `splitBack/src/app/expense/expense.service.ts:41-47`.
+   Se `participantPublicIds` contiene un duplicato, Prisma `in` deduplica lato
+   SQL ma il confronto di lunghezza no → la richiesta viene rifiutata con
+   "partecipante non esistente" anche se tutti esistono davvero.
+   `GroupService.resolveMembers` risolve correttamente lo stesso caso con
+   `[...new Set(...)]`: stesso fix va applicato qui (idealmente estraendo un
+   helper condiviso, vedi punto sotto sulla duplicazione backend).
+
+4. **Un gruppo può restare orfano e irrecuperabile** — `splitBack/src/app/group/group.service.ts:118-138` (`removeMember`).
+   Nessun controllo impedisce di rimuovere l'ultimo membro di un gruppo. Una
+   volta a zero membri, `assertMember` nega l'accesso a chiunque per sempre
+   (nessuna via di recupero via API). Fix: impedire la rimozione dell'ultimo
+   membro, o prevedere un meccanismo di recupero.
+
+5. **Flusso `confirmed`/`ConfirmationCode` è dead/incompleto** — `AuthService.login`
+   non controlla mai `User.confirmed`; il codice di conferma è hardcoded
+   (`'testcode'`) e l'invio email è commentato. Un utente mai "confermato"
+   fa comunque login con lo stesso JWT degli utenti seed. Va oltre lo
+   shortcut già noto ("login email-only"): qui l'intero meccanismo è
+   morto/a metà e vale la pena annotarlo esplicitamente per non scambiarlo
+   per logica funzionante.
+
+6. **Creazione utente non gestisce violazione `@unique`** — `splitBack/src/app/user/user.service.ts:12-18`.
+   Email/nickname duplicati causano un'eccezione Prisma (`P2002`) non gestita
+   → 500 generico invece di un errore chiaro (409/400).
+
+7. **`GroupService.getMyGroups()` inghiotte sempre l'errore** — `splitFront/src/app/services/group.service.ts:16-22`.
+   `catchError(() => of([]))` rende dead code il ramo `error:` sia in
+   `home.ts` che in `group-list.ts`: un errore di rete appare all'utente
+   come "nessun gruppo", e il messaggio `groups.load-error` (già tradotto)
+   non è mai mostrabile. Incoerente con `ExpenseService`, che lascia gestire
+   l'errore al chiamante (pattern corretto, da uniformare qui).
+
+8. **Stringa "Home" non tradotta** — `splitFront/src/app/pages/home/home.html:3`,
+   unico testo hardcoded rimasto tra i file toccati, in violazione della
+   regola i18n di CLAUDE.md.
+
+9. **Race condition nella ricerca utenti** — `splitFront/src/app/components/select-participant/select-participant.component.ts:83-95`.
+   Ogni digitazione crea una nuova `subscribe()` senza annullare la
+   precedente: una risposta "vecchia" arrivata in ritardo può sovrascrivere
+   risultati più recenti. Fix: `Subject` + `debounceTime` + `switchMap`.
+
+## 🟠 Migliorie architetturali (priorità media)
+
+**Backend:**
+- `ValidationPipe` istanziato manualmente in ogni controller invece di
+  `app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))`
+  in `main.ts` — oltre alla duplicazione, i default nei DTO (es.
+  `participantPublicIds: string[] = []`) sono attualmente codice morto senza
+  `transform: true`, e manca protezione da mass-assignment.
+- Duplicazione della logica "risolvi utenti da publicId e valida che
+  esistano tutti" tra `group.service.ts:141-150` e `expense.service.ts:41-47`
+  (estrarre un helper condiviso risolverebbe anche il bug #3 sopra).
+- `request['user'] as AuthUser` ripetuto in ogni handler dei controller —
+  un `@CurrentUser()` param decorator centralizzerebbe il pattern.
+- `@UseGuards(JwtAuthGuard)` ripetuto per-metodo invece che a livello di
+  `@Controller` in `expense.controller.ts`/`group.controller.ts`.
+- Query ridondanti: `AuthUser` non porta l'`id` interno, quindi ogni service
+  rifà una `findUnique` sull'utente già risolto dal guard.
+- `ExpenseService.findMine`/`create` espongono l'intero record `User` di
+  ogni contributore (email, `refreshToken`, `confirmed`, id interno) invece
+  di un `select` mirato come fa `GroupService` — incoerente con la
+  convenzione "solo publicId" seguita altrove.
+- `PrismaService` usa `console.log`/`console.error` invece del `Logger` di
+  Nest; un errore di connessione in `onModuleInit` non blocca il bootstrap
+  (fail silenzioso invece di fail-fast).
+- Rounding delle quote (`expense.service.ts:82-83`) fa aritmetica
+  floating-point JS su un campo `Decimal` senza precisione dichiarata nello
+  schema, e il DTO non limita `amount` a 2 decimali — aggravante del TODO
+  già noto sul drift di arrotondamento.
+- Nessuna paginazione su `GET /api/expense` e `GET /api/group`.
+
+**Frontend:**
+- `ParticipantSelectionService` è un `Subject` globale `providedIn: 'root'`
+  condiviso da pagine diverse (add-expense, group-list, group-detail) —
+  funziona solo perché oggi non c'è route reuse/tabs; design fragile.
+  Meglio far restituire il dato dalla modale (`modalCtrl.dismiss(data)`).
+- `select-participant` non ha `OnDestroy`/unsubscribe per le sue due
+  `subscribe()`, incoerente col resto della codebase.
+- Logica "aggiungi se non già presente" duplicata quasi identica tra
+  `add-expense.ts`, `group-list.ts`, `group-detail.ts`.
+- Tre pattern diversi di gestione errori HTTP tra i servizi (`UserService`/
+  `GroupService` inghiottono con `catchError`, `ExpenseService` no) — da
+  uniformare, idealmente verso "mai `catchError` nel service, sempre
+  `next/error` nel componente".
+
+**Monorepo/processo:**
+- Le module-boundary rules Nx documentate (`splitFront` non deve mai
+  importare `splitBack`/Prisma) **non sono realmente applicate**:
+  `depConstraints` in `eslint.config.mjs` è un no-op (`'*'` → `['*']`),
+  nessun progetto ha `tags`. Andrebbero introdotti tag reali
+  (`scope:frontend`/`scope:backend`/`scope:shared`).
+- `data-access/` è uno scaffold vuoto mai importato da nessuno, nonostante
+  sia documentato come "il posto per DTO/interfacce condivise" — oggi i tipi
+  (`User`, `Group`, `CreateExpenseDto`) sono duplicati a mano tra front e
+  back, esattamente il problema che dovrebbe risolvere.
+- `package.json` root: `workspaces` include `splitBack-e2e` (cartella
+  inesistente) ma non include `splitFront` (che ha proprie dipendenze
+  Capacitor non gestite dal workspace).
+- Nessuna pipeline CI (niente `.github/workflows`) nonostante `nx.json` abbia
+  già `nxCloudId` configurato — un workflow con
+  `nx affected -t build lint typecheck` sarebbe a basso sforzo.
+
+## 🟢 Minori / pulizia stilistica
+
+- `splitBack/src/app/user/user.controller.ts:1` e `create-user.dto.ts:1` —
+  commenti di intestazione copiati per errore da `expense` (refuso).
+- Stringhe di errore in italiano duplicate tra service backend
+  (`'Utente non trovato'` ripetuta in 4 punti) — da centralizzare.
+- `splitFront/src/app/pages/add-expense/add-expense.ts:27` — classe
+  `addExpense` con iniziale minuscola, incoerente col PascalCase usato da
+  `Home`/`Login`/`GroupList`/`GroupDetail`.
+- `add-expense.ts`: doppioni nell'array `imports` (`IonChip`, `IonIcon`,
+  `IonLabel` due volte); `TranslateDirective` importato ma mai usato nel
+  template.
+- Stile inline in `add-expense.html:90` invece di una classe SCSS (il resto
+  del commit usa correttamente `home.scss`); classe `.member-count` morta
+  (nessuna regola) in `select-participant.component.scss`.
+- Accessibilità: le "X" per rimuovere partecipante/gruppo sono `<ion-icon>`
+  nudi con `(click)`, non raggiungibili da tastiera/screen reader — andrebbero
+  `<ion-button>` con `aria-label`.
+- `select-participant.component.spec.ts` è stato aggiornato ma resta
+  ineseguibile (nessun test runner ancora configurato per `splitFront`, come
+  già noto) — rischio di "bit rot" silenzioso finché non si configura Jest.
+- Nessun test automatico esiste nel backend (`splitBack`) nonostante
+  `@nestjs/testing` sia una dipendenza dichiarata; non era ancora annotato
+  esplicitamente in CLAUDE.md (lo è solo per il frontend).
+
+## Cose verificate come già corrette/coerenti (nessuna azione)
+
+- Nessuna incongruenza tra `TODO.md` e i TODO effettivi nel codice: tutte le
+  6 voci corrispondono a file:riga reali, incluse le modifiche pendenti.
+- Le chiavi i18n in `en.json`/`it.json` sono identiche tra loro (nessuna
+  chiave mancante da un lato) per tutte le stringhe nuove del diff pendente.
+- Lo scaffold Prisma morto e `data-sharing.ts`, entrambi documentati come
+  rimossi il 2026-08-30, risultano effettivamente assenti.
+
+## Proposta di priorità se si vuole procedere con dei fix
+
+1. Sicurezza: guard mancante su ricerca utenti (#1) + rotazione credenziali
+   `.env` (#2) — quick win, rischio concreto anche in alpha.
+2. Bug di correttezza: dedup partecipanti (#3), gruppo orfano (#4), errori
+   Prisma non gestiti in creazione utente (#6).
+3. Frontend: error handling `GroupService` (#7) + stringa "Home" non
+   tradotta (#8) + race condition ricerca (#9) — piccoli fix isolati.
+4. Migliorie architetturali (ValidationPipe globale, helper condiviso
+   dedup, `@CurrentUser`, select mirati su Expense) — refactor più ampio,
+   da pianificare a parte.

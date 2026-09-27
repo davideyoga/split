@@ -4,9 +4,6 @@
   "files": [],
   "references": [
     {
-      "path": "./splitBack-e2e"
-    },
-    {
       "path": "./splitBack"
     },
     {
@@ -14,6 +11,9 @@
     },
     {
       "path": "./splitFront"
+    },
+    {
+      "path": "./splitFront-e2e"
     }
   ]
 }

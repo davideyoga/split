@@ -1,12 +1,15 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
+  url = env("DATABASE_URL")
 }
 
+// E' anche la tabella `user` di Better Auth (splitBack/src/app/auth/auth.factory.ts),
+// che ne rimappa i campi: name -> nickName, emailVerified -> confirmed,
+// createdAt -> createdDate. `image` e `updatedAt` esistono solo per Better Auth.
 model User {
   id                   Int                @id @default(autoincrement())
   email                String             @unique
@@ -14,20 +17,69 @@ model User {
   nickName             String             @unique
   expenseContributions ExpenseContribution[]
   expensesCreatedByMe  Expense[]          @relation("CreatedBy")
+  expensesPaidByMe     Expense[]          @relation("PaidBy")
   userOnGroups         UserOnGroup[]
+  categories           Category[]
+  settlementsPaid      Settlement[]       @relation("SettlementFrom")
+  settlementsReceived  Settlement[]       @relation("SettlementTo")
+  settlementsCreated   Settlement[]       @relation("SettlementCreatedBy")
   createdDate          DateTime           @default(now())
+  updatedAt            DateTime           @default(now()) @updatedAt
   confirmed            Boolean            @default(false)
-  confirmationCodes    ConfirmationCode[]
-  refreshToken         String?
+  image                String?
+  sessions             Session[]
+  accounts             Account[]
 }
 
-model ConfirmationCode {
+// Tabelle di Better Auth (login con codice via email). Gli id sono interi
+// autoincrement come quelli di User (`advanced.database.generateId: "serial"`).
+
+// Una sessione per dispositivo: `token` e' il Bearer che il frontend manda.
+model Session {
   id        Int      @id @default(autoincrement())
-  code      String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  token     String   @unique
   expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// Account collegati (provider social, password). Col solo login via codice
+// resta vuota, ma Better Auth la richiede.
+model Account {
+  id                    Int       @id @default(autoincrement())
+  accountId             String
+  providerId            String
+  userId                Int
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// Codici di login in attesa (salvati come hash, scadono dopo 10 minuti).
+model Verification {
+  id         Int      @id @default(autoincrement())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@index([identifier])
 }
 
 model ExpenseContribution {
@@ -37,27 +89,79 @@ model ExpenseContribution {
   userId      Int
   expense     Expense  @relation(fields: [expenseId], references: [id])
   expenseId   Int
+  share       Decimal  // Quanto deve questa persona per questa spesa
   createdDate DateTime @default(now())
 }
 
 model Expense {
 
   id                   Int                   @id @default(autoincrement())
+  publicId             String                @unique @default(uuid())
   amount               Decimal
+  currency             String                @default("EUR") // Pronto per V2.0
+  category             Category?             @relation(fields: [categoryId], references: [id])
+  categoryId           Int?
   createdDate          DateTime              @default(now())
   expenseContributions ExpenseContribution[]
   createdBy            User                  @relation("CreatedBy", fields: [createdById], references: [id])
   createdById          Int
-  groupsOnExpenses     ExpenseOnGroup[]
+  group                Group?                @relation(fields: [groupId], references: [id])
+  groupId              Int?
   description          String
+  paidBy               User                  @relation("PaidBy", fields: [paidById], references: [id])
+  paidById             Int
+}
+
+// Rimborso fra due utenti: `from` da' `amount` a `to`. Non appartiene a nessun
+// gruppo (decisione di prodotto, 2026-09-26: i gruppi servono solo a non
+// reinserire sempre le stesse persone), quindi azzera il saldo complessivo fra
+// i due, non quello di un gruppo. Lo puo' registrare ed eliminare uno qualsiasi
+// dei due.
+model Settlement {
+  id          Int      @id @default(autoincrement())
+  publicId    String   @unique @default(uuid())
+  from        User     @relation("SettlementFrom", fields: [fromId], references: [id])
+  fromId      Int
+  to          User     @relation("SettlementTo", fields: [toId], references: [id])
+  toId        Int
+  amount      Decimal
+  currency    String   @default("EUR") // Pronto per V2.0
+  note        String?
+  createdBy   User     @relation("SettlementCreatedBy", fields: [createdById], references: [id])
+  createdById Int
+  createdDate DateTime @default(now())
+
+  @@index([fromId])
+  @@index([toId])
 }
 
 model Group {
   id              Int              @id() @default(autoincrement())
+  publicId        String           @unique @default(uuid())
   name            String
   usersOnGroup    UserOnGroup[]
-  expensesOnGroup ExpenseOnGroup[]
+  expenses        Expense[]
   createdDate     DateTime         @default(now())
+}
+
+// Categorie delle spese. ownerId null = categoria preconfigurata di sistema,
+// visibile a tutti; ownerId valorizzato = categoria custom di quell'utente.
+// Le preconfigurate si identificano con lo slug (tradotto dal frontend via
+// `categories.<slug>`), le custom con il name libero.
+model Category {
+  id          Int       @id @default(autoincrement())
+  publicId    String    @unique @default(uuid())
+  slug        String?   @unique // solo per le preconfigurate; garantisce che non ci siano globali duplicate
+  name        String?   // solo per quelle utente
+  icon        String    @default("pricetag-outline") // nome ionicon
+  color       String?
+  owner       User?     @relation(fields: [ownerId], references: [id])
+  ownerId     Int?
+  archived    Boolean   @default(false) // cancellazione soft: le spese storiche restano valide
+  createdDate DateTime  @default(now())
+  expenses    Expense[]
+
+  @@unique([ownerId, name])
 }
 
 model UserOnGroup {
@@ -67,14 +171,6 @@ model UserOnGroup {
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
   createdDate DateTime @default(now())
-}
 
-model ExpenseOnGroup {
-
-  id          Int      @id() @default(autoincrement())
-  expenseId   Int
-  expense     Expense  @relation(fields: [expenseId], references: [id])
-  groupId     Int
-  group       Group    @relation(fields: [groupId], references: [id])
-  createdDate DateTime @default(now())
+  @@unique([groupId, userId])
 }

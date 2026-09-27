@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core@8/css/ionic.bundle.css"><script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@8/dist/ionic/ionic.esm.js"></script><style>body{margin:0;background:#f0eee9;font-family:system-ui,-apple-system,sans-serif}a{color:#0054e9}a:hover{color:#003fb0}.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}.dv-tname{font:600 13px/1.2 system-ui,sans-serif;color:#1a1a1a}.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 system-ui,sans-serif;color:rgba(0,0,0,.55)}.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}.dv-next{margin:22px 0 0;font:12px/1.5 system-ui,sans-serif;color:rgba(0,0,0,.5)}.doc{max-width:760px;font:14px/1.62 system-ui,sans-serif;color:#1a1a1a}.doc h1{font:600 24px/1.2 system-ui,sans-serif;margin:0 0 6px}.doc h2{font:600 13px/1.2 ui-monospace,Menlo,monospace;text-transform:uppercase;letter-spacing:.06em;color:rgba(0,0,0,.45);margin:28px 0 8px}.doc p{margin:0 0 10px;text-wrap:pretty}.doc ol,.doc ul{margin:0 0 10px;padding-left:20px}.doc li{margin-bottom:7px;text-wrap:pretty}.doc code{font:12px ui-monospace,Menlo,monospace;background:rgba(0,0,0,.06);padding:1px 5px;border-radius:4px}.sev{display:inline-block;font:600 9.5px ui-monospace,Menlo,monospace;padding:2px 6px;border-radius:4px;vertical-align:1px;margin-right:6px}</style></helmet>
+<section class="dv-turn" id="t0">
+<div class="doc">
+<h1>Split — analisi di navigabilità</h1>
+<p>Letto il branch <code>dev</code> di <code>davideyoga/split</code>: frontend Ionic 8 + Angular standalone (<code>splitFront</code>), backend NestJS/Prisma. Nessun tema custom (<code>theme/variables.scss</code> e <code>styles.scss</code> sono vuoti), quindi tutto quello che vedi sotto è Ionic di default in <em>material mode</em>, ricostruito con i componenti Ionic reali a partire dai template del repo.</p>
+<h2>Assunzioni</h2>
+<ul>
+<li>Testi in italiano da <code>assets/i18n/it.json</code>. Nell'app vera <code>app.component.ts</code> forza <code>translate.use('en')</code>: l'italiano esiste ma non è raggiungibile.</li>
+<li>Dati d'esempio dal seed (<code>prisma/seed.ts</code>: Davide, Pippo, Pluto…) e categorie preconfigurate con le loro icone Ionicons.</li>
+<li>Mode <code>md</code> perché è quello che rende il browser/Android; su iOS l'app userebbe il mode iOS.</li>
+</ul>
+<h2>Superficie dell'app oggi</h2>
+<p>5 rotte in <code>app.routes.ts</code>: <code>/login</code>, <code>/home</code>, <code>/add-expense</code>, <code>/groups</code>, <code>/groups/:publicId</code> — più una modale (<code>select-participant</code>) che non è una rotta. Il grafo è quasi una stella centrata su Home: da qualunque altra pagina si esce solo con il tasto indietro.</p>
+</div>
+</section>
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Proposte di navigazione — tre direzioni sulle schermate ricostruite in <a class="dv-oid" href="#t1">t1</a></span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a"><div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Tab bar persistente (canonico Ionic) — risolve 1, 4, 6, 11</div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:800px;overflow:hidden;contain:layout size style">
+<ion-header><ion-toolbar><ion-title>Attività</ion-title><ion-buttons slot="end"><ion-button><ion-icon slot="icon-only" name="search-outline"></ion-icon></ion-button></ion-buttons></ion-toolbar></ion-header>
+<ion-content style="position:absolute;left:0;right:0;top:56px;bottom:0;height:auto;--padding-bottom:56px">
+<ion-card><ion-card-header><ion-card-subtitle>Saldo netto</ion-card-subtitle><ion-card-title style="color:#c5000f">-18.50 EUR</ion-card-title></ion-card-header><ion-card-content class="ion-no-padding"><ion-item lines="none"><ion-label><p>Ti devono: 24.00 EUR · Tu devi: 42.50 EUR</p></ion-label></ion-item><div style="display:flex;justify-content:flex-end;padding:4px 8px"><ion-button fill="clear" size="small">Salda debiti</ion-button></div></ion-card-content></ion-card>
+<ion-list-header><ion-label>Spese recenti</ion-label></ion-list-header>
+<ion-list>
+<ion-item button="true"><ion-label><h2>Cena</h2><p>Pagata da: Davide · Viaggio del weekend</p></ion-label><ion-note slot="end"><div>48.00 EUR</div><div>04/09/2026</div></ion-note></ion-item>
+<ion-item button="true"><ion-label><h2>Benzina</h2><p>Pagata da: Pippo · Viaggio del weekend</p></ion-label><ion-note slot="end"><div>60.00 EUR</div><div>03/09/2026</div></ion-note></ion-item>
+<ion-item button="true"><ion-label><h2>Spesa supermercato</h2><p>Pagata da: Davide</p></ion-label><ion-note slot="end"><div>31.20 EUR</div><div>01/09/2026</div></ion-note></ion-item>
+</ion-list>
+<ion-fab slot="fixed" vertical="bottom" horizontal="end" style="bottom:72px"><ion-fab-button><ion-icon name="add"></ion-icon></ion-fab-button></ion-fab>
+</ion-content>
+<ion-tab-bar selected-tab="activity" style="position:absolute;left:0;right:0;bottom:0"><ion-tab-button tab="activity" selected="true"><ion-icon name="receipt-outline"></ion-icon><ion-label>Attività</ion-label></ion-tab-button><ion-tab-button tab="groups"><ion-icon name="people-outline"></ion-icon><ion-label>Gruppi</ion-label></ion-tab-button><ion-tab-button tab="balances"><ion-icon name="swap-horizontal-outline"></ion-icon><ion-label>Saldi</ion-label></ion-tab-button><ion-tab-button tab="profile"><ion-icon name="person-circle-outline"></ion-icon><ion-label>Profilo</ion-label></ion-tab-button></ion-tab-bar>
+</ion-app>
+</div>
+<div style="width:393px;font:12px/1.55 system-ui,sans-serif;color:rgba(0,0,0,.6)">Quattro destinazioni sempre raggiungibili: Gruppi non dipende più da un'icona nell'header di Home. Il logout esce dall'header e va sotto Profilo (con lingua IT/EN). Le spese diventano tappabili verso <code>/expense/:id</code>.</div>
+</div>
+
+<div class="dv-opt" id="2b"><div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Gruppo come contesto — risolve 2, 3, 5</div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:800px;overflow:hidden;contain:layout size style">
+<ion-header><ion-toolbar><ion-buttons slot="start"><ion-back-button default-href="/groups" text="Gruppi"></ion-back-button></ion-buttons><ion-title>Viaggio del weekend</ion-title><ion-buttons slot="end"><ion-button><ion-icon slot="icon-only" name="ellipsis-vertical"></ion-icon></ion-button></ion-buttons></ion-toolbar>
+<ion-toolbar><ion-segment value="expenses"><ion-segment-button value="expenses"><ion-label>Spese</ion-label></ion-segment-button><ion-segment-button value="balances"><ion-label>Saldi</ion-label></ion-segment-button><ion-segment-button value="members"><ion-label>Membri</ion-label></ion-segment-button></ion-segment></ion-toolbar></ion-header>
+<ion-content style="position:absolute;left:0;right:0;top:112px;bottom:0;height:auto">
+<ion-list>
+<ion-item button="true"><ion-label><h2>Cena</h2><p>Pagata da: Davide</p><ion-chip outline="true" color="medium"><ion-icon name="restaurant-outline"></ion-icon><ion-label>Ristorante</ion-label></ion-chip></ion-label><ion-note slot="end"><div>48.00 EUR</div><div>04/09/2026</div></ion-note></ion-item>
+<ion-item button="true"><ion-label><h2>Benzina</h2><p>Pagata da: Pippo</p><ion-chip outline="true" color="medium"><ion-icon name="car-outline"></ion-icon><ion-label>Carburante</ion-label></ion-chip></ion-label><ion-note slot="end"><div>60.00 EUR</div><div>03/09/2026</div></ion-note></ion-item>
+<ion-item button="true"><ion-label><h2>Hotel</h2><p>Pagata da: Pluto</p><ion-chip outline="true" color="medium"><ion-icon name="bed-outline"></ion-icon><ion-label>Alloggio</ion-label></ion-chip></ion-label><ion-note slot="end"><div>120.00 EUR</div><div>02/09/2026</div></ion-note></ion-item>
+</ion-list>
+<ion-fab slot="fixed" vertical="bottom" horizontal="end" style="bottom:16px"><ion-fab-button><ion-icon name="add"></ion-icon></ion-fab-button></ion-fab>
+</ion-content>
+</ion-app>
+</div>
+<div style="width:393px;font:12px/1.55 system-ui,sans-serif;color:rgba(0,0,0,.6)">Il dettaglio gruppo diventa un contenitore a segmenti: rinomina e gestione membri escono dalla pagina principale (menu ⋮ / tab Membri) e il FAB apre <code>/add-expense?group=…</code> col gruppo già selezionato — da 6 tap a 1. Il tasto indietro mostra la destinazione, così <code>defaultHref</code> non mente.</div>
+</div>
+
+<div class="dv-opt" id="2c"><div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Nuova spesa in un colpo solo — risolve 2, 7, 12</div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:800px;overflow:hidden;contain:layout size style">
+<ion-header><ion-toolbar><ion-buttons slot="start"><ion-button><ion-icon slot="icon-only" name="close"></ion-icon></ion-button></ion-buttons><ion-title>Nuova spesa</ion-title><ion-buttons slot="end"><ion-button strong="true" color="primary">Salva</ion-button></ion-buttons></ion-toolbar></ion-header>
+<ion-content style="position:absolute;left:0;right:0;top:56px;bottom:0;height:auto">
+<div style="padding:20px 16px 4px;display:flex;align-items:baseline;gap:8px"><span style="font:600 40px/1 system-ui,sans-serif">48<span style="color:rgba(0,0,0,.35)">,00</span></span><span style="font:600 18px system-ui,sans-serif;color:rgba(0,0,0,.45)">EUR</span></div>
+<ion-list>
+<ion-item><ion-input label="Descrizione" label-placement="floating" value="Cena"></ion-input></ion-item>
+<ion-item button="true" detail="true"><ion-icon slot="start" name="people-outline"></ion-icon><ion-label>Dividi con</ion-label><ion-note slot="end">Viaggio · 4</ion-note></ion-item>
+<ion-item button="true" detail="true"><ion-icon slot="start" name="card-outline"></ion-icon><ion-label>Pagata da</ion-label><ion-note slot="end">Davide (tu)</ion-note></ion-item>
+<ion-item button="true" detail="true"><ion-icon slot="start" name="pie-chart-outline"></ion-icon><ion-label>Divisione</ion-label><ion-note slot="end">Equa · 12.00 a testa</ion-note></ion-item>
+</ion-list>
+<div style="padding:12px 16px 0"><div style="font:12px system-ui,sans-serif;color:rgba(0,0,0,.5);margin-bottom:8px">Categoria</div><div style="display:flex;flex-wrap:wrap;gap:8px"><ion-chip color="primary"><ion-icon name="restaurant-outline"></ion-icon><ion-label>Ristorante</ion-label></ion-chip><ion-chip outline="true" color="medium"><ion-icon name="fast-food-outline"></ion-icon><ion-label>Cibo</ion-label></ion-chip><ion-chip outline="true" color="medium"><ion-icon name="cart-outline"></ion-icon><ion-label>Spesa</ion-label></ion-chip><ion-chip outline="true" color="medium"><ion-icon name="add"></ion-icon><ion-label>Nuova</ion-label></ion-chip></div></div>
+</ion-content>
+</ion-app>
+</div>
+<div style="width:393px;font:12px/1.55 system-ui,sans-serif;color:rgba(0,0,0,.6)">Modale con Chiudi/Salva nell'header al posto del <code>ion-footer</code> dentro <code>ion-content</code>. Le scelte (con chi, chi ha pagato, come dividere) diventano righe con il valore corrente <em>sopra</em> la piega, non chip che compaiono sotto la barra azioni. Prepara i due TODO su pagante e quote diseguali.</div>
+</div>
+
+</div>
+<p class="dv-next">Prova a chiedere: "sviluppa <a class="dv-oid" href="#2a">2a</a> con le altre 3 tab" · "in <a class="dv-oid" href="#2b">2b</a> mostrami il tab Saldi con il flusso di rimborso" · "unisci <a class="dv-oid" href="#2b">2b</a> e <a class="dv-oid" href="#2c">2c</a> in un prototipo cliccabile"</p>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Stato attuale — schermate ricostruite dai template del repo</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Login · <code>pages/login</code></div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:760px;overflow:hidden;contain:layout size style">
+<ion-header><ion-toolbar color="primary"><ion-title>Accedi</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding" style="position:absolute;left:0;right:0;top:56px;bottom:0;height:auto">
+<form><ion-list><ion-item><ion-input label="La tua email" label-placement="floating" type="email" placeholder="mario.rossi@email.com" value="d.micarelli7@gmail.com"></ion-input></ion-item></ion-list>
+<div class="ion-padding-top ion-text-center"><ion-button type="submit">Accedi</ion-button></div></form>
+</ion-content>
+</ion-app>
+</div></div>
+
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Home · <code>pages/home</code></div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:760px;overflow:hidden;contain:layout size style">
+<ion-header translucent="true"><ion-toolbar><ion-title>Home</ion-title><ion-buttons slot="end"><ion-button><ion-icon slot="icon-only" name="people"></ion-icon></ion-button><ion-button><ion-icon slot="icon-only" name="log-out-outline"></ion-icon></ion-button></ion-buttons></ion-toolbar></ion-header>
+<ion-content style="position:absolute;left:0;right:0;top:56px;bottom:0;height:auto">
+<ion-card><ion-card-header><ion-card-title>Gruppi</ion-card-title></ion-card-header><ion-card-content class="ion-no-padding">
+<ion-list lines="full">
+<ion-item button="true"><ion-icon slot="start" name="people"></ion-icon><ion-label>Viaggio del weekend</ion-label><ion-note slot="end">4 membri</ion-note></ion-item>
+<ion-item button="true"><ion-icon slot="start" name="people"></ion-icon><ion-label>Coinquilini</ion-label><ion-note slot="end">3 membri</ion-note></ion-item>
+</ion-list>
+<div style="display:flex;justify-content:flex-end;padding:4px 8px"><ion-button fill="clear" size="small">Gestisci</ion-button></div>
+</ion-card-content></ion-card>
+<ion-list-header><ion-label>Saldi</ion-label></ion-list-header>
+<ion-list>
+<ion-item><ion-label><h2>Pippo ti deve</h2></ion-label><ion-note slot="end" color="success" style="font-weight:600">24.00 EUR</ion-note></ion-item>
+<ion-item><ion-label><h2>Devi a Pluto</h2></ion-label><ion-note slot="end" color="danger" style="font-weight:600">42.50 EUR</ion-note></ion-item>
+</ion-list>
+<ion-item lines="none" style="font-size:.85rem"><ion-label><p>Ti devono: 24.00 EUR</p><p>Tu devi: 42.50 EUR</p></ion-label><ion-note slot="end" color="danger"><div>Saldo netto</div><div style="font-weight:600">-18.50 EUR</div></ion-note></ion-item>
+<ion-list-header><ion-label>Spese</ion-label></ion-list-header>
+<ion-list>
+<ion-item><ion-label><h2>Cena</h2><p>Pagata da: Davide</p><ion-chip outline="true" color="medium"><ion-icon name="restaurant-outline"></ion-icon><ion-label>Ristorante</ion-label></ion-chip></ion-label><ion-note slot="end"><div>48.00 EUR</div><div>04/09/2026</div></ion-note></ion-item>
+<ion-item><ion-label><h2>Benzina</h2><p>Pagata da: Pippo</p><ion-chip outline="true" color="medium"><ion-icon name="car-outline"></ion-icon><ion-label>Carburante</ion-label></ion-chip></ion-label><ion-note slot="end"><div>60.00 EUR</div><div>03/09/2026</div></ion-note></ion-item>
+<ion-item><ion-label><h2>Spesa supermercato</h2><p>Pagata da: Davide</p><ion-chip outline="true" color="medium"><ion-icon name="cart-outline"></ion-icon><ion-label>Spesa</ion-label></ion-chip></ion-label><ion-note slot="end"><div>31.20 EUR</div><div>01/09/2026</div></ion-note></ion-item>
+</ion-list>
+<ion-fab slot="fixed" vertical="bottom" horizontal="end" style="bottom:16px"><ion-fab-button><ion-icon name="add"></ion-icon></ion-fab-button></ion-fab>
+</ion-content>
+</ion-app>
+</div></div>
+
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Gruppi · <code>pages/groups/group-list</code></div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:760px;overflow:hidden;contain:layout size style">
+<ion-header><ion-toolbar color="primary"><ion-buttons slot="start"><ion-back-button default-href="/home"></ion-back-button></ion-buttons><ion-title>Gruppi</ion-title></ion-toolbar></ion-header>
+<ion-content style="position:absolute;left:0;right:0;top:56px;bottom:0;height:auto">
+<ion-card><ion-card-header><ion-card-title>Nuovo gruppo</ion-card-title></ion-card-header><ion-card-content>
+<ion-input style="margin-top:4px" fill="outline" label="Nome del gruppo" label-placement="floating" placeholder="es. Viaggio del weekend"></ion-input>
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><ion-chip color="medium"><ion-label>Pippo</ion-label><ion-icon name="close"></ion-icon></ion-chip><ion-chip color="medium"><ion-label>Minni</ion-label><ion-icon name="close"></ion-icon></ion-chip></div>
+<div style="display:flex;justify-content:space-between;gap:8px;margin-top:16px"><ion-button fill="outline"><ion-icon slot="start" name="person-add-outline"></ion-icon>Aggiungi membro</ion-button><ion-button disabled="true">Crea gruppo</ion-button></div>
+</ion-card-content></ion-card>
+<ion-list-header><ion-label>I tuoi gruppi</ion-label></ion-list-header>
+<ion-list>
+<ion-item button="true"><ion-icon slot="start" name="people"></ion-icon><ion-label>Viaggio del weekend</ion-label><ion-note slot="end">4 membri</ion-note></ion-item>
+<ion-item button="true"><ion-icon slot="start" name="people"></ion-icon><ion-label>Coinquilini</ion-label><ion-note slot="end">3 membri</ion-note></ion-item>
+</ion-list>
+</ion-content>
+</ion-app>
+</div></div>
+
+<div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Dettaglio gruppo · <code>group-detail</code></div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:760px;overflow:hidden;contain:layout size style">
+<ion-header><ion-toolbar color="primary"><ion-buttons slot="start"><ion-back-button default-href="/groups"></ion-back-button></ion-buttons><ion-title>Gruppo</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding" style="position:absolute;left:0;right:0;top:56px;bottom:0;height:auto">
+<ion-input fill="outline" label="Nome del gruppo" label-placement="floating" value="Viaggio del weekend"></ion-input>
+<div class="ion-padding-top ion-text-end"><ion-button size="small" fill="outline">Rinomina</ion-button></div>
+<ion-list>
+<ion-item><ion-label>Davide</ion-label><ion-button slot="end" fill="clear" color="danger"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button></ion-item>
+<ion-item><ion-label>Pippo</ion-label><ion-button slot="end" fill="clear" color="danger"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button></ion-item>
+<ion-item><ion-label>Pluto</ion-label><ion-button slot="end" fill="clear" color="danger"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button></ion-item>
+<ion-item><ion-label>Minni</ion-label><ion-button slot="end" fill="clear" color="danger"><ion-icon slot="icon-only" name="trash-outline"></ion-icon></ion-button></ion-item>
+</ion-list>
+<div class="ion-padding-top ion-text-center"><ion-button fill="outline"><ion-icon slot="start" name="person-add-outline"></ion-icon>Aggiungi membro</ion-button></div>
+<ion-list-header><ion-label>Saldi del gruppo</ion-label></ion-list-header>
+<ion-list><ion-item><ion-label><h2>Devi a Pluto</h2></ion-label><ion-note slot="end" color="danger" style="font-weight:600">30.00 EUR</ion-note></ion-item></ion-list>
+<ion-list-header><ion-label>Spese del gruppo</ion-label></ion-list-header>
+<ion-list><ion-item><ion-label><h2>Hotel</h2><p>Pagata da: Pluto</p></ion-label><ion-note slot="end"><div>120.00 EUR</div><div>02/09/2026</div></ion-note></ion-item></ion-list>
+</ion-content>
+</ion-app>
+</div></div>
+
+<div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Nuova spesa · <code>pages/add-expense</code></div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:760px;overflow:hidden;contain:layout size style">
+<ion-header><ion-toolbar color="primary"><ion-buttons slot="start"><ion-back-button default-href="/home"></ion-back-button></ion-buttons><ion-title>Nuova spesa</ion-title></ion-toolbar></ion-header>
+<ion-content class="ion-padding" style="position:absolute;left:0;right:0;top:56px;bottom:0;height:auto">
+<ion-list>
+<ion-item lines="none"><ion-label>Creata da: Davide</ion-label></ion-item>
+<ion-item><ion-input label="Descrizione" label-placement="floating" placeholder="es. Cena" value="Cena"></ion-input></ion-item>
+<ion-item><ion-input label="Importo" label-placement="floating" inputmode="decimal" placeholder="0.00" value="48.00"></ion-input></ion-item>
+</ion-list>
+<div style="padding:8px 16px 0"><ion-label style="display:block;font-size:.85rem;color:var(--ion-color-medium);margin-bottom:8px">Categoria</ion-label>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<ion-chip outline="true" color="medium"><ion-icon name="fast-food-outline"></ion-icon><ion-label>Cibo</ion-label></ion-chip>
+<ion-chip color="primary"><ion-icon name="restaurant-outline"></ion-icon><ion-label>Ristorante</ion-label></ion-chip>
+<ion-chip outline="true" color="medium"><ion-icon name="cart-outline"></ion-icon><ion-label>Spesa</ion-label></ion-chip>
+<ion-chip outline="true" color="medium"><ion-icon name="bus-outline"></ion-icon><ion-label>Trasporti</ion-label></ion-chip>
+<ion-chip outline="true" color="medium"><ion-icon name="car-outline"></ion-icon><ion-label>Carburante</ion-label></ion-chip>
+<ion-chip outline="true" color="medium"><ion-icon name="bed-outline"></ion-icon><ion-label>Alloggio</ion-label></ion-chip>
+<ion-chip outline="true" color="medium"><ion-icon name="ticket-outline"></ion-icon><ion-label>Attività</ion-label></ion-chip>
+<ion-chip outline="true" color="medium"><ion-icon name="add"></ion-icon><ion-label>Nuova</ion-label></ion-chip>
+</div></div>
+<ion-footer class="ion-no-border"><ion-toolbar>
+<ion-buttons slot="start"><ion-button shape="round" color="medium"><ion-icon slot="start" name="person-add-outline"></ion-icon>Seleziona partecipante</ion-button></ion-buttons>
+<ion-buttons slot="end"><ion-button shape="round" color="primary">Crea spesa<ion-icon slot="end" name="checkmark-done-outline"></ion-icon></ion-button></ion-buttons>
+</ion-toolbar></ion-footer>
+<div class="ion-padding-horizontal ion-padding-top" style="display:flex;flex-wrap:wrap;gap:8px">
+<ion-chip color="primary"><ion-icon name="people"></ion-icon><ion-label>Viaggio del weekend · 4 membri</ion-label><ion-icon name="close"></ion-icon></ion-chip>
+<ion-chip color="medium"><ion-label>Topolino</ion-label><ion-icon name="close"></ion-icon></ion-chip>
+</div>
+</ion-content>
+</ion-app>
+</div></div>
+
+<div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>Modale partecipante · <code>select-participant</code></div><div class="dv-card">
+<ion-app style="position:relative;display:block;width:393px;height:760px;overflow:hidden;contain:layout size style">
+<ion-header><ion-toolbar color="primary"><ion-buttons slot="start"><ion-button>Chiudi</ion-button></ion-buttons><ion-title>Seleziona partecipante</ion-title></ion-toolbar>
+<ion-toolbar><ion-segment value="person"><ion-segment-button value="person"><ion-label>Persona</ion-label></ion-segment-button><ion-segment-button value="group"><ion-label>Gruppo</ion-label></ion-segment-button></ion-segment></ion-toolbar>
+<ion-toolbar><ion-searchbar placeholder="Cerca per nickname" value="top"></ion-searchbar></ion-toolbar></ion-header>
+<ion-content style="position:absolute;left:0;right:0;top:168px;bottom:0;height:auto">
+<ion-list>
+<ion-item button="true"><ion-label>Topolino</ion-label></ion-item>
+<ion-item button="true"><ion-label>Gastone</ion-label></ion-item>
+</ion-list>
+</ion-content>
+</ion-app>
+</div></div>
+
+</div>
+<div class="doc" style="margin-top:34px">
+<h2>Dodici problemi di navigabilità, con il riferimento nel codice</h2>
+<ol>
+<li><span class="sev" style="background:#fde2e1;color:#8f1010">ALTA</span><strong>Nessuna navigazione persistente.</strong> Solo <a class="dv-oid" href="#1b">1b</a> ha un accesso a <code>/groups</code> (l'icona <em>people</em> nell'header). Da <a class="dv-oid" href="#1c">1c</a>, <a class="dv-oid" href="#1d">1d</a>, <a class="dv-oid" href="#1e">1e</a> l'unica uscita è il tasto indietro: la struttura non è mai visibile.</li>
+<li><span class="sev" style="background:#fde2e1;color:#8f1010">ALTA</span><strong>La spesa si crea solo dalla Home.</strong> Il FAB vive in <code>home.html</code>. Dal dettaglio gruppo servono ~6 tap (indietro → FAB → <em>Seleziona partecipante</em> → segmento <em>Gruppo</em> → gruppo → salva) per fare la cosa più frequente dell'app, e il gruppo che stavi guardando va riselezionato a mano.</li>
+<li><span class="sev" style="background:#fde2e1;color:#8f1010">ALTA</span><strong>Le spese sono vicoli ciechi.</strong> Gli <code>ion-item</code> delle spese in <code>home.html</code> e <code>group-expenses</code> non hanno <code>button</code> né <code>routerLink</code>: non esiste una rotta <code>/expense/:id</code>, quindi non si vede chi partecipa, non si modifica, non si cancella.</li>
+<li><span class="sev" style="background:#fde2e1;color:#8f1010">ALTA</span><strong>Saldi senza sbocco.</strong> <code>expense-balances</code> mostra il debito ma non c'è nessuna azione per chiuderlo (già in TODO.md come priorità alta): la schermata informa e si ferma.</li>
+<li><span class="sev" style="background:#fff1cf;color:#7a4d00">MEDIA</span><strong>Logout a un tap, senza etichetta.</strong> In <a class="dv-oid" href="#1b">1b</a> l'icona <em>log-out-outline</em> è accanto a quella dei gruppi: due icone nude, una naviga e una ti butta fuori, senza conferma.</li>
+<li><span class="sev" style="background:#fff1cf;color:#7a4d00">MEDIA</span><strong>Gerarchia incoerente.</strong> Da Home si apre un gruppo, ma il back di <a class="dv-oid" href="#1d">1d</a> ha <code>defaultHref="/groups"</code>: al ricaricare la pagina (o via deep link) torni in una lista che non hai mai visitato.</li>
+<li><span class="sev" style="background:#fff1cf;color:#7a4d00">MEDIA</span><strong><code>ion-footer</code> dentro <code>ion-content</code>.</strong> In <a class="dv-oid" href="#1e">1e</a> la barra azioni scorre col contenuto e i chip di gruppo/partecipanti sono resi <em>dopo</em> il footer: il risultato della selezione appare sotto il pulsante "Crea spesa", fuori dal campo visivo.</li>
+<li><span class="sev" style="background:#fff1cf;color:#7a4d00">MEDIA</span><strong>Sessione scaduta = liste vuote.</strong> Il 401 non è gestito nell'interceptor (TODO): i service fanno <code>catchError → of([])</code>, quindi l'app resta su Home mostrando "Nessuna spesa presente" invece di riportare al login.</li>
+<li><span class="sev" style="background:#fff1cf;color:#7a4d00">MEDIA</span><strong>Nessun profilo né impostazioni.</strong> Non esiste una rotta per l'utente: <code>it.json</code> è completo ma <code>app.component.ts</code> forza <code>use('en')</code> e non c'è modo di cambiare lingua, vedere chi sei, uscire da un posto sensato.</li>
+<li><span class="sev" style="background:#e6f0ff;color:#0b3d91">BASSA</span><strong>Home a tre blocchi senza gerarchia.</strong> Gruppi + Saldi + Spese in colonna, senza ricerca, filtri, raggruppamento per data o paginazione: la lista <code>GET /expense</code> arriva intera e cresce senza limiti.</li>
+<li><span class="sev" style="background:#e6f0ff;color:#0b3d91">BASSA</span><strong>Il form soffoca la lista.</strong> In <a class="dv-oid" href="#1c">1c</a> la card "Nuovo gruppo" è sempre aperta in cima e spinge giù "I tuoi gruppi", che è il motivo per cui si entra nella pagina. Meglio un FAB o una modale.</li>
+<li><span class="sev" style="background:#e6f0ff;color:#0b3d91">BASSA</span><strong>Poco feedback dopo l'azione.</strong> Dopo <code>createExpense()</code> si fa <code>navigateByUrl('/home')</code> senza toast di conferma; niente <code>ion-refresher</code> in nessuna pagina, quindi i dati si aggiornano solo rientrando (<code>ngOnInit</code>).</li>
+</ol>
+<h2>Se dovessi fare tre cose sole</h2>
+<p>Tab bar (<a class="dv-oid" href="#2a">2a</a>) per rendere visibile la struttura; FAB contestuale nel gruppo con gruppo precompilato (<a class="dv-oid" href="#2b">2b</a>); dettaglio spesa tappabile. Sono i tre interventi che togliono più tap e più vicoli ciechi con meno codice nuovo.</p>
+</div>
+</section>
+</x-dc>
+</body>
+</html>

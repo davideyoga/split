@@ -1,0 +1,43 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'groups.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="has-fab">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @if (loadError) {
+    <p class="ion-padding-horizontal">{{ 'groups.load-error' | translate }}</p>
+  } @else if (loaded && groups.length === 0) {
+    <!-- Empty state: titolo, frase e bottone verso l'azione. -->
+    <div class="ion-padding ion-text-center">
+      <h2>{{ 'groups.empty-title' | translate }}</h2>
+      <p>{{ 'groups.empty' | translate }}</p>
+      <ion-button (click)="openNewGroup()">{{ 'groups.empty-cta' | translate }}</ion-button>
+    </div>
+  } @else if (groups.length > 0) {
+    <ion-list-header>
+      <ion-label>{{ 'groups.your-groups' | translate }}</ion-label>
+    </ion-list-header>
+    <ion-list>
+      @for (group of groups; track group.publicId) {
+        <ion-item button [routerLink]="['/tabs/groups', group.publicId]">
+          <ion-icon slot="start" name="people"></ion-icon>
+          <ion-label>{{ group.name }}</ion-label>
+          <ion-note slot="end">
+            {{ 'groups.members-count' | translate: { count: group.members.length } }}
+          </ion-note>
+        </ion-item>
+      }
+    </ion-list>
+  }
+
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end">
+    <ion-fab-button [attr.aria-label]="'groups.new-group' | translate" (click)="openNewGroup()">
+      <ion-icon name="add"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

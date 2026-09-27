@@ -45,5 +45,12 @@ Thumbs.db
 
 .angular
 
-#doc folder
-doc/
+./.env
+.env
+
+/generated/prisma
+
+test-output
+
+# Output del server Playwright MCP (log, snapshot, screenshot)
+.playwright-mcp

@@ -8,3 +8,9 @@
  * For more information on global stylesheets, visit the documentation:
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
+
+// Pagine con un FAB in basso a destra: spazio in fondo al contenuto perche' il
+// FAB (56px + 16px di margine) non copra l'ultima riga della lista.
+ion-content.has-fab {
+  --padding-bottom: 88px;
+}

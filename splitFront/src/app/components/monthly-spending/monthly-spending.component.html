@@ -1,0 +1,14 @@
+<ion-card>
+  <ion-card-header>
+    <ion-card-subtitle>{{ 'activity.month-spent' | translate }}</ion-card-subtitle>
+    <ion-card-title>{{ format(spending().shareCents) }} {{ currency() }}</ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    @if (spending().count === 0) {
+      {{ 'activity.month-none' | translate }}
+    } @else {
+      {{ 'activity.month-count' | translate: { count: spending().count } }} ·
+      {{ 'activity.month-paid' | translate }}: {{ format(spending().paidCents) }} {{ currency() }}
+    }
+  </ion-card-content>
+</ion-card>

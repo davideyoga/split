@@ -13,10 +13,28 @@ import {
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 
+import {provideTranslateService} from "@ngx-translate/core";
+import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
+import {provideHttpClient, withInterceptors} from "@angular/common/http";
+import {authInterceptor} from "./app/services/auth.interceptor";
+import {detectInitialLang} from "./app/services/language.service";
+
+
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
+
+    provideHttpClient(withInterceptors([authInterceptor])),
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({
+        prefix: '/assets/i18n/',
+        suffix: '.json'
+      }),
+      // Scelta salvata dal Profilo, altrimenti lingua del dispositivo.
+      lang: detectInitialLang(),
+      fallbackLang: 'en',
+    })
   ],
 });

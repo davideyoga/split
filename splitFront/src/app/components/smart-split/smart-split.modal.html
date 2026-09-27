@@ -1,0 +1,103 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'smart-split.cancel' | translate }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'smart-split.title' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [strong]="true" [disabled]="!canApply" (click)="apply()">
+        {{ 'smart-split.apply' | translate }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (loading) {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p>{{ 'smart-split.loading' | translate }}</p>
+    </div>
+  } @else if (loadError) {
+    <p class="ion-padding">{{ 'smart-split.load-error' | translate }}</p>
+  } @else if (plan) {
+    @if (plan.current.length === 0) {
+      <div class="ion-padding ion-text-center">
+        <h2>{{ 'smart-split.no-debts-title' | translate }}</h2>
+        <p>{{ 'smart-split.no-debts-text' | translate }}</p>
+      </div>
+    } @else {
+      @if (plan.expenses.length === 0) {
+        <div class="ion-padding ion-text-center">
+          <h2>{{ 'smart-split.nothing-title' | translate }}</h2>
+          <p>{{ 'smart-split.nothing-text' | translate }}</p>
+        </div>
+      } @else {
+        <p class="ion-padding-horizontal">{{ 'smart-split.intro' | translate }}</p>
+      }
+
+      <!-- ORA: i debiti a coppie di tutto il gruppo -->
+      <ion-list>
+        <ion-list-header>
+          <ion-label>{{ 'smart-split.now' | translate }}</ion-label>
+        </ion-list-header>
+        @for (debt of plan.current; track $index) {
+          <ion-item>
+            <ion-label>{{ 'smart-split.debt' | translate: { from: label(debt.from), to: label(debt.to) } }}</ion-label>
+            <ion-note slot="end">{{ format(debt.cents) }} EUR</ion-note>
+          </ion-item>
+        }
+      </ion-list>
+
+      @if (plan.expenses.length > 0) {
+        <!-- DOPO: i pagamenti che bastano a chiudere tutto -->
+        <ion-list>
+          <ion-list-header>
+            <ion-label>{{ 'smart-split.after' | translate }}</ion-label>
+          </ion-list-header>
+          @for (debt of plan.simplified; track $index) {
+            <ion-item>
+              <ion-label>{{ 'smart-split.debt' | translate: { from: label(debt.from), to: label(debt.to) } }}</ion-label>
+              <ion-note slot="end" color="success">{{ format(debt.cents) }} EUR</ion-note>
+            </ion-item>
+          }
+        </ion-list>
+
+        <!-- SPESE DI COMPENSAZIONE che verranno create -->
+        <ion-list>
+          <ion-list-header>
+            <ion-label>{{ 'smart-split.expenses-title' | translate }}</ion-label>
+          </ion-list-header>
+          @for (expense of plan.expenses; track expense.payer.publicId) {
+            <ion-item>
+              <ion-icon slot="start" name="sparkles-outline" color="medium"></ion-icon>
+              <ion-label class="ion-text-wrap">
+                <h2>
+                  {{
+                    (isMe(expense.payer) ? 'smart-split.paid-by-you' : 'smart-split.paid-by')
+                      | translate: { name: expense.payer.nickName }
+                  }}
+                </h2>
+                <p>
+                  @for (share of expense.shares; track share.user.publicId; let last = $last) {
+                    {{ label(share.user) }} {{ format(share.cents) }} EUR{{ last ? '' : ' · ' }}
+                  }
+                </p>
+              </ion-label>
+              <ion-note slot="end">{{ format(expense.totalCents) }} EUR</ion-note>
+            </ion-item>
+          }
+        </ion-list>
+        <ion-text color="medium">
+          <p class="ion-padding-horizontal">{{ 'smart-split.expenses-hint' | translate }}</p>
+        </ion-text>
+      }
+    }
+
+    @if (errorMessage) {
+      <ion-text color="danger">
+        <p class="ion-padding-horizontal">{{ errorMessage | translate }}</p>
+      </ion-text>
+    }
+  }
+</ion-content>

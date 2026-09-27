@@ -11,9 +11,10 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 import { AuthUser } from '../auth/auth.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateExpenseBatchDto } from './dto/create-expense-batch.dto';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpenseService } from './expense.service';
@@ -48,6 +49,17 @@ export class ExpenseController {
   create(@Req() request: Request, @Body(new ValidationPipe()) dto: CreateExpenseDto) {
     const creator = request['user'] as AuthUser;
     return this.expenseService.create(creator.publicId, dto);
+  }
+
+  // Tutte o nessuna, in una transazione (vedi ExpenseService.createMany).
+  @Post('batch')
+  @UseGuards(JwtAuthGuard)
+  createMany(
+    @Req() request: Request,
+    @Body(new ValidationPipe()) dto: CreateExpenseBatchDto,
+  ) {
+    const creator = request['user'] as AuthUser;
+    return this.expenseService.createMany(creator.publicId, dto.expenses);
   }
 
   @Patch(':publicId')

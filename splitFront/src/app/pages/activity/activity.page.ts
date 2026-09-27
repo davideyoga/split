@@ -36,7 +36,7 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { SettlementService } from '../../services/settlement.service';
-import { CATEGORY_ICONS } from '../../models/category.model';
+import { CATEGORY_ICONS, isSmartSplit } from '../../models/category.model';
 import {
   BalanceSummary,
   computeBalances,
@@ -167,13 +167,17 @@ export class ActivityPage {
   // Ricerca locale sulle spese gia' caricate (nessuna chiamata HTTP): per
   // descrizione, chi ha pagato, gruppo e categoria. Ignora maiuscole e accenti,
   // cosi' "attivita" trova anche "Attività".
+  // Le spese della divisione intelligente non si elencano: spostano debiti, non
+  // sono spese fatte (restano visibili nella lista del loro gruppo). Restano
+  // invece in `expenses`, che alimenta la card del saldo: cambiano a chi devi.
   private applyFilter() {
+    const listed = this.expenses.filter((expense) => !isSmartSplit(expense));
     const q = normalize(this.query);
     if (!q) {
-      this.filteredExpenses = this.expenses;
+      this.filteredExpenses = listed;
       return;
     }
-    this.filteredExpenses = this.expenses.filter((expense) =>
+    this.filteredExpenses = listed.filter((expense) =>
       [
         expense.description,
         expense.paidBy.nickName,

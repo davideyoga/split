@@ -22,7 +22,7 @@ import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 
-import { CATEGORY_ICONS } from '../../models/category.model';
+import { CATEGORY_ICONS, isSmartSplit } from '../../models/category.model';
 import { AmountPipe } from '../../pipes/amount.pipe';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 
@@ -63,6 +63,8 @@ export class GroupExpensesComponent implements OnChanges {
   expenses: ExpenseListItem[] = [];
   loading = false;
   loadError = false;
+  // Titolo tradotto delle spese della divisione intelligente (senza descrizione).
+  isSmartSplit = isSmartSplit;
 
   constructor() {
     // Le icone delle categorie arrivano dal DB: vanno registrate tutte.

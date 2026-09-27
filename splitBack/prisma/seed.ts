@@ -39,6 +39,10 @@ const categories: { slug: string; icon: string }[] = [
   { slug: 'shopping', icon: 'bag-handle-outline' },
   { slug: 'health', icon: 'medkit-outline' },
   { slug: 'other', icon: 'pricetag-outline' },
+  // Categoria "di sistema": la assegna la divisione intelligente alle spese di
+  // compensazione che crea. Il frontend la nasconde dal picker e la esclude da
+  // "Spesi questo mese" (non e' spesa reale).
+  { slug: 'smart-split', icon: 'sparkles-outline' },
 ];
 
 async function main() {

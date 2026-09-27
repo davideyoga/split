@@ -26,7 +26,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { createOutline, trashOutline } from 'ionicons/icons';
 
-import { CATEGORY_ICONS } from '../../models/category.model';
+import { CATEGORY_ICONS, isSmartSplit } from '../../models/category.model';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { AmountPipe } from '../../pipes/amount.pipe';
@@ -82,6 +82,7 @@ export class ExpenseDetailPage implements OnInit {
   mePublicId = this.authService.currentUser()?.publicId ?? '';
   canEdit = false;
   deleting = false;
+  isSmartSplit = isSmartSplit;
 
   constructor() {
     // Le icone delle categorie arrivano dal DB: vanno registrate tutte.
@@ -144,7 +145,13 @@ export class ExpenseDetailPage implements OnInit {
   async confirmDelete() {
     const alert = await this.alertCtrl.create({
       header: this.translate.instant('expense-detail.delete-confirm'),
-      message: this.translate.instant('expense-detail.delete-confirm-message'),
+      // Eliminare una sola spesa della divisione intelligente sposta il netto
+      // di chi ci e' coinvolto: l'avviso lo dice.
+      message: this.translate.instant(
+        isSmartSplit(this.expense)
+          ? 'expense-detail.delete-smart-split-message'
+          : 'expense-detail.delete-confirm-message',
+      ),
       buttons: [
         { text: this.translate.instant('expense-detail.cancel'), role: 'cancel' },
         { text: this.translate.instant('expense-detail.delete'), role: 'destructive' },

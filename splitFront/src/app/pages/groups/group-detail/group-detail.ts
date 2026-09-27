@@ -23,10 +23,11 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add, ellipsisVertical, settingsOutline } from 'ionicons/icons';
+import { add, ellipsisVertical, settingsOutline, sparklesOutline } from 'ionicons/icons';
 
 import { ExpenseBalancesComponent } from '../../../components/expense-balances/expense-balances.component';
 import { GroupExpensesComponent } from '../../../components/group-expenses/group-expenses.component';
+import { SmartSplitModal } from '../../../components/smart-split/smart-split.modal';
 import { ExpenseFormModal } from '../../expense-form/expense-form.modal';
 import { Group } from '../../../models/group.model';
 import { AuthService } from '../../../services/auth.service';
@@ -90,6 +91,7 @@ export class GroupDetail implements OnInit {
       add,
       'ellipsis-vertical': ellipsisVertical,
       'settings-outline': settingsOutline,
+      'sparkles-outline': sparklesOutline,
     });
   }
 
@@ -152,6 +154,24 @@ export class GroupDetail implements OnInit {
 
     const { role } = await modal.onWillDismiss();
     if (role === 'created') {
+      this.expensesList?.loadExpenses();
+    }
+  }
+
+  // Divisione intelligente: la modale crea le spese di compensazione, qui si
+  // ricarica solo la lista (che alimenta anche i saldi).
+  async openSmartSplit() {
+    if (!this.group) {
+      return;
+    }
+    const modal = await this.modalCtrl.create({
+      component: SmartSplitModal,
+      componentProps: { group: this.group },
+    });
+    await modal.present();
+
+    const { role } = await modal.onWillDismiss();
+    if (role === 'applied') {
       this.expensesList?.loadExpenses();
     }
   }

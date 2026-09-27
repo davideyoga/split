@@ -3,12 +3,17 @@
     <ion-buttons slot="start">
       <ion-back-button [defaultHref]="backHref"></ion-back-button>
     </ion-buttons>
-    <ion-title>{{ expense?.description || ('expense-detail.title' | translate) }}</ion-title>
+    <ion-title>{{ expense?.description || ((isSmartSplit(expense) ? 'categories.smart-split' : 'expense-detail.title') | translate) }}</ion-title>
     @if (canEdit) {
       <ion-buttons slot="end">
-        <ion-button (click)="edit()" [attr.aria-label]="'expense-detail.edit' | translate">
-          <ion-icon slot="icon-only" name="create-outline"></ion-icon>
-        </ion-button>
+        <!-- Le spese della divisione intelligente non si modificano: in modifica
+             il gruppo viene ri-espanso con i membri attuali e le quote di
+             compensazione non avrebbero piu' senso. -->
+        @if (!isSmartSplit(expense)) {
+          <ion-button (click)="edit()" [attr.aria-label]="'expense-detail.edit' | translate">
+            <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+          </ion-button>
+        }
         <ion-button
           color="danger"
           [disabled]="deleting"

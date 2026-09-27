@@ -115,6 +115,37 @@ export class ExpenseService {
   async create(creatorPublicId: string, dto: CreateExpenseDto) {
     const creator = await this.findUser(creatorPublicId, 'Creatore non trovato');
 
+    return this.prisma.expense.create({
+      data: await this.buildCreateData(creator, dto),
+      include: EXPENSE_INCLUDE,
+    });
+  }
+
+  // Crea piu' spese tutte insieme o nessuna: le usa la divisione intelligente,
+  // le cui spese di compensazione lasciano invariato il netto di ognuno solo
+  // prese tutte insieme (una da sola sposta soldi da una persona a un'altra).
+  // Ogni spesa passa dalle stesse validazioni di `create`.
+  async createMany(creatorPublicId: string, dtos: CreateExpenseDto[]) {
+    const creator = await this.findUser(creatorPublicId, 'Creatore non trovato');
+
+    const datas: Prisma.ExpenseCreateInput[] = [];
+    for (const dto of dtos) {
+      datas.push(await this.buildCreateData(creator, dto));
+    }
+
+    return this.prisma.$transaction(
+      datas.map((data) =>
+        this.prisma.expense.create({ data, include: EXPENSE_INCLUDE }),
+      ),
+    );
+  }
+
+  // Validazioni di una nuova spesa e dati per Prisma (condivise da `create` e
+  // `createMany`).
+  private async buildCreateData(
+    creator: { id: number; publicId: string },
+    dto: CreateExpenseDto,
+  ): Promise<Prisma.ExpenseCreateInput> {
     const participantIds = await this.resolveParticipants(
       dto.participantPublicIds ?? [],
     );
@@ -153,18 +184,15 @@ export class ExpenseService {
       ? await this.customContributions(dto.amount, contributorIds, dto.shares)
       : this.equalContributions(dto.amount, contributorIds);
 
-    return this.prisma.expense.create({
-      data: {
-        description: dto.description?.trim() ?? '',
-        amount: dto.amount,
-        createdBy: { connect: { id: creator.id } },
-        paidBy: { connect: { id: payerId } },
-        ...(groupId ? { group: { connect: { id: groupId } } } : {}),
-        ...(categoryId ? { category: { connect: { id: categoryId } } } : {}),
-        expenseContributions: { create: contributions },
-      },
-      include: EXPENSE_INCLUDE,
-    });
+    return {
+      description: dto.description?.trim() ?? '',
+      amount: dto.amount,
+      createdBy: { connect: { id: creator.id } },
+      paidBy: { connect: { id: payerId } },
+      ...(groupId ? { group: { connect: { id: groupId } } } : {}),
+      ...(categoryId ? { category: { connect: { id: categoryId } } } : {}),
+      expenseContributions: { create: contributions },
+    };
   }
 
   // Modifica (PATCH parziale). Le ExpenseContribution vengono sempre

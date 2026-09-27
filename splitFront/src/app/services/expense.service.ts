@@ -84,6 +84,13 @@ export class ExpenseService {
     return this.http.post(`${this.baseUrl}/expense`, payload);
   }
 
+  // Tutte o nessuna, in una transazione: la usa la divisione intelligente.
+  createMany(payloads: CreateExpensePayload[]): Observable<ExpenseListItem[]> {
+    return this.http.post<ExpenseListItem[]>(`${this.baseUrl}/expense/batch`, {
+      expenses: payloads,
+    });
+  }
+
   // Modifica/eliminazione: permesse a qualsiasi contributore (403 altrimenti).
   update(publicId: string, payload: UpdateExpensePayload): Observable<ExpenseListItem> {
     return this.http.patch<ExpenseListItem>(`${this.baseUrl}/expense/${publicId}`, payload);

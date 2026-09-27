@@ -18,7 +18,7 @@
     @for (expense of expenses; track expense.publicId) {
       <ion-item button [routerLink]="['/tabs/groups', groupPublicId, 'expense', expense.publicId]">
         <ion-label>
-          <h2>{{ expense.description || ('expense-detail.untitled' | translate) }}</h2>
+          <h2>{{ expense.description || ((isSmartSplit(expense) ? 'categories.smart-split' : 'expense-detail.untitled') | translate) }}</h2>
           <p>{{ 'groups.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>
           @if (expense.category) {
             <ion-chip class="category-chip" [outline]="true" color="medium">

@@ -14,8 +14,11 @@ export const USERS = {
   minni: 'minni@disney.test',
   paperone: 'paperone@disney.test',
   qui: 'qui@disney.test',
+  quo: 'quo@disney.test',
+  qua: 'qua@disney.test',
   gastone: 'gastone@disney.test',
   archimede: 'archimede@disney.test',
+  amelia: 'amelia@disney.test',
 } as const;
 
 export interface Session {
@@ -47,11 +50,33 @@ export async function loginAs(page: Page, email: string): Promise<Session> {
 export async function createExpense(
   request: APIRequestContext,
   session: Session,
-  body: { amount: number; description?: string; participantPublicIds?: string[] },
+  body: {
+    amount: number;
+    description?: string;
+    participantPublicIds?: string[];
+    groupPublicId?: string;
+    paidByPublicId?: string;
+    shares?: { userPublicId: string; share: number }[];
+  },
 ): Promise<void> {
   const response = await request.post(`${API_URL}/expense`, {
     headers: { Authorization: `Bearer ${session.accessToken}` },
     data: body,
   });
   expect(response.ok(), `creazione spesa ${JSON.stringify(body)}`).toBeTruthy();
+}
+
+/** Crea un gruppo via API (il creatore ne fa sempre parte). */
+export async function createGroup(
+  request: APIRequestContext,
+  session: Session,
+  name: string,
+  memberPublicIds: string[],
+): Promise<{ publicId: string }> {
+  const response = await request.post(`${API_URL}/group`, {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    data: { name, memberPublicIds },
+  });
+  expect(response.ok(), `creazione gruppo ${name}`).toBeTruthy();
+  return response.json();
 }

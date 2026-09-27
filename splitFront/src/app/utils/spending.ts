@@ -1,3 +1,4 @@
+import { isSmartSplit } from '../models/category.model';
 import { BalanceExpenseInput, toCents } from './balance';
 
 /**
@@ -8,6 +9,8 @@ import { BalanceExpenseInput, toCents } from './balance';
 export interface SpendingExpenseInput extends BalanceExpenseInput {
   // Data ISO della spesa: l'unica data che una spesa ha (vedi `Expense.createdDate`).
   createdDate: string;
+  // Serve solo a riconoscere le spese della divisione intelligente.
+  category?: { slug: string | null } | null;
 }
 
 export interface MonthlySpending {
@@ -34,6 +37,11 @@ export function computeMonthlySpending(
   const month = now.getMonth();
 
   for (const expense of expenses ?? []) {
+    // Le spese della divisione intelligente spostano debiti, non sono spesa.
+    if (isSmartSplit(expense)) {
+      continue;
+    }
+
     const date = new Date(expense?.createdDate);
     if (Number.isNaN(date.getTime()) || date.getFullYear() !== year || date.getMonth() !== month) {
       continue;

@@ -54,6 +54,14 @@
         emptyCtaKey="balances.add-expense"
         (emptyAction)="openExpenseForm()"
       ></app-expense-balances>
+      @if (groupExpenses.length > 0) {
+        <div class="ion-padding">
+          <ion-button expand="block" fill="outline" (click)="openSmartSplit()">
+            <ion-icon slot="start" name="sparkles-outline"></ion-icon>
+            {{ 'smart-split.button' | translate }}
+          </ion-button>
+        </div>
+      }
     </div>
 
     <div [hidden]="segment !== 'members'">

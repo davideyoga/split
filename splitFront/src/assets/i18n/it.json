@@ -56,6 +56,7 @@
     "cancel": "Annulla",
     "delete-confirm": "Eliminare questa spesa?",
     "delete-confirm-message": "Verrà eliminata per tutti i partecipanti e i saldi saranno ricalcolati. L'operazione non si può annullare.",
+    "delete-smart-split-message": "Fa parte di una divisione intelligente: eliminarla da sola cambia i saldi netti dei membri del gruppo. Verrà eliminata per tutti i partecipanti. L'operazione non si può annullare.",
     "deleted": "Spesa eliminata",
     "delete-error": "Impossibile eliminare la spesa, riprova"
   },
@@ -140,6 +141,29 @@
     "deleted": "Rimborso eliminato",
     "delete-error": "Impossibile eliminare il rimborso, riprova"
   },
+  "smart-split": {
+    "button": "Semplifica i debiti",
+    "title": "Divisione intelligente",
+    "cancel": "Annulla",
+    "apply": "Applica",
+    "loading": "Calcolo in corso…",
+    "load-error": "Impossibile caricare le spese del gruppo, riprova",
+    "intro": "Sostituisce i debiti del gruppo con meno pagamenti. Il saldo netto di ognuno non cambia.",
+    "now": "Ora",
+    "after": "Dopo",
+    "debt": "{{from}} → {{to}}",
+    "you": "Tu",
+    "expenses-title": "Spese che verranno create",
+    "paid-by": "Pagata da {{name}}",
+    "paid-by-you": "Pagata da te",
+    "expenses-hint": "Spese di compensazione con categoria \"Divisione intelligente\": spostano i debiti e non contano come spesa.",
+    "nothing-title": "Niente da semplificare",
+    "nothing-text": "I debiti del gruppo richiedono già il minimo di pagamenti.",
+    "no-debts-title": "Nessun debito aperto",
+    "no-debts-text": "Nel gruppo sono tutti in pari.",
+    "applied": "Debiti semplificati",
+    "save-error": "Impossibile creare le spese, riprova. Non è stato modificato nulla."
+  },
   "categories": {
     "title": "Categoria",
     "new": "Nuova",
@@ -156,7 +180,8 @@
     "activities": "Attività",
     "shopping": "Shopping",
     "health": "Salute",
-    "other": "Altro"
+    "other": "Altro",
+    "smart-split": "Divisione intelligente"
   },
   "groups": {
     "title": "Gruppi",

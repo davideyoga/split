@@ -46,7 +46,7 @@ import {
   ShareMap,
   SplitSharesModal,
 } from '../../components/split-shares/split-shares.modal';
-import { Category, CATEGORY_ICONS } from '../../models/category.model';
+import { Category, CATEGORY_ICONS, SMART_SPLIT_SLUG } from '../../models/category.model';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
@@ -306,7 +306,10 @@ export class ExpenseFormModal implements OnInit {
 
   loadCategories() {
     this.categoryService.getCategories().subscribe({
-      next: (categories) => {
+      next: (all) => {
+        // La categoria della divisione intelligente la assegna solo la sua
+        // modale: non si sceglie a mano.
+        const categories = all.filter((c) => c.slug !== SMART_SPLIT_SLUG);
         // In modifica la categoria della spesa puo' non essere fra le mie
         // (custom di chi l'ha creata, o archiviata): la aggiungo per mostrarla
         // selezionata. Il backend non la ricontrolla se resta invariata.

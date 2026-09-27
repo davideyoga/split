@@ -56,6 +56,7 @@
     "cancel": "Cancel",
     "delete-confirm": "Delete this expense?",
     "delete-confirm-message": "It will be removed for all participants and balances will be recalculated. This cannot be undone.",
+    "delete-smart-split-message": "It's part of a smart split: deleting it on its own changes the group members' net balances. It will be removed for all participants. This cannot be undone.",
     "deleted": "Expense deleted",
     "delete-error": "Couldn't delete the expense, please try again"
   },
@@ -140,6 +141,29 @@
     "deleted": "Repayment deleted",
     "delete-error": "Couldn't delete the repayment, please try again"
   },
+  "smart-split": {
+    "button": "Simplify debts",
+    "title": "Smart split",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "loading": "Calculating…",
+    "load-error": "Couldn't load the group's expenses, please try again",
+    "intro": "Replaces the group's debts with fewer payments. Everyone's net balance stays the same.",
+    "now": "Now",
+    "after": "After",
+    "debt": "{{from}} → {{to}}",
+    "you": "You",
+    "expenses-title": "Expenses that will be created",
+    "paid-by": "Paid by {{name}}",
+    "paid-by-you": "Paid by you",
+    "expenses-hint": "Balancing expenses in the \"Smart split\" category: they move debts around and don't count as spending.",
+    "nothing-title": "Nothing to simplify",
+    "nothing-text": "The group's debts already need as few payments as possible.",
+    "no-debts-title": "No open debts",
+    "no-debts-text": "Everyone in the group is settled up.",
+    "applied": "Debts simplified",
+    "save-error": "Couldn't create the expenses, please try again. Nothing was changed."
+  },
   "categories": {
     "title": "Category",
     "new": "New",
@@ -156,7 +180,8 @@
     "activities": "Activities",
     "shopping": "Shopping",
     "health": "Health",
-    "other": "Other"
+    "other": "Other",
+    "smart-split": "Smart split"
   },
   "groups": {
     "title": "Groups",

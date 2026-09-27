@@ -8,6 +8,7 @@ import {
   medkitOutline,
   pricetagOutline,
   restaurantOutline,
+  sparklesOutline,
   ticketOutline,
 } from 'ionicons/icons';
 
@@ -40,7 +41,19 @@ export const CATEGORY_ICONS: Record<string, string> = {
   'bag-handle-outline': bagHandleOutline,
   'medkit-outline': medkitOutline,
   'pricetag-outline': pricetagOutline,
+  'sparkles-outline': sparklesOutline,
 };
 
 // Icona di default delle categorie custom (uguale al default lato Prisma).
 export const DEFAULT_CATEGORY_ICON = 'pricetag-outline';
+
+// Categoria preconfigurata "di sistema" delle spese di compensazione create
+// dalla divisione intelligente (SmartSplitModal). Non si sceglie a mano (il
+// picker la nasconde) e non e' spesa reale ("Spesi questo mese" la salta).
+export const SMART_SPLIT_SLUG = 'smart-split';
+
+export function isSmartSplit(
+  expense: { category?: { slug: string | null } | null } | null | undefined,
+): boolean {
+  return expense?.category?.slug === SMART_SPLIT_SLUG;
+}

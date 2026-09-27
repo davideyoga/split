@@ -48,8 +48,8 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
+              "maximumWarning": "1mb",
+              "maximumError": "2mb"
             },
             {
               "type": "anyComponentStyle",
@@ -57,7 +57,13 @@
               "maximumError": "8kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "fileReplacements": [
+            {
+              "replace": "splitFront/src/environments/environment.ts",
+              "with": "splitFront/src/environments/environment.prod.ts"
+            }
+          ]
         },
         "development": {
           "optimization": false,

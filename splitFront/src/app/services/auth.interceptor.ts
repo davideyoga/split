@@ -8,7 +8,8 @@ import { catchError, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 // Aggiunge il Bearer token e gestisce la sessione scaduta: un 401 su una
-// richiesta autenticata (token scaduto, non valido o JWT_SECRET ruotato) fa
+// richiesta autenticata (sessione scaduta, chiusa da un altro dispositivo o
+// token di una versione precedente dell'app) fa
 // logout e riporta al login con returnUrl, invece di lasciare ai service il
 // loro `catchError -> of([])` che mostrerebbe solo liste vuote.
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
@@ -30,8 +31,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((err: unknown) => {
-      // Solo richieste che portavano un token: POST /auth/login risponde 401
-      // anche per un'email sconosciuta, e quello non e' una sessione scaduta.
+      // Solo richieste che portavano un token: gli errori delle rotte di login
+      // (codice sbagliato, troppi tentativi) non sono una sessione scaduta.
       // `getToken()` riletto qui: se piu' richieste in parallelo falliscono
       // insieme, solo la prima trova ancora il token e fa redirect + toast.
       if (

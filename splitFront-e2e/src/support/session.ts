@@ -1,5 +1,6 @@
 import { expect, type APIRequestContext, type Page } from '@playwright/test';
 import { API_URL } from './env';
+import { clearMail, readOtp } from './outbox';
 
 /**
  * Utenti creati da splitBack/prisma/seed.ts. Ogni file di test usa una coppia
@@ -26,11 +27,26 @@ export interface Session {
   user: { publicId: string; nickName: string; email: string };
 }
 
-/** Login via API: lo stesso `POST /api/auth/login` (solo email) che usa l'app. */
+/**
+ * Login via API, con le stesse due chiamate dell'app: richiesta del codice,
+ * lettura del codice dall'outbox, scambio del codice con una sessione.
+ */
 export async function apiLogin(request: APIRequestContext, email: string): Promise<Session> {
-  const response = await request.post(`${API_URL}/auth/login`, { data: { email } });
+  clearMail(email);
+  const sent = await request.post(`${API_URL}/auth/email-otp/send-verification-otp`, {
+    data: { email, type: 'sign-in' },
+  });
+  expect(sent.ok(), `invio codice a ${email}: ${sent.status()} ${await sent.text()}`).toBeTruthy();
+  const otp = await readOtp(email);
+
+  const response = await request.post(`${API_URL}/auth/sign-in/email-otp`, { data: { email, otp } });
   expect(response.ok(), `login API di ${email}`).toBeTruthy();
-  return response.json();
+  const body = (await response.json()) as { token: string; user: { publicId: string; name: string; email: string } };
+  // Stessa forma che AuthService salva in localStorage.
+  return {
+    accessToken: body.token,
+    user: { publicId: body.user.publicId, nickName: body.user.name, email: body.user.email },
+  };
 }
 
 /**

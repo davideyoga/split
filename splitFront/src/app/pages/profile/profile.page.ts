@@ -74,7 +74,7 @@ export class ProfilePage {
   }
 
   private logout() {
-    this.authService.logout();
+    this.authService.signOut();
     // navigateRoot azzera lo stack: le tab della sessione appena chiusa non
     // restano montate, quindi un nuovo login (anche con un altro utente) non
     // ritrova i dati del precedente.

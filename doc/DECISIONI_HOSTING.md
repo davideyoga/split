@@ -1,6 +1,6 @@
 # Decisioni hosting e messa online (alpha)
 
-Data: 2026-09-26. Stato: **proposta, da confermare**. La scelta dell'hosting non è ancora fatta, e nessuno degli interventi elencati sotto è ancora stato implementato.
+Data: 2026-09-26, aggiornato il 2026-09-27. Stato: **hosting deciso** (Render gratuito + Neon gratuito + ping, vedi sezione 2). Nessuno degli interventi elencati sotto è ancora stato implementato.
 
 Prezzi e limiti dei piani sono stati verificati il 2026-09-26. I piani gratuiti e i listini cambiano spesso: vanno ricontrollati prima di attivare qualcosa.
 
@@ -13,6 +13,8 @@ L'app è quasi pronta per un'alpha con un gruppo ristretto di tester scelti. Per
 - l'app va esposta su internet, possibilmente gratis o con pochi euro al mese.
 
 ## 1. Cosa serve oltre alla password
+
+> **Nota del 2026-09-27:** il login con password descritto nel punto 1 è stato superato dalla decisione di usare Better Auth con codice via email (OTP), con la registrazione disattivata per l'alpha. Il resto dei bloccanti resta valido.
 
 ### Bloccanti
 
@@ -46,17 +48,32 @@ Scorciatoie da rivedere prima della beta:
 
 ## 2. Hosting
 
-### Opzione gratuita valutata: Neon + Render
+### Decisione (2026-09-27): Neon + Render gratuiti, con ping
 
-- **Neon** per Postgres (piano gratuito): 0,5 GB di spazio e 100 ore di calcolo al mese. Il DB si spegne da solo dopo 5 minuti senza query e non scade. Ci si collega dal PC di sviluppo con la connection string, sia per Prisma Studio sia per lo script `create-user`.
+Per l'alpha si parte gratis. Se lo spegnimento di Render dà fastidio ai tester, si passa a Render Starter (vedi sotto): basta cambiare il tipo di istanza nel pannello, senza toccare il codice.
+
+- **Neon** per Postgres (piano gratuito): 0,5 GB di spazio e 100 ore di calcolo al mese. Il DB si spegne da solo dopo 5 minuti senza query e non scade. Ci si collega dal PC di sviluppo con la connection string, sia per Prisma Studio sia per creare gli utenti.
 - **Render** per il backend Nest (web service gratuito) e per il frontend (static site gratuito). Non serve la carta di credito.
 - **Il Postgres gratuito di Render va evitato**: scade dopo 30 giorni, e 14 giorni dopo viene cancellato con tutti i dati.
-- **Limite principale:** il backend gratuito di Render si spegne dopo 15 minuti senza richieste e ci mette circa un minuto a ripartire. Per un tester che apre l'app al ristorante è il problema più visibile.
-  - Si aggira con un ping gratuito ogni 10 minuti (cron-job.org o UptimeRobot). Le 750 ore gratuite al mese coprono un servizio sempre acceso.
-  - Il ping deve chiamare `GET /api`, che non interroga il DB. Altrimenti tiene sveglio anche Neon e ne consuma le ore di calcolo.
 - **Rewrite sullo static site:** serve una regola `/*` → `/index.html`, altrimenti ricaricando la pagina su una rotta Angular (es. `/tabs/activity`) si ottiene un 404.
 
-Lo spegnimento automatico di Render è stato giudicato poco accettabile, per questo sono state valutate le alternative a pagamento qui sotto.
+#### Il ping (keep-alive)
+
+**Il problema:** il backend gratuito di Render si spegne dopo 15 minuti senza traffico in arrivo e ci mette circa un minuto a ripartire. Per un tester che apre l'app a fine cena è il difetto più visibile.
+
+**La soluzione:** un servizio esterno gratuito (cron-job.org o UptimeRobot) chiama `GET https://<servizio>.onrender.com/api` ogni 10 minuti. Render vede traffico, il timer dei 15 minuti non scade e il server resta acceso. Non richiede codice: `GET /api` esiste già e risponde `{ message: 'Hello API' }` ([app.service.ts](../splitBack/src/app/app.service.ts)).
+
+**Regole:**
+
+- **Il ping deve chiamare `GET /api`, che non tocca il DB.** Se interrogasse il DB ogni 10 minuti, Neon resterebbe acceso almeno 5 minuti su 10: circa 360 ore al mese contro le 100 del piano gratuito, e il DB verrebbe sospeso a metà mese. Le connessioni che Prisma tiene aperte senza fare query invece non tengono sveglio Neon, che conta solo query e nuove connessioni.
+- **Un solo web service gratuito sempre acceso.** Le 750 ore gratuite al mese sono per workspace, condivise tra tutti i servizi gratuiti; un mese ne ha al massimo 744. Un secondo servizio sempre acceso (es. uno staging) le esaurisce a metà mese, e Render sospende **tutti** i servizi gratuiti fino al mese dopo. Lo static site non consuma queste ore.
+
+**Limiti accettati per l'alpha:**
+
+- **Il ping riduce gli avvii lenti, non li elimina.** Render può riavviare un servizio gratuito in qualsiasi momento, quindi ogni tanto un tester aspetterà comunque il minuto di avvio.
+- **È una pratica tollerata, non garantita.** La documentazione del piano gratuito di Render non parla dei ping né per vietarli né per permetterli. Se Render li bloccasse non si rompe niente: si torna agli avvii lenti, o si passa a Starter.
+- **Da provare prima dell'alpha: Prisma dopo la pausa di Neon.** Con il ping il server resta acceso per giorni, mentre Neon si spegne dopo 5 minuti e chiude le connessioni aperte. Prisma di solito si riconnette da solo, ma la prima query dopo la pausa può fallire. Prova: lasciare il DB fermo più di 5 minuti, poi aprire l'app e controllare che la prima schermata carichi.
+- **Da controllare la prima settimana: il consumo di Neon.** Su un piano a pagamento è stato segnalato che i controlli periodici di Neon consumano calcolo anche senza traffico. Non è chiaro se succeda sul piano gratuito: va guardato il consumo nel pannello di Neon.
 
 ### Scartata: Oracle Cloud "Always Free"
 
@@ -74,7 +91,9 @@ Lo spegnimento automatico di Render è stato giudicato poco accettabile, per que
 | Railway Hobby | 5 $/mese, con 5 $ di consumo inclusi | No | Nessuno, ma è a consumo e il costo può crescere |
 | Hetzner VPS (CX23: 2 CPU, 4 GB, Germania o Finlandia) | circa 4,35 €/mese + IVA | No | Il server è tutto da gestire |
 
-### Raccomandazione: Render Starter + Neon
+### Se il piano gratuito non basta: Render Starter + Neon
+
+Era la raccomandazione del 2026-09-26. Ora è il passo successivo, se lo spegnimento di Render dà fastidio.
 
 - Costo di circa 6 € al mese: Render Starter per il backend, frontend sullo static site gratuito di Render, Neon per il DB.
 - Il piano di deploy resta quello dell'opzione gratuita, e il ping non serve più.
@@ -102,8 +121,8 @@ Dettagli pratici:
 
 ## Da decidere
 
-- [ ] Confermare Render Starter + Neon, oppure scegliere un'altra opzione.
-- [ ] Implementare i bloccanti della sezione 1. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
+- [x] Scegliere l'hosting: Render gratuito + Neon gratuito + ping (2026-09-27).
+- [ ] Implementare i bloccanti della sezione 1, **prima** di pubblicare il backend: con il login attuale (solo email) chiunque conosca l'email di un tester entra nel suo account. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
 - [ ] Registrare in CLAUDE.md le scorciatoie dell'alpha una volta implementate.
 
 ## Fonti
@@ -112,6 +131,10 @@ Dettagli pratici:
 - [Render Free Tier 2026: 750 Hours](https://unanswered.io/guide/render-free-tier-details)
 - [Render Pricing 2026 (srvrlss.io)](https://www.srvrlss.io/provider/render/)
 - [Render: hosting costs for small businesses](https://render.com/articles/how-much-does-cloud-application-hosting-cost-for-small-businesses)
+- [Render Docs: Deploy for Free](https://render.com/docs/free)
+- [Neon: Using Scale to Zero with Long-Running Applications](https://neon.com/blog/using-neons-auto-suspend-with-long-running-applications)
+- [Neon Docs: Scale to Zero](https://neon.com/docs/introduction/scale-to-zero)
+- [neondatabase/neon, discussione #12900 (consumo senza traffico)](https://github.com/neondatabase/neon/discussions/12900)
 - [Neon Pricing](https://neon.com/pricing)
 - [Neon: Free plan limits and quotas](https://neon.com/faqs/free-plan-limits-and-quotas)
 - [Neon Pricing: The Honest Cost of Serverless Postgres](https://selfhost.dev/blog/neon-pricing-cost-of-serverless-postgres/)

@@ -7,6 +7,9 @@ datasource db {
   url = env("DATABASE_URL")
 }
 
+// E' anche la tabella `user` di Better Auth (splitBack/src/app/auth/auth.factory.ts),
+// che ne rimappa i campi: name -> nickName, emailVerified -> confirmed,
+// createdAt -> createdDate. `image` e `updatedAt` esistono solo per Better Auth.
 model User {
   id                   Int                @id @default(autoincrement())
   email                String             @unique
@@ -21,18 +24,62 @@ model User {
   settlementsReceived  Settlement[]       @relation("SettlementTo")
   settlementsCreated   Settlement[]       @relation("SettlementCreatedBy")
   createdDate          DateTime           @default(now())
+  updatedAt            DateTime           @default(now()) @updatedAt
   confirmed            Boolean            @default(false)
-  confirmationCodes    ConfirmationCode[]
-  refreshToken         String?
+  image                String?
+  sessions             Session[]
+  accounts             Account[]
 }
 
-model ConfirmationCode {
+// Tabelle di Better Auth (login con codice via email). Gli id sono interi
+// autoincrement come quelli di User (`advanced.database.generateId: "serial"`).
+
+// Una sessione per dispositivo: `token` e' il Bearer che il frontend manda.
+model Session {
   id        Int      @id @default(autoincrement())
-  code      String
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  token     String   @unique
   expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// Account collegati (provider social, password). Col solo login via codice
+// resta vuota, ma Better Auth la richiede.
+model Account {
+  id                    Int       @id @default(autoincrement())
+  accountId             String
+  providerId            String
+  userId                Int
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+// Codici di login in attesa (salvati come hash, scadono dopo 10 minuti).
+model Verification {
+  id         Int      @id @default(autoincrement())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  @@index([identifier])
 }
 
 model ExpenseContribution {

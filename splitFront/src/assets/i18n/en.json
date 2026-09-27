@@ -74,8 +74,18 @@
     "title": "Log in",
     "email-label": "Your email",
     "email-placeholder": "mario.rossi@email.com",
+    "send-code": "Send code",
+    "code-sent": "If {{email}} has an account, we've emailed it a 6-digit code. It can take a minute: check your spam folder too.",
+    "code-label": "Code",
     "submit": "Log in",
-    "user-not-found": "No account found for this email"
+    "resend-code": "Send a new code",
+    "code-resent": "New code sent",
+    "change-email": "Use a different email",
+    "invalid-code": "Wrong code",
+    "code-expired": "The code has expired: request a new one",
+    "too-many-attempts": "Too many wrong attempts: request a new code",
+    "rate-limited": "Too many requests: wait a minute and try again",
+    "generic-error": "Something went wrong, please try again"
   },
   "activity": {
     "recent": "Recent expenses",

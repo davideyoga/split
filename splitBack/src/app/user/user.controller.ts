@@ -1,25 +1,16 @@
-// File: src/expense/expense.controller.ts
-import {
-  Controller,
-  Post,
-  Body,
-  ValidationPipe,
-  Get,
-  Param,
-} from '@nestjs/common';
+import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 
-@Controller('user') // 1. Definisce l'URL base per questo controller (es. /api/expense)
+// Gli utenti non si creano da qui: con il login via codice (Better Auth,
+// signup disabilitato) li aggiunge solo splitBack/prisma/seed.ts. Il vecchio
+// POST /api/user, aperto a chiunque, e' stato rimosso il 2026-09-27.
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body(new ValidationPipe()) createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
   @Get('/:nickname')//TODO: fare in modo di cercare solo utenti gia' registrati
+  @UseGuards(SessionAuthGuard)
   findUsers(@Param('nickname') nickname: string) {
     return this.userService.getUser(nickname);
   }

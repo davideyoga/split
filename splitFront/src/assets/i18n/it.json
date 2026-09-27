@@ -74,8 +74,18 @@
     "title": "Accedi",
     "email-label": "La tua email",
     "email-placeholder": "mario.rossi@email.com",
+    "send-code": "Invia codice",
+    "code-sent": "Se {{email}} ha un account, gli abbiamo inviato un codice di 6 cifre. Può volerci un minuto: controlla anche lo spam.",
+    "code-label": "Codice",
     "submit": "Accedi",
-    "user-not-found": "Nessun account trovato per questa email"
+    "resend-code": "Invia un nuovo codice",
+    "code-resent": "Nuovo codice inviato",
+    "change-email": "Usa un'altra email",
+    "invalid-code": "Codice errato",
+    "code-expired": "Il codice è scaduto: richiedine uno nuovo",
+    "too-many-attempts": "Troppi tentativi errati: richiedi un nuovo codice",
+    "rate-limited": "Troppe richieste: attendi un minuto e riprova",
+    "generic-error": "Qualcosa è andato storto, riprova"
   },
   "activity": {
     "recent": "Spese recenti",

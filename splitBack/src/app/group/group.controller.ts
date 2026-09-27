@@ -11,8 +11,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthUser } from '../auth/auth.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import type { AuthUser } from '../auth/auth-user';
+import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { GroupMembersDto } from './dto/group-members.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -23,7 +23,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   create(
     @Req() request: Request,
     @Body(new ValidationPipe()) dto: CreateGroupDto,
@@ -33,21 +33,21 @@ export class GroupController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   findMine(@Req() request: Request) {
     const user = request['user'] as AuthUser;
     return this.groupService.findMine(user.publicId);
   }
 
   @Get('/:publicId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   findOne(@Req() request: Request, @Param('publicId') publicId: string) {
     const user = request['user'] as AuthUser;
     return this.groupService.findOne(user.publicId, publicId);
   }
 
   @Patch('/:publicId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   rename(
     @Req() request: Request,
     @Param('publicId') publicId: string,
@@ -58,7 +58,7 @@ export class GroupController {
   }
 
   @Post('/:publicId/members')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   addMembers(
     @Req() request: Request,
     @Param('publicId') publicId: string,
@@ -69,7 +69,7 @@ export class GroupController {
   }
 
   @Delete('/:publicId/members/:userPublicId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   removeMember(
     @Req() request: Request,
     @Param('publicId') publicId: string,

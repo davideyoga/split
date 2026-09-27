@@ -11,8 +11,8 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { AuthUser } from '../auth/auth.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import type { AuthUser } from '../auth/auth-user';
+import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -22,14 +22,14 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   findAvailable(@Req() request: Request) {
     const user = request['user'] as AuthUser;
     return this.categoryService.findAvailable(user.publicId);
   }
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   create(
     @Req() request: Request,
     @Body(new ValidationPipe()) dto: CreateCategoryDto,
@@ -39,7 +39,7 @@ export class CategoryController {
   }
 
   @Patch('/:publicId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   update(
     @Req() request: Request,
     @Param('publicId') publicId: string,
@@ -50,7 +50,7 @@ export class CategoryController {
   }
 
   @Delete('/:publicId')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(SessionAuthGuard)
   archive(@Req() request: Request, @Param('publicId') publicId: string) {
     const user = request['user'] as AuthUser;
     return this.categoryService.archive(user.publicId, publicId);

@@ -9,12 +9,14 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 ## Backend (`splitBack`)
 
 - [group.service.ts:27](splitBack/src/app/group/group.service.ts#L27) — permessi gruppo: oggi qualsiasi membro puo' rinominare il gruppo e aggiungere/rimuovere membri. Prima della beta aggiungere `Group.createdById` (owner) e limitare le mutazioni all'owner.
-- [main.ts:21](splitBack/src/main.ts#L21) — restringere CORS a un origin specifico invece di `enableCors()` aperto.
-- [user.controller.ts:22](splitBack/src/app/user/user.controller.ts#L22) — la ricerca utenti dovrebbe filtrare solo utenti già registrati/confermati.
+- [main.ts:24](splitBack/src/main.ts#L24) — restringere CORS a un origin specifico invece di `enableCors()` aperto.
+- [user.controller.ts:12](splitBack/src/app/user/user.controller.ts#L12) — la ricerca utenti dovrebbe filtrare solo utenti già registrati/confermati.
+- [auth.factory.ts:13](splitBack/src/app/auth/auth.factory.ts#L13) — prima della beta: dietro un reverse proxy il rate limit del login vede solo l'IP del proxy (un contatore per tutti); leggere `X-Forwarded-For` con `advanced.ipAddress.trustedProxies`.
 
 
 ## Funzionalita' da aggiungere Priorita' alta
-- (nessuna)
+- Passkey (accesso con impronta/FaceID dopo il primo login via codice): plugin `@better-auth/passkey` (MIT), aggiunge una tabella. Su Capacitor serve un plugin nativo open source e la configurazione del dominio (`assetlinks.json` / `apple-app-site-association`). Vedi [doc/Auth.md](doc/Auth.md).
+- Dominio per le email: con Brevo e mittente Gmail i codici di login possono finire in spam; con un dominio autenticato in Brevo (SPF/DKIM) no.
 
 
 ## Funzionalita' da aggiungere priorita' bassa

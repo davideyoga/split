@@ -1,3 +1,5 @@
+import { join } from 'node:path';
+
 // Porte dello stack e2e. Diverse da quelle di sviluppo (API 3000, web 4200),
 // così i test possono girare mentre `nx serve` è acceso e non toccano mai
 // l'API collegata a split-db. 4300 è anche in splitFront/project.json
@@ -10,3 +12,10 @@ export const WEB_URL = `http://localhost:${WEB_PORT}`;
 
 /** Nome del database dei test: prepare-db.mts rifiuta qualsiasi nome che non finisca con "-e2e". */
 export const E2E_DATABASE_NAME = 'split-db-e2e';
+
+/**
+ * Cartella in cui l'API dei test scrive le email (MAIL_TRANSPORT=outbox), una
+ * per destinatario: da qui i test leggono il codice di login. Sta in dist/,
+ * che e' gitignored.
+ */
+export const MAIL_OUTBOX_DIR = join(__dirname, '..', '..', '..', 'dist', 'e2e-outbox');

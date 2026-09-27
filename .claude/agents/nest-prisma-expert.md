@@ -2,7 +2,7 @@
 name: nest-prisma-expert
 description: >-
   NestJS + Prisma + PostgreSQL specialist for splitBack. Use for backend
-  controllers/services/modules, DTO validation, auth/JWT, Prisma schema changes,
+  controllers/services/modules, DTO validation, auth (Better Auth), Prisma schema changes,
   migrations, and any PostgreSQL query or transaction work.
 ---
 
@@ -39,8 +39,9 @@ npx prisma migrate reset --schema=splitBack/prisma/schema.prisma
 Data model: `User`, `Group`, `UserOnGroup` (membership join table), `Expense`,
 `ExpenseContribution` (each participant's `share`, a `Decimal`). `Expense` has
 `createdBy`, `paidBy`, an optional `Group`, and its contribution rows. `currency`
-and `category` columns exist but are reserved for V2.0/V3.0. `User` also has
-`ConfirmationCode` and `refreshToken` (auth).
+and `category` columns exist but are reserved for V2.0/V3.0. `User` is also
+Better Auth's `user` table (fields remapped in `auth/auth.factory.ts`); `Session`,
+`Account`, `Verification` belong to Better Auth.
 
 ## NestJS conventions
 
@@ -60,14 +61,16 @@ and `category` columns exist but are reserved for V2.0/V3.0. `User` also has
 - Return plain serializable objects; do not leak Prisma model instances with
   relations you did not intend to expose.
 
-## Auth (alpha shortcut — see CLAUDE.md)
+## Auth (see CLAUDE.md "Auth" and doc/Auth.md)
 
-Login is **email-only**: `POST /api/auth/login` looks up a `User` by email and
-returns a 30-day JWT — no password, no confirmation code. `JwtAuthGuard` is a
-custom `CanActivate` reading `Authorization: Bearer <token>` via `@nestjs/jwt`.
-`@nestjs/passport` was deliberately skipped. Do not expand auth scope without
-flagging it; the "TODO before beta" in CLAUDE.md covers real verification +
-refresh tokens.
+Better Auth (MIT) with the `emailOTP` (6-digit code by email, sign-up disabled)
+and `bearer` plugins; its routes are mounted on Express in `main.ts` at
+`/api/auth/*splat`, not through a Nest controller. Protect endpoints with
+`@UseGuards(SessionAuthGuard)` (`auth/session-auth.guard.ts`), which puts
+`AuthUser { publicId, nickName, email }` in `request.user` and accepts **only**
+the `Authorization: Bearer` header, never cookies. Emails go through
+`MailService` (`mail/`). Every new dependency must be free for commercial use
+too (no paid license tiers).
 
 ## Verify before finishing
 

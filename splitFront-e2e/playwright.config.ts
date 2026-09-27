@@ -3,9 +3,9 @@ import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
 import { config as loadEnv } from 'dotenv';
 import { join } from 'node:path';
-import { API_PORT, API_URL, E2E_DATABASE_NAME, WEB_URL } from './src/support/env';
+import { API_PORT, API_URL, E2E_DATABASE_NAME, MAIL_OUTBOX_DIR, WEB_URL } from './src/support/env';
 
-// JWT_SECRET e DATABASE_URL arrivano dal .env della root. `nx e2e` lo carica
+// BETTER_AUTH_SECRET e DATABASE_URL arrivano dal .env della root. `nx e2e` lo carica
 // già, `npx playwright test` lanciato a mano no. Non sovrascrive variabili già
 // impostate.
 loadEnv({ path: join(workspaceRoot, '.env') });
@@ -51,7 +51,15 @@ export default defineConfig({
         ' && node splitBack/dist/main.js',
       url: API_URL,
       cwd: workspaceRoot,
-      env: { DATABASE_URL: e2eDatabaseUrl(), PORT: String(API_PORT) },
+      // Email scritte in MAIL_OUTBOX_DIR invece che inviate (i test ci leggono
+      // il codice di login), e niente rate limit: tanti login dallo stesso IP.
+      env: {
+        DATABASE_URL: e2eDatabaseUrl(),
+        PORT: String(API_PORT),
+        MAIL_TRANSPORT: 'outbox',
+        MAIL_OUTBOX_DIR,
+        AUTH_RATE_LIMIT: 'off',
+      },
       reuseExistingServer: false,
       timeout: 180_000,
     },

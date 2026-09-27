@@ -1,0 +1,13 @@
+{
+  "name": "splitFront-e2e",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "splitFront-e2e/src",
+  "tags": [],
+  "implicitDependencies": ["splitFront", "@split/splitBack"],
+  "targets": {
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

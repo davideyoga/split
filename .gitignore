@@ -49,3 +49,8 @@ Thumbs.db
 .env
 
 /generated/prisma
+
+test-output
+
+# Output del server Playwright MCP (log, snapshot, screenshot)
+.playwright-mcp

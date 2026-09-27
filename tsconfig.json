@@ -11,6 +11,9 @@
     },
     {
       "path": "./splitFront"
+    },
+    {
+      "path": "./splitFront-e2e"
     }
   ]
 }

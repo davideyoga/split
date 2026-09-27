@@ -63,6 +63,17 @@
           "optimization": false,
           "extractLicenses": false,
           "sourceMap": true
+        },
+        "e2e": {
+          "optimization": false,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "fileReplacements": [
+            {
+              "replace": "splitFront/src/environments/environment.ts",
+              "with": "splitFront/src/environments/environment.e2e.ts"
+            }
+          ]
         }
       },
       "defaultConfiguration": "production"
@@ -76,6 +87,10 @@
         },
         "development": {
           "buildTarget": "splitFront:build:development"
+        },
+        "e2e": {
+          "buildTarget": "splitFront:build:e2e",
+          "port": 4300
         }
       },
       "defaultConfiguration": "development"

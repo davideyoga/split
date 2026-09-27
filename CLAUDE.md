@@ -42,6 +42,12 @@ npx nx build <project>
 npx nx lint <project>
 ```
 
+End-to-end tests (Playwright, see **E2E tests** below and [`doc/Playwright.md`](doc/Playwright.md)):
+```
+npx nx e2e splitFront-e2e                        # whole suite; starts its own API + frontend, needs Postgres up
+npx playwright test -c splitFront-e2e settle-up  # one spec file (filter on the file name)
+```
+
 Prisma (the authoritative schema lives at `splitBack/prisma/schema.prisma` — always pass `--schema`):
 ```
 npx prisma migrate dev --schema=splitBack/prisma/schema.prisma --name <migration_name>   # create/apply a migration
@@ -77,6 +83,7 @@ reset. Seeded users are created with `confirmed: true` and skip the
 - `splitFront/` — Ionic + Angular client (standalone components, SCSS), meant to run both as a web app and as a mobile app via Capacitor (`capacitor.config.ts`, `@capacitor/android`/`ios` deps). i18n via `@ngx-translate` with `src/assets/i18n/{en,it}.json`.
 - `splitBack/` — NestJS API using Prisma as the ORM/DB client.
 - `data-access/` — shared library workspace (currently just a scaffolded `DataAccessModule`), intended to hold code shared between front and back.
+- `splitFront-e2e/` — Playwright end-to-end tests of `splitFront` against a real `splitBack` (Nx project defined by `project.json` only, targets inferred by `@nx/playwright/plugin`).
 - `packages/` — placeholder for additional publishable Nx libraries (currently empty).
 
 **Backend (`splitBack`):**
@@ -182,6 +189,13 @@ reset. Seeded users are created with `confirmed: true` and skip the
 - Any user-facing text shown in HTML templates (pages, components) or via pop-ups/alerts/toasts must be added to **both** `en.json` and `it.json` — never hardcode user-facing strings directly in the template or in TS code.
 - Sections so far: `expense-form.*` (replaced `add-expense.*` in Phase 2), `expense-detail.*`, `select-participant.*`, `login.*`, `activity.*` (replaced `home.*` in Phase 5), `tabs.*`, `profile.*` (incl. `language-it`/`language-en`, which are the endonyms "Italiano"/"English" in both files), `session.*`, `groups.*`, `categories.*` (the latter holds both UI labels and one key per preset category slug), `balances.*`, `settlements.*` (settle-up modal + repayments history). Every component is fully translated (the `select-participant` modal's old hardcoded Italian was converted to `select-participant.*` when the person/group toggle landed).
 
+**E2E tests (`splitFront-e2e/`, Playwright, 2026-09-27)** — rationale, alternatives considered and Ionic pitfalls in [`doc/Playwright.md`](doc/Playwright.md):
+- **Two tools, two jobs:** the **Playwright MCP** (`.mcp.json`: `npx @playwright/mcp --browser chrome --device "Pixel 7"`, version pinned as a devDependency) lets Claude drive the app interactively; **Playwright Test** (`@playwright/test` + `@nx/playwright`) is the repeatable suite. Only Chromium with the Pixel 7 profile (`mobile-chrome` project): the app is mobile-first.
+- **Isolated stack, never the dev one:** `playwright.config.ts` starts two `webServer`s: the API on **3100** (`nx build splitBack --configuration=development` + `node splitBack/dist/main.js` with `PORT`/`DATABASE_URL` overridden) and `nx serve splitFront --configuration=e2e` on **4300**. The `e2e` configuration of `splitFront` swaps in `environment.e2e.ts` (`apiUrl` → 3100). The API server is never reused (`reuseExistingServer: false`), so every run starts from the seed.
+- **Database `split-db-e2e`**, derived from `DATABASE_URL` (override with `E2E_DATABASE_URL`) and rebuilt on every run by `scripts/prepare-db.mts`: create if missing → `prisma migrate deploy` → `TRUNCATE` every table but `_prisma_migrations` → `seed.ts`. **Safety:** it refuses any database name not ending in `-e2e` and re-checks `current_database()` before truncating. It runs as the first command of the API `webServer`, not in `globalSetup`, because Playwright starts `webServer`s *before* `globalSetup`. Verified: after full runs the dev DB counts were unchanged.
+- **Test conventions:** each spec file uses its own seeded users (`src/support/session.ts`), so files run in parallel (tests inside a file run in order: `fullyParallel: false`); login goes through `POST /api/auth/login` and writes `split_auth` to localStorage (the login UI has its own spec); setup data may be created via the API (`createExpense`); UI text is matched by i18n key through `t('…')` reading `en.json`, with the browser locale forced to `en-US`. Ionic helpers in `src/support/ionic.ts`: `visible()` (tab pages stay mounted with `ion-page-hidden`), `topModal()` (last `ion-modal`), `toast()`. Assertions right after a navigation must use a locator unique to the destination page (e.g. `getByRole('heading')`), because the previous page is still visible during the transition.
+- **Known gaps:** the inferred `e2e-ci` target (one process per file) doesn't work locally, since the files would fight over ports 3100/4300 and the DB reset; use `e2e`. `nx typecheck splitFront-e2e` fails because its `^typecheck` dependency, `splitFront`'s inferred `typecheck`, has invalid outputs (`dist/out-tsc/**` without `{projectRoot}`) — **pre-existing**, `nx typecheck splitFront` fails the same way. The group-detail FAB has no `aria-label`, so `group.spec.ts` uses the empty-state button. No CI yet; the native Capacitor build is not covered.
+
 
 # Instructions for Claude Code
 
@@ -197,12 +211,19 @@ After modifying **frontend** (`splitFront`) code:
    target on `splitFront`, Jest not installed). When tests are needed, wire it up
    with `npx nx g @nx/jest:configuration --project=splitFront` first and record
    that decision here.
+5. E2E: `npx nx e2e splitFront-e2e` (~1 min, Postgres must be running). When the
+   change adds or alters a user flow, add or update a spec in `splitFront-e2e/src/`.
 
 After modifying **backend** (`splitBack`) code:
 
 1. Type Check: `npx tsc --noEmit`
 2. Build: `npx nx build splitBack`
 3. Lint: `npx eslint <changed files>` — `splitBack` has **no `lint` target** (`npx nx lint splitBack` fails with "Cannot find configuration for task"); the root `eslint.config.mjs` applies.
+4. E2E: `npx nx e2e splitFront-e2e` — it builds and runs the current backend on its own, so it also catches API changes that break the frontend.
+
+After modifying **e2e** (`splitFront-e2e`) code: `npx nx lint splitFront-e2e`, the type check
+`npx tsc -p splitFront-e2e/tsconfig.json --noEmit --composite false --declarationMap false --emitDeclarationOnly false`
+(not `nx typecheck splitFront-e2e`, see **E2E tests**), then the suite itself.
 
 > `npx nx typecheck @split/splitBack` exists but currently fails with ~39 **pre-existing** strict-mode errors (as of 2026-09-25: `import type` in decorated signatures and `request['user']` indexing in `auth.controller.ts` / `jwt-auth.guard.ts`, DTO properties without initializers). The webpack `build` doesn't enforce those rules, so it's the gate for now; check that files you touched add no new errors to that list.
 
@@ -245,6 +266,6 @@ or `claude mcp add …`), they are not part of the repo:
 
 - `typescript-lsp@claude-plugins-official` — TS diagnostics/navigation for Nest + Ionic.
 - `context7@claude-plugins-official` — up-to-date Nx / NestJS / Prisma / Ionic docs.
-- `playwright@claude-plugins-official` — browser automation for the web build of `splitFront`.
+- Playwright MCP — **now part of the repo** (`.mcp.json`, 2026-09-27), so the `playwright@claude-plugins-official` plugin is not needed: approve the server when Claude Code asks, then restart the session (see **E2E tests**).
 - A PostgreSQL MCP (e.g. `pg-aiguide`, or a Postgres/Supabase MCP) pointed at
   `DATABASE_URL` — for ad-hoc SQL and schema inspection against the dev DB.

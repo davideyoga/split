@@ -18,6 +18,8 @@ import {provideTranslateHttpLoader} from "@ngx-translate/http-loader";
 import {provideHttpClient, withInterceptors} from "@angular/common/http";
 import {authInterceptor} from "./app/services/auth.interceptor";
 import {detectInitialLang} from "./app/services/language.service";
+import {isDevMode} from "@angular/core";
+import {provideServiceWorker} from "@angular/service-worker";
 
 
 bootstrapApplication(AppComponent, {
@@ -35,6 +37,12 @@ bootstrapApplication(AppComponent, {
       // Scelta salvata dal Profilo, altrimenti lingua del dispositivo.
       lang: detectInitialLang(),
       fallbackLang: 'en',
-    })
+    }),
+    // PWA: ngsw-worker.js esiste solo nella build `production` (serviceWorker
+    // in project.json); in development/e2e il service worker resta spento.
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 });

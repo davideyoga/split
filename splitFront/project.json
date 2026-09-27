@@ -25,6 +25,11 @@
             "glob": "**/*",
             "input": "splitFront/src/assets",
             "output": "assets"
+          },
+          {
+            "glob": "**/*",
+            "input": "splitFront/src/public",
+            "output": "."
           }
         ],
         "styles": [
@@ -58,6 +63,7 @@
             }
           ],
           "outputHashing": "all",
+          "serviceWorker": "splitFront/ngsw-config.json",
           "fileReplacements": [
             {
               "replace": "splitFront/src/environments/environment.ts",

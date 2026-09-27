@@ -48,9 +48,14 @@ Thumbs.db
 ./.env
 .env
 
+# Utenti veri da aggiungere con splitBack/prisma/add-users.mts (email personali)
+splitBack/prisma/users.local.json
+
 /generated/prisma
 
 test-output
 
 # Output del server Playwright MCP (log, snapshot, screenshot)
 .playwright-mcp
+splitBack/prisma/users.example.json
+splitBack/prisma/noteUploadUser

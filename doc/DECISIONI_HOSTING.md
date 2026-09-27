@@ -92,7 +92,8 @@ Backend pubblicato il 2026-09-27: `https://split-eued.onrender.com/api`. La radi
 - **Variabili d'ambiente:** `NODE_VERSION` = `22.21.1`, `NX_NO_CLOUD` = `true`.
 - **Redirects/Rewrites:** Source `/*`, Destination `/index.html`, Action **Rewrite**.
 - Branch `test`. Gli static site non si spengono e non consumano le 750 ore dei web service.
-- **Dopo la creazione**, sul backend: `AUTH_TRUSTED_ORIGINS` = `https://<static-site>.onrender.com,https://localhost,capacitor://localhost`.
+- Pubblicato il 2026-09-27: `https://split-app-n4lk.onrender.com`. Il rewrite è verificato: `/tabs/activity` e `/login` caricati direttamente rispondono 200.
+- **Dopo la creazione**, sul backend: `AUTH_TRUSTED_ORIGINS` = `https://split-app-n4lk.onrender.com,https://localhost,capacitor://localhost`. Senza, la richiesta del codice risponde `403 INVALID_ORIGIN` (verificato).
 - L'URL dell'API è scritto in [environment.prod.ts](../splitFront/src/environments/environment.prod.ts), che la configurazione `production` usa al posto di `environment.ts` con `fileReplacements` (aggiunti il 2026-09-27). Se cambia l'URL del backend, va cambiato lì.
 - **Budget del bundle alzato** (2026-09-27): la prima build `production` falliva, perché il bundle iniziale pesava 1,15 MB con un limite di errore di 1 MB. I limiti sono diventati avviso a 1 MB ed errore a 2 MB. Compresso, il bundle trasferito pesa circa 230 kB. Ridurlo, per esempio togliendo import non usati, è un'ottimizzazione rimandata.
 
@@ -164,7 +165,8 @@ Dettagli pratici:
 - [x] Bloccanti 1–3 della sezione 1: login con codice via email (Better Auth), `POST /api/user` rimosso, ricerca utenti protetta (2026-09-27).
 - [x] Migrazioni provate su un DB vuoto (2026-09-27).
 - [x] Bloccante 4: `fileReplacements` nella configurazione `production` di `splitFront` e URL reale in `environment.prod.ts` (2026-09-27).
-- [ ] Bloccante 5: seed di produzione senza gli utenti Disney. Con `MAIL_TRANSPORT=brevo` non possono fare login (le email `@disney.test` non esistono), ma compaiono nella ricerca utenti. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
+- [x] Utenti veri in produzione: `DATABASE_URL='<Neon>' node splitBack/prisma/add-users.mts`, che legge `splitBack/prisma/users.local.json` (gitignored, vedi CLAUDE.md "Seed test users") (2026-09-27). Il primo utente e le categorie sono stati creati con `seed.ts`.
+- [x] Bloccante 5 (2026-09-27): gli utenti Disney non stanno più in `seed.ts` (commit `0df3ba5`). Ora li crea solo il database e2e, da `splitFront-e2e/scripts/users.e2e.json`. Se il DB di produzione era stato popolato con un seed precedente, lì vanno cancellati a mano. Testo originale del bloccante: seed di produzione senza gli utenti Disney. Con `MAIL_TRANSPORT=brevo` non possono fare login (le email `@disney.test` non esistono), ma compaiono nella ricerca utenti. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
 - [ ] Registrare in CLAUDE.md le scorciatoie dell'alpha una volta implementate.
 
 ## Fonti

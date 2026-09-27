@@ -5,7 +5,10 @@
  *   1. crea il database se non esiste;
  *   2. applica le migrazioni (`prisma migrate deploy`, non distruttivo);
  *   3. svuota tutte le tabelle tranne `_prisma_migrations`;
- *   4. esegue splitBack/prisma/seed.ts (categorie preconfigurate + utenti Disney).
+ *   4. esegue splitBack/prisma/seed.ts (categorie preconfigurate);
+ *   5. aggiunge gli utenti Disney dei test con splitBack/prisma/add-users.mts
+ *      e scripts/users.e2e.json. Non stanno piu' in seed.ts, che serve anche
+ *      in produzione, dove comparirebbero nella ricerca utenti.
  *
  * Legge DATABASE_URL, che playwright.config.ts imposta all'URL e2e. Il passo 3
  * cancella tutti i dati, quindi lo script si ferma se il nome del database non
@@ -22,6 +25,8 @@ import { PrismaClient } from '@prisma/client';
 
 const SCHEMA = 'splitBack/prisma/schema.prisma';
 const SEED = 'splitBack/prisma/seed.ts';
+const ADD_USERS = 'splitBack/prisma/add-users.mts';
+const E2E_USERS = 'splitFront-e2e/scripts/users.e2e.json';
 
 function e2eDatabase(): { url: URL; name: string } {
   const raw = process.env.DATABASE_URL;
@@ -87,6 +92,9 @@ async function main(): Promise<void> {
   execFileSync(process.execPath, ['--disable-warning=MODULE_TYPELESS_PACKAGE_JSON', SEED], {
     stdio: 'inherit',
   });
+  // add-users.mts scrive sul DATABASE_URL ricevuto, cioe' quello e2e gia'
+  // controllato da e2eDatabase().
+  execFileSync(process.execPath, [ADD_USERS, E2E_USERS], { stdio: 'inherit' });
 }
 
 main().catch((error) => {

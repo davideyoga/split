@@ -57,6 +57,45 @@ Per l'alpha si parte gratis. Se lo spegnimento di Render dà fastidio ai tester,
 - **Il Postgres gratuito di Render va evitato**: scade dopo 30 giorni, e 14 giorni dopo viene cancellato con tutti i dati.
 - **Rewrite sullo static site:** serve una regola `/*` → `/index.html`, altrimenti ricaricando la pagina su una rotta Angular (es. `/tabs/activity`) si ottiene un 404.
 
+#### Configurazione del backend su Render (2026-09-27)
+
+Web Service, runtime Node, regione Frankfurt, istanza Free, branch `test`, Root Directory vuota (il monorepo si builda dalla root).
+
+- **Build Command:** `npm ci --include=dev && npx prisma generate --schema=splitBack/prisma/schema.prisma && npx prisma migrate deploy --schema=splitBack/prisma/schema.prisma && npx nx build splitBack`
+  - `--include=dev`: Nx, webpack e la CLI di Prisma sono devDependencies, e `npm ci` le salterebbe se `NODE_ENV=production` fosse impostato.
+  - `prisma generate` va lanciato a mano: lo schema non è in una posizione standard, quindi il postinstall di `@prisma/client` non lo trova.
+  - `migrate deploy` sta nella build e non nello start: se una migrazione fallisce, fallisce il deploy e resta online la versione precedente. Il Pre-Deploy Command di Render non è disponibile sul piano gratuito.
+- **Start Command:** `node splitBack/dist/main.js` (il bundle richiede i `node_modules` della root).
+- **Variabili d'ambiente:**
+
+  | Variabile | Valore |
+  |---|---|
+  | `NODE_VERSION` | `22.21.1`: Better Auth è solo ESM e il backend è CommonJS, serve Node ≥ 22.12 |
+  | `NX_NO_CLOUD` | `true`: `nx.json` ha un `nxCloudId`, e la build non deve provare a collegarsi a Nx Cloud |
+  | `DATABASE_URL` | connection string **diretta** di Neon + `&connect_timeout=15` |
+  | `BETTER_AUTH_SECRET` | nuovo, diverso da quello di sviluppo |
+  | `BETTER_AUTH_URL` | `https://<servizio>.onrender.com` |
+  | `MAIL_TRANSPORT` | `brevo` (con `BREVO_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME`), oppure `console` per una prima prova: il codice compare nei log di Render |
+  | `AUTH_TRUSTED_ORIGINS` | l'URL dello static site del frontend, più `https://localhost,capacitor://localhost` se si usa l'app Capacitor. Impostarla **sostituisce** i default |
+
+  `PORT` lo imposta Render. `NODE_ENV` non va impostato.
+- **Verifica:** `https://<servizio>.onrender.com/api` risponde `{"message":"Hello API"}`.
+- **Migrazioni su DB vuoto:** verificate il 2026-09-27. Le 7 migrazioni si applicano su un DB vuoto e il risultato coincide con `schema.prisma` (`migrate diff --exit-code` = 0).
+- **Limite noto:** dietro il proxy di Render, `req.socket.remoteAddress` è l'IP del proxy, quindi il rate limit sull'invio dei codici (3 al minuto per IP) è condiviso da tutti i tester. Vedi il TODO in [auth.factory.ts](../splitBack/src/app/auth/auth.factory.ts#L13).
+
+Backend pubblicato il 2026-09-27: `https://split-eued.onrender.com/api`. La radice `/` risponde 404 perché tutte le rotte stanno sotto `/api`.
+
+#### Configurazione del frontend su Render (static site)
+
+- **Build Command:** `npm ci --include=dev && npx nx build splitFront` (configurazione `production` di default).
+- **Publish Directory:** `dist/splitFront/browser`.
+- **Variabili d'ambiente:** `NODE_VERSION` = `22.21.1`, `NX_NO_CLOUD` = `true`.
+- **Redirects/Rewrites:** Source `/*`, Destination `/index.html`, Action **Rewrite**.
+- Branch `test`. Gli static site non si spengono e non consumano le 750 ore dei web service.
+- **Dopo la creazione**, sul backend: `AUTH_TRUSTED_ORIGINS` = `https://<static-site>.onrender.com,https://localhost,capacitor://localhost`.
+- L'URL dell'API è scritto in [environment.prod.ts](../splitFront/src/environments/environment.prod.ts), che la configurazione `production` usa al posto di `environment.ts` con `fileReplacements` (aggiunti il 2026-09-27). Se cambia l'URL del backend, va cambiato lì.
+- **Budget del bundle alzato** (2026-09-27): la prima build `production` falliva, perché il bundle iniziale pesava 1,15 MB con un limite di errore di 1 MB. I limiti sono diventati avviso a 1 MB ed errore a 2 MB. Compresso, il bundle trasferito pesa circa 230 kB. Ridurlo, per esempio togliendo import non usati, è un'ottimizzazione rimandata.
+
 #### Il ping (keep-alive)
 
 **Il problema:** il backend gratuito di Render si spegne dopo 15 minuti senza traffico in arrivo e ci mette circa un minuto a ripartire. Per un tester che apre l'app a fine cena è il difetto più visibile.
@@ -122,7 +161,10 @@ Dettagli pratici:
 ## Da decidere
 
 - [x] Scegliere l'hosting: Render gratuito + Neon gratuito + ping (2026-09-27).
-- [ ] Implementare i bloccanti della sezione 1, **prima** di pubblicare il backend: con il login attuale (solo email) chiunque conosca l'email di un tester entra nel suo account. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
+- [x] Bloccanti 1–3 della sezione 1: login con codice via email (Better Auth), `POST /api/user` rimosso, ricerca utenti protetta (2026-09-27).
+- [x] Migrazioni provate su un DB vuoto (2026-09-27).
+- [x] Bloccante 4: `fileReplacements` nella configurazione `production` di `splitFront` e URL reale in `environment.prod.ts` (2026-09-27).
+- [ ] Bloccante 5: seed di produzione senza gli utenti Disney. Con `MAIL_TRANSPORT=brevo` non possono fare login (le email `@disney.test` non esistono), ma compaiono nella ricerca utenti. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
 - [ ] Registrare in CLAUDE.md le scorciatoie dell'alpha una volta implementate.
 
 ## Fonti

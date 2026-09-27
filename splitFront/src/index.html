@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>SplitFront</title>
+    <title>Split</title>
 
     <base href="/" />
 
@@ -16,7 +16,15 @@
 
     <link rel="icon" type="image/png" href="favicon.png" />
 
+    <!-- PWA: manifest + colore della barra di sistema (toolbar Ionic chiara / scura md) -->
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1f1f1f" />
+
     <!-- add to homescreen for ios -->
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Split" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   </head>

@@ -233,5 +233,11 @@
   },
   "session": {
     "expired": "Sessione scaduta, accedi di nuovo"
+  },
+  "update": {
+    "available": "È disponibile una nuova versione di Split",
+    "unrecoverable": "Split deve ricaricarsi per continuare a funzionare",
+    "reload": "Ricarica",
+    "later": "Più tardi"
   }
 }

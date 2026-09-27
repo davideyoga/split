@@ -233,5 +233,11 @@
   },
   "session": {
     "expired": "Session expired, please log in again"
+  },
+  "update": {
+    "available": "A new version of Split is available",
+    "unrecoverable": "Split needs to reload to keep working",
+    "reload": "Reload",
+    "later": "Later"
   }
 }

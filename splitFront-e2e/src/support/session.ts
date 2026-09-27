@@ -3,7 +3,8 @@ import { API_URL } from './env';
 import { clearMail, readOtp } from './outbox';
 
 /**
- * Utenti creati da splitBack/prisma/seed.ts. Ogni file di test usa una coppia
+ * Utenti creati da scripts/prepare-db.mts (elenco in scripts/users.e2e.json),
+ * solo nel database e2e. Ogni file di test usa una coppia
  * di utenti tutta sua, così i file possono girare in parallelo senza che uno
  * veda (o sposti i saldi de) le spese create da un altro.
  */

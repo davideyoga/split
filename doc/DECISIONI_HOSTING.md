@@ -166,7 +166,7 @@ Dettagli pratici:
 - [x] Migrazioni provate su un DB vuoto (2026-09-27).
 - [x] Bloccante 4: `fileReplacements` nella configurazione `production` di `splitFront` e URL reale in `environment.prod.ts` (2026-09-27).
 - [x] Utenti veri in produzione: `DATABASE_URL='<Neon>' node splitBack/prisma/add-users.mts`, che legge `splitBack/prisma/users.local.json` (gitignored, vedi CLAUDE.md "Seed test users") (2026-09-27). Il primo utente e le categorie sono stati creati con `seed.ts`.
-- [ ] Bloccante 5: seed di produzione senza gli utenti Disney. Con `MAIL_TRANSPORT=brevo` non possono fare login (le email `@disney.test` non esistono), ma compaiono nella ricerca utenti. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
+- [x] Bloccante 5 (2026-09-27): gli utenti Disney non stanno più in `seed.ts` (commit `0df3ba5`). Ora li crea solo il database e2e, da `splitFront-e2e/scripts/users.e2e.json`. Se il DB di produzione era stato popolato con un seed precedente, lì vanno cancellati a mano. Testo originale del bloccante: seed di produzione senza gli utenti Disney. Con `MAIL_TRANSPORT=brevo` non possono fare login (le email `@disney.test` non esistono), ma compaiono nella ricerca utenti. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
 - [ ] Registrare in CLAUDE.md le scorciatoie dell'alpha una volta implementate.
 
 ## Fonti

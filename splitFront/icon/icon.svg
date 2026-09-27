@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Logo Split, proposta A "moneta divisa" (2026-09-27): una moneta tagliata
+       in diagonale, le due meta' che si allontanano. Sfondo pieno fino ai bordi
+       (niente angoli arrotondati: la maschera la applica il sistema) e disegno
+       entro il cerchio centrale di raggio 40% (arriva a ~32%), vedi doc/PWA.md.
+       Colori: teal #0F5E56, menta #5EEAD4, bianco. -->
+  <rect width="100" height="100" fill="#0F5E56"/>
+  <path d="M69.8 30.2A28 28 0 0 0 30.2 69.8Z" transform="translate(-3 -3)" fill="#5EEAD4"/>
+  <path d="M69.8 30.2A28 28 0 0 1 30.2 69.8Z" transform="translate(3 3)" fill="#FFFFFF"/>
+</svg>

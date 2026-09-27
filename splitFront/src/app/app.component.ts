@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 
+import { AppUpdateService } from './services/app-update.service';
 import { LanguageService } from './services/language.service';
 
 @Component({
@@ -13,5 +14,6 @@ export class AppComponent {
   constructor() {
     // La lingua non e' piu' forzata a 'en': la decide LanguageService.
     inject(LanguageService).init();
+    inject(AppUpdateService).init();
   }
 }

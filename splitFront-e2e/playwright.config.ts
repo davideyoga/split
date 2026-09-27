@@ -14,20 +14,28 @@ loadEnv({ path: join(workspaceRoot, '.env') });
  * URL del database dei test: E2E_DATABASE_URL se impostato, altrimenti lo
  * stesso server di DATABASE_URL con il database split-db-e2e. Mai il database
  * di sviluppo: prepare-db.mts lo svuota a ogni esecuzione.
+ *
+ * Senza DATABASE_URL restituisce undefined invece di lanciare un errore: il
+ * plugin @nx/playwright carica questo file a ogni comando nx (anche
+ * `nx build splitFront` sullo static site di Render, che non ha DATABASE_URL),
+ * e un errore qui li farebbe fallire tutti. Se si lanciano davvero i test,
+ * prepare-db.mts si ferma da solo quando DATABASE_URL manca.
  */
-function e2eDatabaseUrl(): string {
+function e2eDatabaseUrl(): string | undefined {
   const explicit = process.env['E2E_DATABASE_URL'];
   if (explicit) {
     return explicit;
   }
   const dev = process.env['DATABASE_URL'];
   if (!dev) {
-    throw new Error('DATABASE_URL mancante: copia .env.example in .env (vedi CLAUDE.md).');
+    return undefined;
   }
   const url = new URL(dev);
   url.pathname = `/${E2E_DATABASE_NAME}`;
   return url.toString();
 }
+
+const databaseUrl = e2eDatabaseUrl();
 
 export default defineConfig({
   ...nxE2EPreset(__filename, { testDir: './src' }),
@@ -54,7 +62,7 @@ export default defineConfig({
       // Email scritte in MAIL_OUTBOX_DIR invece che inviate (i test ci leggono
       // il codice di login), e niente rate limit: tanti login dallo stesso IP.
       env: {
-        DATABASE_URL: e2eDatabaseUrl(),
+        ...(databaseUrl && { DATABASE_URL: databaseUrl }),
         PORT: String(API_PORT),
         MAIL_TRANSPORT: 'outbox',
         MAIL_OUTBOX_DIR,

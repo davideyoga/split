@@ -333,6 +333,21 @@ Specialist agents live in `.claude/agents/`. Delegate to them for focused work:
   (mobile-first, i18n in both `en.json`/`it.json`) and frontend unit tests (mock
   Capacitor plugins, drive Ionic lifecycle hooks manually). Note: a test runner
   must be configured before frontend tests can run — see Verification Commands.
+- **`security-auditor`** (2026-09-28) — static review, `npm audit` and live attack
+  attempts (IDOR, OTP brute force, mass assignment, XSS, open redirect) **only**
+  against the isolated e2e stack (API 3100, web 4300, `split-db-e2e`), with a
+  checklist of Split-specific surfaces and of the already-accepted alpha risks.
+  Read-only on the code (no Edit/Write): returns a report with severity, repro and
+  proposed fix, to be implemented by `nest-prisma-expert` / `ionic-jest-specialist`.
+  Complements the `/security-review` skill, which only covers the current diff.
+- **`ux-designer`** (2026-09-28) — reviews flows and screens on the running e2e app
+  via the Playwright MCP (Pixel 7, it/en, light/dark, empty/error states), audits
+  accessibility and consistency with the UI conventions above, and designs new
+  features (layout, states, i18n copy in both languages). Read-only on the code:
+  hands proposals to `ionic-jest-specialist`.
+
+Both new agents start their own e2e stack by hand, so don't run them while
+`npx nx e2e splitFront-e2e` is running (same ports, same database).
 
 ## Tooling / plugins (set up outside this repo)
 

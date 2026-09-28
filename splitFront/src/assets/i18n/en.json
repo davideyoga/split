@@ -116,7 +116,21 @@
     "cancel": "Cancel",
     "language": "Language",
     "language-it": "Italiano",
-    "language-en": "English"
+    "language-en": "English",
+    "nickname": "Nickname",
+    "save": "Save",
+    "nickname-helper": "{{min}}–{{max}} characters: letters without accents, numbers, . and -",
+    "nickname-updated": "Nickname updated",
+    "nickname-space": "space",
+    "nickname-error": {
+      "NICKNAME_INVALID_CHAR": "\"{{char}}\" is not allowed: use only letters without accents, numbers, . and -",
+      "NICKNAME_TOO_SHORT": "Too short: at least {{min}} characters ({{count}} now)",
+      "NICKNAME_TOO_LONG": "Too long: at most {{max}} characters ({{count}} now)",
+      "NICKNAME_EDGE": "It must start and end with a letter or a number",
+      "NICKNAME_DOUBLE_SEPARATOR": ". and - can't be next to each other",
+      "NICKNAME_TAKEN": "This nickname is already taken",
+      "SAVE_ERROR": "Couldn't save the nickname, try again"
+    }
   },
   "balances": {
     "title": "Balances",

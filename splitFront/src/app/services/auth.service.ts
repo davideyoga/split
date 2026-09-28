@@ -84,6 +84,20 @@ export class AuthService {
     }
   }
 
+  /**
+   * Dopo un cambio del proprio profilo (nickname): aggiorna la copia salvata in
+   * localStorage, altrimenti al prossimo avvio l'app mostrerebbe i dati vecchi
+   * fino a un nuovo login.
+   */
+  updateCurrentUser(user: User): void {
+    if (!this.stored) {
+      return;
+    }
+    this.stored = { ...this.stored, user };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.stored));
+    this.currentUser.set(user);
+  }
+
   /** Solo stato locale: usato anche dall'interceptor su un 401, quando la sessione e' gia' morta. */
   logout(): void {
     this.stored = null;

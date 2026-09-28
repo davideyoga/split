@@ -20,6 +20,7 @@ export const USERS = {
   qua: 'qua@disney.test',
   gastone: 'gastone@disney.test',
   archimede: 'archimede@disney.test',
+  nonnapapera: 'nonnapapera@disney.test',
   amelia: 'amelia@disney.test',
 } as const;
 

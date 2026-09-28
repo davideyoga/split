@@ -37,7 +37,7 @@ test('divisione intelligente: "Quo deve a Qua, Qua deve ad Amelia" diventa "Quo 
   // Saldi del gruppo, dal punto di vista di Quo: deve 20 a Qua
   await page.goto(`/tabs/groups/${group.publicId}`);
   await visible(page.locator('ion-segment-button[value="balances"]')).click();
-  const quaRow = visible(page.locator('ion-item').filter({ hasText: t('balances.you-owe', { name: 'Qua' }) }));
+  const quaRow = visible(page.locator('ion-item').filter({ hasText: t('balances.you-owe', { name: 'QuaQua' }) }));
   await expect(quaRow).toContainText('20.00 EUR');
 
   // Anteprima: 2 debiti → 1 pagamento (Quo → Amelia), 3 spese di compensazione

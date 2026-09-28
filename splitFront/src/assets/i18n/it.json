@@ -116,7 +116,21 @@
     "cancel": "Annulla",
     "language": "Lingua",
     "language-it": "Italiano",
-    "language-en": "English"
+    "language-en": "English",
+    "nickname": "Nickname",
+    "save": "Salva",
+    "nickname-helper": "Da {{min}} a {{max}} caratteri: lettere senza accenti, numeri, . e -",
+    "nickname-updated": "Nickname aggiornato",
+    "nickname-space": "spazio",
+    "nickname-error": {
+      "NICKNAME_INVALID_CHAR": "\"{{char}}\" non è ammesso: usa solo lettere senza accenti, numeri, . e -",
+      "NICKNAME_TOO_SHORT": "Troppo corto: almeno {{min}} caratteri (ora {{count}})",
+      "NICKNAME_TOO_LONG": "Troppo lungo: al massimo {{max}} caratteri (ora {{count}})",
+      "NICKNAME_EDGE": "Deve iniziare e finire con una lettera o un numero",
+      "NICKNAME_DOUBLE_SEPARATOR": ". e - non possono stare uno accanto all'altro",
+      "NICKNAME_TAKEN": "Questo nickname è già usato",
+      "SAVE_ERROR": "Non è stato possibile salvare il nickname, riprova"
+    }
   },
   "balances": {
     "title": "Saldi",

@@ -14,7 +14,9 @@ model User {
   id                   Int                @id @default(autoincrement())
   email                String             @unique
   publicId             String             @unique @default(uuid())
-  nickName             String             @unique
+  // citext: @unique ignora maiuscole/minuscole. Regole del nickname in
+  // splitBack/src/app/user/nickname.ts.
+  nickName             String             @unique @db.Citext
   expenseContributions ExpenseContribution[]
   expensesCreatedByMe  Expense[]          @relation("CreatedBy")
   expensesPaidByMe     Expense[]          @relation("PaidBy")

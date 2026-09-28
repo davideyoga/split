@@ -93,8 +93,11 @@ async function main(): Promise<void> {
     stdio: 'inherit',
   });
   // add-users.mts scrive sul DATABASE_URL ricevuto, cioe' quello e2e gia'
-  // controllato da e2eDatabase().
-  execFileSync(process.execPath, [ADD_USERS, E2E_USERS], { stdio: 'inherit' });
+  // controllato da e2eDatabase(). Importa nickname.ts, che ha lo stesso
+  // avviso di seed.ts.
+  execFileSync(process.execPath, ['--disable-warning=MODULE_TYPELESS_PACKAGE_JSON', ADD_USERS, E2E_USERS], {
+    stdio: 'inherit',
+  });
 }
 
 main().catch((error) => {

@@ -3,8 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 /**
- * Test users for the alpha. Idempotent: re-running upserts by email.
- * Disney nicknames double as easy-to-type logins (login is email-only).
+ * Account dello sviluppatore. Idempotente: upsert per email. Il nickname si
+ * scrive solo alla creazione: dopo lo si cambia dal Profilo, e rilanciare il
+ * seed (che gira anche in produzione) non deve annullare quella scelta.
+ * Gli utenti Disney dei test stanno in splitFront-e2e/scripts/users.e2e.json.
  */
 const users: { email: string; nickName: string }[] = [
   { email: 'd.micarelli7@gmail.com', nickName: 'Davide' },
@@ -46,7 +48,7 @@ async function main() {
   for (const u of users) {
     const user = await prisma.user.upsert({
       where: { email: u.email },
-      update: { nickName: u.nickName },
+      update: {},
       create: { email: u.email, nickName: u.nickName, confirmed: true },
     });
     console.log(`✔ ${user.nickName.padEnd(12)} <${user.email}>  id=${user.id}`);

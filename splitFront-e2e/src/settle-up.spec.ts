@@ -15,13 +15,13 @@ test('rimborso parziale dal tab Saldi, poi eliminato', async ({ page }) => {
 
   await page.goto('/tabs/balances');
   const balanceRow = visible(
-    page.locator('ion-item').filter({ hasText: t('balances.owes-you', { name: 'Qui' }) }),
+    page.locator('ion-item').filter({ hasText: t('balances.owes-you', { name: 'QuiQui' }) }),
   );
   await expect(balanceRow).toContainText('15.00 EUR');
 
   // "Salda" → modale precompilata con tutto il saldo; Qui ne restituisce 10
   await balanceRow.getByRole('button', { name: t('balances.settle-up') }).click();
-  await expect(topModal(page).getByText(t('settlements.they-paid-you', { name: 'Qui' }))).toBeVisible();
+  await expect(topModal(page).getByText(t('settlements.they-paid-you', { name: 'QuiQui' }))).toBeVisible();
   const amount = topModal(page).getByRole('textbox', { name: t('settlements.amount') });
   await expect(amount).toHaveValue('15.00');
   await amount.fill('10');
@@ -32,7 +32,7 @@ test('rimborso parziale dal tab Saldi, poi eliminato', async ({ page }) => {
   // Saldo ridotto a 5 (regex: "15.00 EUR" contiene "5.00 EUR") e rimborso nello storico
   await expect(balanceRow).toContainText(/(?<!\d)5\.00 EUR/);
   const repaymentRow = visible(
-    page.locator('ion-item').filter({ hasText: t('settlements.they-paid-you', { name: 'Qui' }) }),
+    page.locator('ion-item').filter({ hasText: t('settlements.they-paid-you', { name: 'QuiQui' }) }),
   );
   await expect(repaymentRow).toContainText('10.00 EUR');
   await expect(repaymentRow).toContainText('contanti');

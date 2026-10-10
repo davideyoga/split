@@ -35,6 +35,13 @@ const EXPENSE_INCLUDE = {
   },
 } satisfies Prisma.ExpenseInclude;
 
+// Dalla spesa piu' recente: per giorno scelto dall'utente, poi, a parita' di
+// giorno, per ordine di inserimento.
+const EXPENSE_ORDER = [
+  { date: 'desc' },
+  { createdDate: 'desc' },
+] satisfies Prisma.ExpenseOrderByWithRelationInput[];
+
 @Injectable()
 export class ExpenseService {
   constructor(
@@ -47,7 +54,7 @@ export class ExpenseService {
 
     return this.prisma.expense.findMany({
       where: { expenseContributions: { some: { userId: user.id } } },
-      orderBy: { createdDate: 'desc' },
+      orderBy: EXPENSE_ORDER,
       include: EXPENSE_INCLUDE,
     });
   }
@@ -69,7 +76,7 @@ export class ExpenseService {
 
     return this.prisma.expense.findMany({
       where: { groupId: group.id },
-      orderBy: { createdDate: 'desc' },
+      orderBy: EXPENSE_ORDER,
       include: EXPENSE_INCLUDE,
     });
   }
@@ -187,6 +194,9 @@ export class ExpenseService {
     return {
       description: dto.description?.trim() ?? '',
       amount: dto.amount,
+      // Omessa = default del DB (CURRENT_DATE). `createdDate` non si passa
+      // mai: la scrive il DB.
+      ...(dto.date ? { date: toDay(dto.date) } : {}),
       createdBy: { connect: { id: creator.id } },
       paidBy: { connect: { id: payerId } },
       ...(groupId ? { group: { connect: { id: groupId } } } : {}),
@@ -304,6 +314,7 @@ export class ExpenseService {
             ? dto.description.trim()
             : expense.description,
         amount,
+        ...(dto.date ? { date: toDay(dto.date) } : {}),
         paidBy: { connect: { id: payerId } },
         group: groupId ? { connect: { id: groupId } } : { disconnect: true },
         category: categoryId
@@ -479,6 +490,13 @@ export class ExpenseService {
     const setA = new Set(a);
     return setA.size === new Set(b).size && b.every((id) => setA.has(id));
   }
+}
+
+// 'YYYY-MM-DD' -> Date a mezzanotte UTC, che Prisma salva nella colonna DATE
+// come quello stesso giorno. Nelle risposte torna come
+// 'YYYY-MM-DDT00:00:00.000Z': il giorno sono i primi 10 caratteri.
+function toDay(value: string) {
+  return new Date(`${value}T00:00:00.000Z`);
 }
 
 // Importi in centesimi interi: confronti e somme senza errori di virgola mobile.

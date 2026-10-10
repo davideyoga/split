@@ -7,6 +7,8 @@
     "amount-invalid": "Enter a valid amount (numbers only)",
     "description-label": "Description (optional)",
     "description-placeholder": "e.g. Dinner",
+    "date": "Date",
+    "date-done": "Done",
     "split-with": "Split with",
     "only-you": "Only you",
     "people-count": "{{count}} people",
@@ -48,6 +50,7 @@
     "group": "Group",
     "category": "Category",
     "participants": "Participants",
+    "created": "Added on {{date}}",
     "you": "you",
     "not-found": "Expense not found",
     "load-error": "Couldn't load the expense, please try again",
@@ -101,7 +104,9 @@
     "month-spent": "Spent this month",
     "month-none": "No expenses this month",
     "month-count": "Expenses this month: {{count}}",
-    "month-paid": "You paid"
+    "month-paid": "You paid",
+    "month-spent-since": "Spent since {{date}}",
+    "month-details": "See by category"
   },
   "tabs": {
     "activity": "Activity",
@@ -116,7 +121,21 @@
     "cancel": "Cancel",
     "language": "Language",
     "language-it": "Italiano",
-    "language-en": "English"
+    "language-en": "English",
+    "nickname": "Nickname",
+    "save": "Save",
+    "nickname-helper": "{{min}}–{{max}} characters: letters without accents, numbers, . and -",
+    "nickname-updated": "Nickname updated",
+    "nickname-space": "space",
+    "nickname-error": {
+      "NICKNAME_INVALID_CHAR": "\"{{char}}\" is not allowed: use only letters without accents, numbers, . and -",
+      "NICKNAME_TOO_SHORT": "Too short: at least {{min}} characters ({{count}} now)",
+      "NICKNAME_TOO_LONG": "Too long: at most {{max}} characters ({{count}} now)",
+      "NICKNAME_EDGE": "It must start and end with a letter or a number",
+      "NICKNAME_DOUBLE_SEPARATOR": ". and - can't be next to each other",
+      "NICKNAME_TAKEN": "This nickname is already taken",
+      "SAVE_ERROR": "Couldn't save the nickname, try again"
+    }
   },
   "balances": {
     "title": "Balances",
@@ -129,6 +148,23 @@
     "settle-up": "Settle up",
     "settle-title": "Settle up with {{name}}",
     "add-expense": "Add an expense"
+  },
+  "spending": {
+    "title": "Monthly spending",
+    "previous": "Previous period",
+    "next": "Next period",
+    "current": "Current period",
+    "start-day": "Month starts on day",
+    "start-day-hint": "In shorter months the period starts on the last day of the month.",
+    "total": "spent",
+    "count": "Expenses: {{count}}",
+    "paid": "You paid",
+    "by-category": "By category",
+    "no-category": "No category",
+    "others": "Others",
+    "percent-small": "< 1%",
+    "empty": "No expenses in this period",
+    "load-error": "Couldn't load expenses, please try again"
   },
   "settlements": {
     "they-paid-you": "{{name}} paid you",

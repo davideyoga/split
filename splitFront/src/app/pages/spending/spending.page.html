@@ -1,0 +1,154 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/activity"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'spending.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <!-- PERIODO: frecce per i periodi precedenti, non oltre quello in corso -->
+  <div class="period-nav">
+    <ion-button fill="clear" (click)="shift(-1)" [attr.aria-label]="'spending.previous' | translate">
+      <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+    </ion-button>
+    <div class="period-label">
+      <h2>{{ periodLabel() }}</h2>
+      @if (offset() === 0) {
+        <ion-note>{{ 'spending.current' | translate }}</ion-note>
+      }
+    </div>
+    <ion-button
+      fill="clear"
+      (click)="shift(1)"
+      [disabled]="offset() === 0"
+      [attr.aria-label]="'spending.next' | translate"
+    >
+      <ion-icon slot="icon-only" name="chevron-forward"></ion-icon>
+    </ion-button>
+  </div>
+
+  <!-- GIORNO D'INIZIO DEL MESE -->
+  <ion-list>
+    <ion-item>
+      <ion-select
+        [label]="'spending.start-day' | translate"
+        interface="popover"
+        [value]="startDay()"
+        (ionChange)="setStartDay($event)"
+      >
+        @for (day of days; track day) {
+          <ion-select-option [value]="day">{{ day }}</ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+  </ion-list>
+  @if (startDay() > 28) {
+    <p class="hint ion-padding-horizontal">
+      <ion-note>{{ 'spending.start-day-hint' | translate }}</ion-note>
+    </p>
+  }
+
+  @if (loadError) {
+    <p class="ion-padding-horizontal">{{ 'spending.load-error' | translate }}</p>
+  } @else if (loaded) {
+    @if (rows().length === 0) {
+      <div class="empty ion-padding ion-text-center">
+        <h2>{{ 'spending.empty' | translate }}</h2>
+      </div>
+    } @else {
+      <!-- CIAMBELLA: la lista sotto riporta gli stessi dati in forma leggibile
+           (anche dagli screen reader), quindi il disegno e' aria-hidden. -->
+      <div class="donut">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          @for (slice of slices(); track slice.key) {
+            <circle
+              cx="60"
+              cy="60"
+              [attr.r]="radius"
+              fill="none"
+              [attr.stroke-width]="strokeWidth"
+              transform="rotate(-90 60 60)"
+              [style.stroke]="slice.color"
+              [attr.stroke-dasharray]="slice.dashArray"
+              [attr.stroke-dashoffset]="slice.dashOffset"
+            >
+              <!-- svg:title, non title: senza prefisso Angular lo legge come il
+                   <title> della pagina (testo grezzo) e i blocchi @if non funzionano. -->
+              <svg:title>
+                @if (slice.row?.category; as category) {
+                  {{ category.name || ('categories.' + category.slug | translate) }}
+                } @else if (slice.row) {
+                  {{ 'spending.no-category' | translate }}
+                } @else {
+                  {{ 'spending.others' | translate }}
+                }
+                · {{ slice.percent }}%
+              </svg:title>
+            </circle>
+          }
+        </svg>
+        <div class="donut-center">
+          <div class="donut-total">{{ format(spending().shareCents) }} <span class="donut-currency">EUR</span></div>
+          <div class="donut-caption">{{ 'spending.total' | translate }}</div>
+        </div>
+      </div>
+      <p class="summary ion-text-center">
+        <ion-note>
+          {{ 'spending.count' | translate: { count: spending().count } }} ·
+          {{ 'spending.paid' | translate }}: {{ format(spending().paidCents) }} EUR
+        </ion-note>
+      </p>
+
+      <!-- LISTA COMPLETA: tutte le categorie, anche quelle finite in "Altre" -->
+      <ion-list>
+        <ion-list-header>
+          <ion-label>{{ 'spending.by-category' | translate }}</ion-label>
+        </ion-list-header>
+        @for (row of rows(); track row.key) {
+          <ion-item class="category-row">
+            <ion-icon
+              slot="start"
+              color="medium"
+              [name]="row.category?.icon || 'help-circle-outline'"
+            ></ion-icon>
+            <ion-label>
+              <h2 class="row-title">
+                <span class="swatch" [style.background]="row.color"></span>
+                @if (row.category?.name) {
+                  {{ row.category?.name }}
+                } @else if (row.category?.slug) {
+                  {{ 'categories.' + row.category?.slug | translate }}
+                } @else {
+                  {{ 'spending.no-category' | translate }}
+                }
+              </h2>
+              <div class="bar">
+                <div
+                  class="bar-fill"
+                  [style.width.%]="(row.shareCents * 100) / spending().shareCents"
+                  [style.background]="row.color"
+                ></div>
+              </div>
+            </ion-label>
+            <div slot="end" class="row-values">
+              <div class="row-amount">{{ format(row.shareCents) }} EUR</div>
+              <ion-note class="row-percent">
+                @if (row.percent === 0) {
+                  {{ 'spending.percent-small' | translate }}
+                } @else {
+                  {{ row.percent }}%
+                }
+              </ion-note>
+            </div>
+          </ion-item>
+        }
+      </ion-list>
+    }
+  }
+</ion-content>

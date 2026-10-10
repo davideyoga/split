@@ -14,6 +14,11 @@
         }
       </ion-label>
     </ion-item>
+    <ion-item button="true" [detail]="false" (click)="editNickname()">
+      <ion-label>{{ 'profile.nickname' | translate }}</ion-label>
+      <ion-note slot="end">{{ user()?.nickName }}</ion-note>
+      <ion-icon slot="end" name="pencil-outline" aria-hidden="true"></ion-icon>
+    </ion-item>
     <ion-item>
       <ion-select
         label="{{ 'profile.language' | translate }}"

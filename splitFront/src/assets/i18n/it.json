@@ -7,6 +7,8 @@
     "amount-invalid": "Inserisci un importo valido (solo numeri)",
     "description-label": "Descrizione (facoltativa)",
     "description-placeholder": "es. Cena",
+    "date": "Data",
+    "date-done": "Fatto",
     "split-with": "Dividi con",
     "only-you": "Solo tu",
     "people-count": "{{count}} persone",
@@ -48,6 +50,7 @@
     "group": "Gruppo",
     "category": "Categoria",
     "participants": "Partecipanti",
+    "created": "Inserita il {{date}}",
     "you": "tu",
     "not-found": "Spesa non trovata",
     "load-error": "Impossibile caricare la spesa, riprova",
@@ -101,7 +104,9 @@
     "month-spent": "Speso questo mese",
     "month-none": "Nessuna spesa questo mese",
     "month-count": "Spese del mese: {{count}}",
-    "month-paid": "Hai pagato"
+    "month-paid": "Hai pagato",
+    "month-spent-since": "Speso dal {{date}}",
+    "month-details": "Vedi per categoria"
   },
   "tabs": {
     "activity": "Attività",
@@ -116,7 +121,21 @@
     "cancel": "Annulla",
     "language": "Lingua",
     "language-it": "Italiano",
-    "language-en": "English"
+    "language-en": "English",
+    "nickname": "Nickname",
+    "save": "Salva",
+    "nickname-helper": "Da {{min}} a {{max}} caratteri: lettere senza accenti, numeri, . e -",
+    "nickname-updated": "Nickname aggiornato",
+    "nickname-space": "spazio",
+    "nickname-error": {
+      "NICKNAME_INVALID_CHAR": "\"{{char}}\" non è ammesso: usa solo lettere senza accenti, numeri, . e -",
+      "NICKNAME_TOO_SHORT": "Troppo corto: almeno {{min}} caratteri (ora {{count}})",
+      "NICKNAME_TOO_LONG": "Troppo lungo: al massimo {{max}} caratteri (ora {{count}})",
+      "NICKNAME_EDGE": "Deve iniziare e finire con una lettera o un numero",
+      "NICKNAME_DOUBLE_SEPARATOR": ". e - non possono stare uno accanto all'altro",
+      "NICKNAME_TAKEN": "Questo nickname è già usato",
+      "SAVE_ERROR": "Non è stato possibile salvare il nickname, riprova"
+    }
   },
   "balances": {
     "title": "Saldi",
@@ -129,6 +148,23 @@
     "settle-up": "Salda",
     "settle-title": "Salda con {{name}}",
     "add-expense": "Aggiungi una spesa"
+  },
+  "spending": {
+    "title": "Spese del mese",
+    "previous": "Periodo precedente",
+    "next": "Periodo successivo",
+    "current": "Periodo in corso",
+    "start-day": "Il mese inizia il giorno",
+    "start-day-hint": "Nei mesi più corti il periodo parte dall'ultimo giorno del mese.",
+    "total": "spesi",
+    "count": "Spese: {{count}}",
+    "paid": "Hai pagato",
+    "by-category": "Per categoria",
+    "no-category": "Senza categoria",
+    "others": "Altre",
+    "percent-small": "< 1%",
+    "empty": "Nessuna spesa in questo periodo",
+    "load-error": "Impossibile caricare le spese, riprova"
   },
   "settlements": {
     "they-paid-you": "{{name}} ti ha dato",

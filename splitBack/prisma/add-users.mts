@@ -15,12 +15,18 @@
  * @prisma/client carica da solo il .env della root, quindi DATABASE_URL va
  * controllato PRIMA di importarlo (per questo l'import e' dinamico, in main()).
  * Idempotente: un'email
- * gia' presente non viene ricreata (se il nickname e' cambiato, lo aggiorna).
+ * gia' presente non viene ricreata, e il suo nickname NON viene toccato anche
+ * se nel file e' diverso: gli utenti possono cambiarlo dal Profilo, e rilanciare
+ * lo script per aggiungere un tester non deve annullare le loro scelte (lo
+ * segnala e basta). I nickname del file devono rispettare le regole di
+ * splitBack/src/app/user/nickname.ts, altrimenti lo script si ferma prima di
+ * scrivere qualsiasi cosa.
  * Non crea le categorie preset: quelle le crea seed.ts.
  *
  * `.mts` e non `.ts` per lo stesso motivo di splitFront-e2e/scripts/prepare-db.mts.
  */
 import { readFileSync } from 'node:fs';
+import { nicknameError, normalizeNickname } from '../src/app/user/nickname.ts';
 
 const DEFAULT_FILE = 'splitBack/prisma/users.local.json';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,12 +48,16 @@ function readUsers(path: string): NewUser[] {
   }
   return raw.map((entry, i) => {
     const email = String(entry?.email ?? '').trim().toLowerCase();
-    const nickName = String(entry?.nickName ?? '').trim();
+    const nickName = normalizeNickname(String(entry?.nickName ?? ''));
     if (!EMAIL_RE.test(email)) {
       throw new Error(`Elemento ${i + 1}: email non valida "${entry?.email}"`);
     }
-    if (!nickName) {
-      throw new Error(`Elemento ${i + 1} (${email}): nickName mancante`);
+    const error = nicknameError(nickName);
+    if (error) {
+      throw new Error(
+        `Elemento ${i + 1} (${email}): nickname "${nickName}" non valido (${error}). ` +
+          'Da 5 a 20 caratteri, solo lettere senza accenti, numeri, "." e "-" (mai all\'inizio, alla fine o due di seguito).',
+      );
     }
     return { email, nickName };
   });
@@ -73,15 +83,14 @@ async function main(): Promise<void> {
           await prisma.user.create({ data: { email: u.email, nickName: u.nickName, confirmed: true } });
           console.log(`✔ creato      ${u.nickName.padEnd(14)} <${u.email}>`);
         } else if (existing.nickName !== u.nickName) {
-          await prisma.user.update({ where: { id: existing.id }, data: { nickName: u.nickName } });
-          console.log(`✔ aggiornato  ${u.nickName.padEnd(14)} <${u.email}> (era "${existing.nickName}")`);
+          console.log(`· gia' presente ${existing.nickName.padEnd(12)} <${u.email}> (nel file "${u.nickName}": nickname lasciato com'e')`);
         } else {
           console.log(`· gia' presente ${u.nickName.padEnd(12)} <${u.email}>`);
         }
       } catch (e) {
         failed++;
         if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-          console.error(`✘ ${u.email}: il nickname "${u.nickName}" e' gia' usato da un altro utente, scegline un altro`);
+          console.error(`✘ ${u.email}: il nickname "${u.nickName}" e' gia' usato da un altro utente (anche con maiuscole diverse), scegline un altro`);
         } else {
           console.error(`✘ ${u.email}: ${(e as Error).message}`);
         }

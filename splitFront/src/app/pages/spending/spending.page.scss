@@ -1,0 +1,132 @@
+// Colori delle categorie: i primi 6 della palette categoriale della skill
+// dataviz, nell'ordine validato per i daltonici (fette vicine distinguibili,
+// anche l'ultima con la prima e con il grigio di "Altre"), con una variante
+// per il tema scuro. Il testo non usa mai questi colori: il colore sta nel
+// pallino accanto al nome.
+:host {
+  --spending-slot-1: #2a78d6;
+  --spending-slot-2: #eb6834;
+  --spending-slot-3: #1baf7a;
+  --spending-slot-4: #eda100;
+  --spending-slot-5: #e87ba4;
+  --spending-slot-6: #008300;
+  --spending-others: #898781;
+}
+
+@media (prefers-color-scheme: dark) {
+  :host {
+    --spending-slot-1: #3987e5;
+    --spending-slot-2: #d95926;
+    --spending-slot-3: #199e70;
+    --spending-slot-4: #c98500;
+    --spending-slot-5: #d55181;
+    --spending-slot-6: #008300;
+  }
+}
+
+.period-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px 0;
+}
+
+.period-label {
+  text-align: center;
+
+  h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  ion-note {
+    font-size: 13px;
+  }
+}
+
+.hint {
+  margin: 4px 0 0;
+  font-size: 13px;
+}
+
+.donut {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 16px auto 0;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.donut-total {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.donut-currency {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.donut-caption {
+  font-size: 13px;
+  color: var(--ion-color-medium);
+}
+
+.summary {
+  margin: 8px 16px 0;
+}
+
+.row-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.swatch {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.bar {
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 3px;
+  background: var(--ion-color-step-100, var(--ion-color-light));
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  min-width: 2px;
+  border-radius: 3px;
+}
+
+.row-values {
+  min-width: 104px;
+  text-align: right;
+}
+
+.row-amount {
+  font-variant-numeric: tabular-nums;
+}
+
+.row-percent {
+  font-size: 13px;
+}

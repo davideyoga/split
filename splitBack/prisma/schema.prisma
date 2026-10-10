@@ -14,7 +14,9 @@ model User {
   id                   Int                @id @default(autoincrement())
   email                String             @unique
   publicId             String             @unique @default(uuid())
-  nickName             String             @unique
+  // citext: @unique ignora maiuscole/minuscole. Regole del nickname in
+  // splitBack/src/app/user/nickname.ts.
+  nickName             String             @unique @db.Citext
   expenseContributions ExpenseContribution[]
   expensesCreatedByMe  Expense[]          @relation("CreatedBy")
   expensesPaidByMe     Expense[]          @relation("PaidBy")
@@ -101,7 +103,13 @@ model Expense {
   currency             String                @default("EUR") // Pronto per V2.0
   category             Category?             @relation(fields: [categoryId], references: [id])
   categoryId           Int?
+  // Quando il record e' stato inserito: lo scrive il DB, non si modifica e
+  // non si mostra (serve solo a ordinare le spese dello stesso giorno).
   createdDate          DateTime              @default(now())
+  // Giorno della spesa, scelto dall'utente (solo data, senza ora ne' fuso).
+  // Il frontend lo manda sempre, col "oggi" del dispositivo; il default
+  // CURRENT_DATE (fuso del server) vale solo per chi lo omette.
+  date                 DateTime              @default(dbgenerated("CURRENT_DATE")) @db.Date
   expenseContributions ExpenseContribution[]
   createdBy            User                  @relation("CreatedBy", fields: [createdById], references: [id])
   createdById          Int

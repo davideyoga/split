@@ -85,7 +85,7 @@ App                                   API (/api/auth/*, Better Auth)
 - **Solo Bearer, mai cookie:** il guard e le rotte `/api/auth/*` ignorano i cookie. Se fossero accettati, un cookie rimasto nel browser autenticherebbe da solo le richieste (CSRF) quando app e API stanno sullo stesso dominio.
 - **Origine:** le chiamate di login fatte da un browser devono venire da un'origine in `AUTH_TRUSTED_ORIGINS`.
 - **Nessuna enumerazione degli utenti:** un'email registrata e una sconosciuta ricevono la stessa risposta.
-- **`/update-user` disabilitato:** permetterebbe di cambiare il nome senza le validazioni dell'app.
+- **`/update-user` disabilitato:** permetterebbe di cambiare il nome senza le validazioni dell'app. Il nickname si cambia solo con `PATCH /api/user/me` (regole in `splitBack/src/app/user/nickname.ts`, vedi CLAUDE.md, "Nickname").
 
 ## Prossimi passi
 

@@ -1,0 +1,36 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'profile.cancel' | translate }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'profile.nickname' | translate }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button [strong]="true" [disabled]="!canSave" (click)="save()">
+        {{ 'profile.save' | translate }}
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list>
+    <ion-item>
+      <!-- Niente maxlength: si deve poter scrivere (o incollare) oltre il
+           limite e vedere il messaggio "troppo lungo", non un campo che
+           smette di accettare caratteri. -->
+      <ion-input
+        label="{{ 'profile.nickname' | translate }}"
+        labelPlacement="floating"
+        type="text"
+        autocapitalize="off"
+        autocomplete="off"
+        [spellcheck]="false"
+        [formControl]="control"
+        helperText="{{ 'profile.nickname-helper' | translate: { min: min, max: max } }}"
+        [errorText]="errorText"
+        (ionBlur)="onBlur()"
+        (keyup.enter)="save()"
+      ></ion-input>
+    </ion-item>
+  </ion-list>
+</ion-content>

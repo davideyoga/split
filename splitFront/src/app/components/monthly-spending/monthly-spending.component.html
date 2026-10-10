@@ -1,14 +1,28 @@
-<ion-card>
+<!-- Card toccabile (button: ripple e cursore) con la freccia a destra, come le
+     righe che aprono un dettaglio: porta alla pagina Spese. -->
+<ion-card button routerLink="/tabs/activity/spending" class="spending-card">
   <ion-card-header>
-    <ion-card-subtitle>{{ 'activity.month-spent' | translate }}</ion-card-subtitle>
-    <ion-card-title>{{ format(spending().shareCents) }} {{ currency() }}</ion-card-title>
+    <div class="header-row">
+      <div>
+        <ion-card-subtitle>
+          @if (startDay() === 1) {
+            {{ 'activity.month-spent' | translate }}
+          } @else {
+            {{ 'activity.month-spent-since' | translate: { date: view().since } }}
+          }
+        </ion-card-subtitle>
+        <ion-card-title>{{ format(view().spending.shareCents) }} {{ currency() }}</ion-card-title>
+      </div>
+      <ion-icon name="chevron-forward" color="medium" aria-hidden="true"></ion-icon>
+    </div>
   </ion-card-header>
   <ion-card-content>
-    @if (spending().count === 0) {
+    @if (view().spending.count === 0) {
       {{ 'activity.month-none' | translate }}
     } @else {
-      {{ 'activity.month-count' | translate: { count: spending().count } }} ·
-      {{ 'activity.month-paid' | translate }}: {{ format(spending().paidCents) }} {{ currency() }}
+      {{ 'activity.month-count' | translate: { count: view().spending.count } }} ·
+      {{ 'activity.month-paid' | translate }}: {{ format(view().spending.paidCents) }} {{ currency() }}
     }
+    <div class="details-hint">{{ 'activity.month-details' | translate }}</div>
   </ion-card-content>
 </ion-card>

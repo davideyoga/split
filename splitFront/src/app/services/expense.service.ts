@@ -10,6 +10,9 @@ export interface CreateExpensePayload {
   // Facoltativa: se omessa il backend salva '' (vedi fallback nelle liste).
   description?: string;
   amount: number;
+  // Giorno della spesa, 'YYYY-MM-DD' (vedi utils/date.ts). Se omesso il
+  // backend usa il giorno corrente del server.
+  date?: string;
   participantPublicIds: string[];
   // Chi ha pagato: se omesso il backend usa il creatore della spesa.
   paidByPublicId?: string;
@@ -30,6 +33,7 @@ export interface ExpenseSharePayload {
 export interface UpdateExpensePayload {
   description?: string;
   amount?: number;
+  date?: string;
   participantPublicIds?: string[];
   paidByPublicId?: string;
   groupPublicId?: string | null;
@@ -49,6 +53,10 @@ export interface ExpenseListItem {
   description: string;
   amount: string;
   currency: string;
+  // Giorno scelto dall'utente: 'YYYY-MM-DDT00:00:00.000Z', da leggere con
+  // utils/date.ts. E' la data che si mostra.
+  date: string;
+  // Quando la spesa e' stata inserita: la imposta il server, non si modifica.
   createdDate: string;
   // Il creatore resta sempre fra i contributori, anche dopo una modifica.
   createdBy: User;

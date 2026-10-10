@@ -19,6 +19,10 @@ import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
 import { ExpenseService } from './expense.service';
 
+// whitelist: i campi che i DTO non dichiarano (per esempio `createdDate`, che
+// imposta solo il DB) vengono scartati prima di arrivare al service.
+const validation = new ValidationPipe({ whitelist: true });
+
 @Controller('expense')
 export class ExpenseController {
   constructor(private readonly expenseService: ExpenseService) {}
@@ -46,7 +50,7 @@ export class ExpenseController {
 
   @Post()
   @UseGuards(SessionAuthGuard)
-  create(@Req() request: Request, @Body(new ValidationPipe()) dto: CreateExpenseDto) {
+  create(@Req() request: Request, @Body(validation) dto: CreateExpenseDto) {
     const creator = request['user'] as AuthUser;
     return this.expenseService.create(creator.publicId, dto);
   }
@@ -56,7 +60,7 @@ export class ExpenseController {
   @UseGuards(SessionAuthGuard)
   createMany(
     @Req() request: Request,
-    @Body(new ValidationPipe()) dto: CreateExpenseBatchDto,
+    @Body(validation) dto: CreateExpenseBatchDto,
   ) {
     const creator = request['user'] as AuthUser;
     return this.expenseService.createMany(creator.publicId, dto.expenses);
@@ -67,7 +71,7 @@ export class ExpenseController {
   update(
     @Req() request: Request,
     @Param('publicId') publicId: string,
-    @Body(new ValidationPipe()) dto: UpdateExpenseDto,
+    @Body(validation) dto: UpdateExpenseDto,
   ) {
     const user = request['user'] as AuthUser;
     return this.expenseService.update(user.publicId, publicId, dto);

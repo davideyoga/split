@@ -4,9 +4,12 @@ import type { Locator, Page } from '@playwright/test';
  * La modale in primo piano. Ionic aggiunge le modali in fondo al body e le
  * rimuove alla chiusura, quindi con due modali aperte (form spesa → scelta
  * partecipante) l'ultima è quella visibile sopra.
+ * Le modali inline (il calendario della data nella form spesa, con
+ * `keepContentsMounted`) restano invece nel DOM anche chiuse, con la classe
+ * `overlay-hidden`: vanno escluse, come fa Ionic stesso per contarle.
  */
 export function topModal(page: Page): Locator {
-  return page.locator('ion-modal').last();
+  return page.locator('ion-modal:not(.overlay-hidden)').last();
 }
 
 /**

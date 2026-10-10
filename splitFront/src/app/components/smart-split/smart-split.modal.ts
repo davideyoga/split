@@ -30,6 +30,7 @@ import { CategoryService } from '../../services/category.service';
 import { CreateExpensePayload, ExpenseService } from '../../services/expense.service';
 import { GroupService } from '../../services/group.service';
 import { formatCents } from '../../utils/balance';
+import { todayIso } from '../../utils/date';
 import { planRebalance, RebalanceExpense, RebalancePlan } from '../../utils/simplify';
 
 // Divisione intelligente, aperta dal segmento Saldi del gruppo. Ricarica gruppo
@@ -170,6 +171,7 @@ export class SmartSplitModal implements OnInit {
 
     return {
       amount: expense.totalCents / 100,
+      date: todayIso(),
       participantPublicIds: participantIds,
       paidByPublicId: expense.payer.publicId,
       groupPublicId: this.group.publicId,

@@ -1,9 +1,11 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsISO8601,
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -22,6 +24,12 @@ export class UpdateExpenseDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.01)
   amount?: number;
+
+  // Giorno della spesa ('YYYY-MM-DD'). `createdDate` non si modifica mai.
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  @IsISO8601({ strict: true })
+  date?: string;
 
   // Partecipanti singoli, oltre al creatore della spesa e ai membri del gruppo.
   @IsOptional()

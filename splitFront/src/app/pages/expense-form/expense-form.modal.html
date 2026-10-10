@@ -50,6 +50,14 @@
         ></ion-input>
       </ion-item>
 
+      <!-- DATA: il giorno della spesa, di default oggi. Il calendario si apre
+           in una modale (ion-modal sotto, in fondo alla form). -->
+      <ion-item>
+        <ion-icon slot="start" name="calendar-outline"></ion-icon>
+        <ion-label>{{ 'expense-form.date' | translate }}</ion-label>
+        <ion-datetime-button slot="end" datetime="expense-date"></ion-datetime-button>
+      </ion-item>
+
       <!-- DIVIDI CON: apre select-participant (persona o gruppo) -->
       <ion-item button="true" [detail]="true" (click)="openParticipantModal()">
         <ion-icon slot="start" name="people-outline"></ion-icon>
@@ -201,5 +209,22 @@
         <p class="ion-padding-start">{{ errorMessage | translate }}</p>
       </ion-text>
     }
+
+    <!-- Calendario della riga "Data": aggiorna `date` solo con "Fatto". -->
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime
+          id="expense-date"
+          presentation="date"
+          [value]="date"
+          [locale]="dateLocale"
+          [firstDayOfWeek]="1"
+          [showDefaultButtons]="true"
+          [doneText]="'expense-form.date-done' | translate"
+          [cancelText]="'expense-form.cancel' | translate"
+          (ionChange)="onDateChange($event)"
+        ></ion-datetime>
+      </ng-template>
+    </ion-modal>
   </form>
 </ion-content>

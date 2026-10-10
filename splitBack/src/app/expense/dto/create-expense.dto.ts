@@ -1,9 +1,11 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsISO8601,
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -19,6 +21,14 @@ export class CreateExpenseDto {
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.01)
   amount: number;
+
+  // Giorno della spesa ('YYYY-MM-DD'), scelto dall'utente. Se omesso vale il
+  // giorno corrente del server (default del DB). La data di inserimento
+  // (`createdDate`) non e' nel DTO: la imposta solo il DB.
+  @IsOptional()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/)
+  @IsISO8601({ strict: true })
+  date?: string;
 
   @IsOptional()
   @IsArray()

@@ -90,7 +90,7 @@
           </ion-label>
           <ion-note slot="end">
             <div>{{ expense.amount | amount }} {{ expense.currency }}</div>
-            <div>{{ expense.createdDate | date: 'dd/MM/yyyy' }}</div>
+            <div>{{ expense.date | date: 'dd/MM/yyyy' : 'UTC' }}</div>
           </ion-note>
         </ion-item>
       }

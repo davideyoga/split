@@ -1,5 +1,6 @@
 import { isSmartSplit } from '../models/category.model';
 import { BalanceExpenseInput, toCents } from './balance';
+import { dayOf, todayIso } from './date';
 
 /**
  * Quanto ha speso l'utente corrente in un mese, a partire da una lista di spese
@@ -7,8 +8,8 @@ import { BalanceExpenseInput, toCents } from './balance';
  */
 
 export interface SpendingExpenseInput extends BalanceExpenseInput {
-  // Data ISO della spesa: l'unica data che una spesa ha (vedi `Expense.createdDate`).
-  createdDate: string;
+  // Giorno della spesa scelto dall'utente ('YYYY-MM-DD...', vedi utils/date.ts).
+  date: string;
   // Serve solo a riconoscere le spese della divisione intelligente.
   category?: { slug: string | null } | null;
 }
@@ -33,8 +34,7 @@ export function computeMonthlySpending(
     return result;
   }
 
-  const year = now.getFullYear();
-  const month = now.getMonth();
+  const monthPrefix = todayIso(now).slice(0, 7);
 
   for (const expense of expenses ?? []) {
     // Le spese della divisione intelligente spostano debiti, non sono spesa.
@@ -42,8 +42,9 @@ export function computeMonthlySpending(
       continue;
     }
 
-    const date = new Date(expense?.createdDate);
-    if (Number.isNaN(date.getTime()) || date.getFullYear() !== year || date.getMonth() !== month) {
+    // Il giorno si confronta come stringa: convertirlo in Date lo sposterebbe
+    // nel fuso del dispositivo.
+    if (dayOf(expense?.date).slice(0, 7) !== monthPrefix) {
       continue;
     }
 

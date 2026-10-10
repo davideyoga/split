@@ -12,12 +12,15 @@ import {
   IonButtons,
   IonChip,
   IonContent,
+  IonDatetime,
+  IonDatetimeButton,
   IonHeader,
   IonIcon,
   IonInput,
   IonItem,
   IonLabel,
   IonList,
+  IonModal,
   IonNote,
   IonSelect,
   IonSelectOption,
@@ -31,6 +34,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import {
   add,
+  calendarOutline,
   cardOutline,
   close,
   people,
@@ -54,6 +58,7 @@ import { CategoryService } from '../../services/category.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { GroupService } from '../../services/group.service';
 import { formatCents, toCents } from '../../utils/balance';
+import { dayOf, todayIso } from '../../utils/date';
 import { isEqualSplit } from '../../utils/split';
 
 // Nuova spesa o modifica di una esistente, come modale.
@@ -78,12 +83,15 @@ import { isEqualSplit } from '../../utils/split';
     IonButtons,
     IonChip,
     IonContent,
+    IonDatetime,
+    IonDatetimeButton,
     IonHeader,
     IonIcon,
     IonInput,
     IonItem,
     IonLabel,
     IonList,
+    IonModal,
     IonNote,
     IonSelect,
     IonSelectOption,
@@ -134,6 +142,11 @@ export class ExpenseFormModal implements OnInit {
   // riga "Divisione" lo segnala e il salvataggio resta bloccato.
   customShares: ShareMap | null = null;
 
+  // Giorno della spesa ('YYYY-MM-DD'), di default oggi nel fuso del
+  // dispositivo. La data di inserimento (`createdDate`) non passa da qui: la
+  // imposta il server e non si modifica.
+  date = todayIso();
+
   // Categorie disponibili: preconfigurate + quelle create dall'utente.
   categories: Category[] = [];
   selectedCategory: Category | null = null;
@@ -154,6 +167,7 @@ export class ExpenseFormModal implements OnInit {
       close,
       people,
       'people-outline': peopleOutline,
+      'calendar-outline': calendarOutline,
       'card-outline': cardOutline,
       'pie-chart-outline': pieChartOutline,
       ...CATEGORY_ICONS,
@@ -162,6 +176,11 @@ export class ExpenseFormModal implements OnInit {
 
   get isEdit(): boolean {
     return !!this.expense;
+  }
+
+  // Lingua del calendario, la stessa scelta nell'app.
+  get dateLocale(): string {
+    return this.translate.getCurrentLang() === 'it' ? 'it-IT' : 'en-GB';
   }
 
   ngOnInit() {
@@ -183,6 +202,7 @@ export class ExpenseFormModal implements OnInit {
     this.ready = false;
     this.creator = expense.createdBy;
     this.paidByPublicId = expense.paidBy.publicId;
+    this.date = dayOf(expense.date) || todayIso();
     this.expenseForm.patchValue({
       amount: formatCents(toCents(expense.amount)),
       description: expense.description,
@@ -429,6 +449,15 @@ export class ExpenseFormModal implements OnInit {
     this.expenseForm.get('amount')?.setValue(value);
   }
 
+  // ion-datetime puo' emettere anche l'ora: si tiene solo il giorno.
+  onDateChange(event: Event) {
+    const value = (event as CustomEvent<{ value?: string | string[] | null }>).detail.value;
+    const day = dayOf(Array.isArray(value) ? value[0] : value);
+    if (day) {
+      this.date = day;
+    }
+  }
+
   cancel() {
     this.modalCtrl.dismiss(null, 'cancel');
   }
@@ -463,6 +492,7 @@ export class ExpenseFormModal implements OnInit {
     this.expenseService.update(publicId, {
       description: this.expenseForm.value.description?.trim() ?? '',
       amount: Number(this.expenseForm.value.amount),
+      date: this.date,
       participantPublicIds: this.participants.map((p) => p.publicId),
       paidByPublicId: this.paidByPublicId || undefined,
       groupPublicId: this.selectedGroup?.publicId ?? null,
@@ -484,6 +514,7 @@ export class ExpenseFormModal implements OnInit {
     this.expenseService.create({
       description: this.expenseForm.value.description?.trim() || undefined,
       amount: Number(this.expenseForm.value.amount),
+      date: this.date,
       participantPublicIds: this.participants.map((p) => p.publicId),
       paidByPublicId: this.paidByPublicId || undefined,
       groupPublicId: this.selectedGroup?.publicId,

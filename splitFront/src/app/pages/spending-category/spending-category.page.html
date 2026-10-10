@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/activity/spending"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      @if (category(); as category) {
+        {{ category.name || ('categories.' + category.slug | translate) }}
+      } @else if (!categoryKey()) {
+        {{ 'spending.no-category' | translate }}
+      } @else {
+        <!-- Nessuna spesa rimasta (es. appena cancellata): il nome non si sa. -->
+        {{ 'spending.title' | translate }}
+      }
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="summary ion-text-center">
+    <h2>{{ periodLabel() }}</h2>
+    @if (loaded && !loadError) {
+      <div class="total">{{ format(totalCents()) }} <span class="currency">EUR</span></div>
+      <ion-note>
+        {{ 'spending.total' | translate }} · {{ 'spending.count' | translate: { count: expenses().length } }}
+      </ion-note>
+    }
+  </div>
+
+  @if (loadError) {
+    <p class="ion-padding-horizontal">{{ 'spending.load-error' | translate }}</p>
+  } @else if (loaded) {
+    @if (expenses().length === 0) {
+      <div class="ion-padding ion-text-center">
+        <h2>{{ 'spending.category-empty' | translate }}</h2>
+      </div>
+    } @else {
+      <app-expense-list
+        [expenses]="expenses()"
+        [detailPath]="['/tabs/activity/expense']"
+        [shareOf]="me()"
+      ></app-expense-list>
+    }
+  }
+</ion-content>

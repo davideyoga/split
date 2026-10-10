@@ -69,32 +69,7 @@
     @if (filteredExpenses.length === 0) {
       <p class="ion-padding-horizontal">{{ 'activity.no-results' | translate }}</p>
     }
-    <ion-list>
-      @for (expense of filteredExpenses; track expense.publicId) {
-        <ion-item button [routerLink]="['/tabs/activity/expense', expense.publicId]">
-          <ion-label>
-            <h2>{{ expense.description || ('expense-detail.untitled' | translate) }}</h2>
-            <p>{{ 'activity.paid-by' | translate }}: {{ expense.paidBy.nickName }}</p>
-            @if (expense.category) {
-              <ion-chip class="category-chip" [outline]="true" color="medium">
-                <ion-icon [name]="expense.category.icon"></ion-icon>
-                <ion-label>
-                  @if (expense.category.name) {
-                    {{ expense.category.name }}
-                  } @else {
-                    {{ 'categories.' + expense.category.slug | translate }}
-                  }
-                </ion-label>
-              </ion-chip>
-            }
-          </ion-label>
-          <ion-note slot="end">
-            <div>{{ expense.amount | amount }} {{ expense.currency }}</div>
-            <div>{{ expense.date | date: 'dd/MM/yyyy' : 'UTC' }}</div>
-          </ion-note>
-        </ion-item>
-      }
-    </ion-list>
+    <app-expense-list [expenses]="filteredExpenses" [detailPath]="['/tabs/activity/expense']"></app-expense-list>
   }
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">

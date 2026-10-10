@@ -51,6 +51,32 @@ test('"Speso questo mese": pagina per categoria, giorno d\'inizio e periodi prec
   await expect(rows.nth(1)).toContainText('20%');
   await expect(page.locator('.donut-total')).toHaveText('1000.00 EUR');
 
+  // Toccando una categoria si aprono le sue spese del periodo (non il panino
+  // di settembre), dalla piu' recente, ciascuna con la mia quota
+  await rows.nth(1).click();
+  await expect(page).toHaveURL(/\/tabs\/activity\/spending\/category\?category=[0-9a-f-]{36}&from=2026-10-01&to=2026-10-31$/);
+  const categoryPage = page.locator('app-spending-category');
+  const items = categoryPage.locator('app-expense-list ion-item');
+  await expect(categoryPage.locator('ion-title')).toContainText(t('categories.food'));
+  await expect(items).toHaveCount(2);
+  await expect(items.nth(0)).toContainText('Pizza');
+  await expect(items.nth(0)).toContainText('100.00 EUR');
+  await expect(items.nth(0)).toContainText(`${t('expense-list.your-share')}: 50.00 EUR`);
+  await expect(items.nth(1)).toContainText('Spesa');
+  await expect(items.nth(1)).toContainText(`${t('expense-list.your-share')}: 150.00 EUR`);
+  await expect(categoryPage.locator('.total')).toHaveText('200.00 EUR');
+
+  // Una spesa della lista apre il suo dettaglio; indietro si torna alla lista
+  await items.nth(0).click();
+  await expect(page).toHaveURL(/\/tabs\/activity\/expense\/[0-9a-f-]{36}$/);
+  await expect(visible(page.locator('app-expense-detail ion-title'))).toHaveText('Pizza');
+  await visible(page.locator('app-expense-detail ion-back-button')).click();
+  await expect(page).toHaveURL(/\/tabs\/activity\/spending\/category\?/);
+  await expect(items).toHaveCount(2);
+  await visible(categoryPage.locator('ion-back-button')).click();
+  await expect(page).toHaveURL(/\/tabs\/activity\/spending$/);
+  await expect(categoryPage).toHaveCount(0);
+
   // Il mese parte il 25 (stipendio): periodo 25/09-24/10, entra la frutta del 27/09
   await page.locator('ion-select').click();
   await page.locator('ion-popover').getByRole('radio', { name: '25', exact: true }).click();

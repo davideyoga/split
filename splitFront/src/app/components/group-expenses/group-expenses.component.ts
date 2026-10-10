@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import {
   Component,
   EventEmitter,
@@ -8,44 +7,18 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import {
-  IonButton,
-  IonChip,
-  IonIcon,
-  IonItem,
-  IonLabel,
-  IonList,
-  IonListHeader,
-  IonNote,
-} from '@ionic/angular/standalone';
-import { RouterLink } from '@angular/router';
+import { IonButton, IonLabel, IonListHeader } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
-import { addIcons } from 'ionicons';
 
-import { CATEGORY_ICONS, isSmartSplit } from '../../models/category.model';
-import { AmountPipe } from '../../pipes/amount.pipe';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
+import { ExpenseListComponent } from '../expense-list/expense-list.component';
 
 // Lista delle spese di un gruppo, usata dentro la pagina di dettaglio gruppo.
 @Component({
   selector: 'app-group-expenses',
   templateUrl: './group-expenses.component.html',
-  styleUrls: ['./group-expenses.component.scss'],
   standalone: true,
-  imports: [
-    AmountPipe,
-    CommonModule,
-    RouterLink,
-    TranslatePipe,
-    IonButton,
-    IonChip,
-    IonIcon,
-    IonItem,
-    IonLabel,
-    IonList,
-    IonListHeader,
-    IonNote,
-  ],
+  imports: [ExpenseListComponent, TranslatePipe, IonButton, IonLabel, IonListHeader],
 })
 export class GroupExpensesComponent implements OnChanges {
   @Input({ required: true }) groupPublicId = '';
@@ -63,13 +36,6 @@ export class GroupExpensesComponent implements OnChanges {
   expenses: ExpenseListItem[] = [];
   loading = false;
   loadError = false;
-  // Titolo tradotto delle spese della divisione intelligente (senza descrizione).
-  isSmartSplit = isSmartSplit;
-
-  constructor() {
-    // Le icone delle categorie arrivano dal DB: vanno registrate tutte.
-    addIcons({ ...CATEGORY_ICONS });
-  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['groupPublicId']) {

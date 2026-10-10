@@ -100,19 +100,11 @@ export function computeMonthlySpending(
   const categories = new Map<string, CategorySpending>();
 
   for (const expense of expenses ?? []) {
-    // Le spese della divisione intelligente spostano debiti, non sono spesa.
-    if (isSmartSplit(expense)) {
+    if (!countsIn(expense, period)) {
       continue;
     }
 
-    const day = dayOf(expense?.date);
-    if (!day || day < period.start || day > period.end) {
-      continue;
-    }
-
-    const myContribution = expense.expenseContributions?.find(
-      (contribution) => contribution?.user?.publicId === mePublicId,
-    );
+    const myContribution = myContributionTo(expense, mePublicId);
     const iPaid = expense.paidBy?.publicId === mePublicId;
     if (!myContribution && !iPaid) {
       continue;
@@ -152,6 +144,42 @@ export function computeMonthlySpending(
     result.shareCents,
   );
   return result;
+}
+
+// Le spese della riga `categoryKey` di computeMonthlySpending ('' = senza
+// categoria), con gli stessi filtri: la somma delle mie quote e' l'importo
+// della riga. Nell'ordine in cui arrivano (l'API le manda dalla piu' recente).
+export function expensesInCategory<T extends SpendingExpenseInput>(
+  expenses: readonly T[] | null | undefined,
+  mePublicId: string | null | undefined,
+  period: SpendingPeriod,
+  categoryKey: string,
+): T[] {
+  if (!mePublicId) {
+    return [];
+  }
+  return (expenses ?? []).filter(
+    (expense) =>
+      countsIn(expense, period) &&
+      (expense.category?.publicId ?? '') === categoryKey &&
+      toCents(myContributionTo(expense, mePublicId)?.share) > 0,
+  );
+}
+
+// Spesa del periodo. Le spese della divisione intelligente spostano debiti,
+// non sono spesa.
+function countsIn(expense: SpendingExpenseInput, period: SpendingPeriod): boolean {
+  if (isSmartSplit(expense)) {
+    return false;
+  }
+  const day = dayOf(expense?.date);
+  return !!day && day >= period.start && day <= period.end;
+}
+
+function myContributionTo(expense: SpendingExpenseInput, mePublicId: string) {
+  return expense.expenseContributions?.find(
+    (contribution) => contribution?.user?.publicId === mePublicId,
+  );
 }
 
 // Percentuali intere con il metodo dei resti maggiori: arrotondando ogni riga

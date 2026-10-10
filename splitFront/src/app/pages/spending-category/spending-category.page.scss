@@ -1,0 +1,26 @@
+// Stessa gerarchia del centro della ciambella nella pagina Spese.
+.summary {
+  padding: 16px 16px 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+  }
+
+  ion-note {
+    font-size: 13px;
+  }
+}
+
+.total {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.currency {
+  font-size: 14px;
+  font-weight: 500;
+}

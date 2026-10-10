@@ -92,7 +92,6 @@
   },
   "activity": {
     "recent": "Recent expenses",
-    "paid-by": "Paid by",
     "load-error": "Couldn't load expenses, please try again",
     "empty-title": "No expenses yet",
     "empty-text": "Expenses you create or are included in show up here.",
@@ -164,7 +163,12 @@
     "others": "Others",
     "percent-small": "< 1%",
     "empty": "No expenses in this period",
+    "category-empty": "No expenses in this category for this period",
     "load-error": "Couldn't load expenses, please try again"
+  },
+  "expense-list": {
+    "paid-by": "Paid by",
+    "your-share": "Your share"
   },
   "settlements": {
     "they-paid-you": "{{name}} paid you",
@@ -251,7 +255,6 @@
     "expenses-loading": "Loading expenses...",
     "expenses-load-error": "Couldn't load the group expenses, please try again",
     "no-expenses": "No expenses in this group yet",
-    "paid-by": "Paid by",
     "settings": "Group settings",
     "segment-expenses": "Expenses",
     "segment-balances": "Balances",

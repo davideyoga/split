@@ -1,4 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   IonBackButton,
   IonButton,
@@ -66,7 +67,8 @@ export interface DonutSlice {
 // (un "mese" che parte dal giorno scelto qui, es. il 25 dello stipendio), con
 // le frecce per i periodi precedenti, e le mie quote per categoria in una
 // ciambella e in una lista con importo e percentuale. Calcolo tutto lato
-// client (utils/spending.ts) sulle spese di GET /api/expense.
+// client (utils/spending.ts) sulle spese di GET /api/expense. Toccando una
+// categoria si apre la lista delle sue spese (pages/spending-category).
 @Component({
   selector: 'app-spending',
   templateUrl: './spending.page.html',
@@ -90,6 +92,7 @@ export interface DonutSlice {
     IonSelectOption,
     IonTitle,
     IonToolbar,
+    RouterLink,
     TranslatePipe,
   ],
 })

@@ -30,6 +30,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/spending/spending.page').then((m) => m.SpendingPage),
       },
+      // Le spese di una categoria in un periodo, aperta da una riga della
+      // pagina Spese (categoria e periodo nei query param).
+      {
+        path: 'activity/spending/category',
+        loadComponent: () =>
+          import('./pages/spending-category/spending-category.page').then(
+            (m) => m.SpendingCategoryPage,
+          ),
+      },
       {
         path: 'groups',
         loadComponent: () =>

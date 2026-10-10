@@ -92,7 +92,6 @@
   },
   "activity": {
     "recent": "Spese recenti",
-    "paid-by": "Pagata da",
     "load-error": "Impossibile caricare le spese, riprova",
     "empty-title": "Nessuna spesa",
     "empty-text": "Qui compaiono le spese che crei e quelle in cui sei incluso.",
@@ -164,7 +163,12 @@
     "others": "Altre",
     "percent-small": "< 1%",
     "empty": "Nessuna spesa in questo periodo",
+    "category-empty": "Nessuna spesa in questa categoria nel periodo",
     "load-error": "Impossibile caricare le spese, riprova"
+  },
+  "expense-list": {
+    "paid-by": "Pagata da",
+    "your-share": "La tua quota"
   },
   "settlements": {
     "they-paid-you": "{{name}} ti ha dato",
@@ -251,7 +255,6 @@
     "expenses-loading": "Caricamento spese...",
     "expenses-load-error": "Impossibile caricare le spese del gruppo, riprova",
     "no-expenses": "Nessuna spesa in questo gruppo",
-    "paid-by": "Pagata da",
     "settings": "Impostazioni gruppo",
     "segment-expenses": "Spese",
     "segment-balances": "Saldi",

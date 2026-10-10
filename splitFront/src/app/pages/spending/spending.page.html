@@ -105,13 +105,19 @@
         </ion-note>
       </p>
 
-      <!-- LISTA COMPLETA: tutte le categorie, anche quelle finite in "Altre" -->
+      <!-- LISTA COMPLETA: tutte le categorie, anche quelle finite in "Altre".
+           Ogni riga apre le spese di quella categoria nel periodo mostrato. -->
       <ion-list>
         <ion-list-header>
           <ion-label>{{ 'spending.by-category' | translate }}</ion-label>
         </ion-list-header>
         @for (row of rows(); track row.key) {
-          <ion-item class="category-row">
+          <ion-item
+            button
+            class="category-row"
+            [routerLink]="['/tabs/activity/spending/category']"
+            [queryParams]="{ category: row.key || null, from: period().start, to: period().end }"
+          >
             <ion-icon
               slot="start"
               color="medium"

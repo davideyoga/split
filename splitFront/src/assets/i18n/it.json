@@ -104,7 +104,9 @@
     "month-spent": "Speso questo mese",
     "month-none": "Nessuna spesa questo mese",
     "month-count": "Spese del mese: {{count}}",
-    "month-paid": "Hai pagato"
+    "month-paid": "Hai pagato",
+    "month-spent-since": "Speso dal {{date}}",
+    "month-details": "Vedi per categoria"
   },
   "tabs": {
     "activity": "Attività",
@@ -146,6 +148,23 @@
     "settle-up": "Salda",
     "settle-title": "Salda con {{name}}",
     "add-expense": "Aggiungi una spesa"
+  },
+  "spending": {
+    "title": "Spese del mese",
+    "previous": "Periodo precedente",
+    "next": "Periodo successivo",
+    "current": "Periodo in corso",
+    "start-day": "Il mese inizia il giorno",
+    "start-day-hint": "Nei mesi più corti il periodo parte dall'ultimo giorno del mese.",
+    "total": "spesi",
+    "count": "Spese: {{count}}",
+    "paid": "Hai pagato",
+    "by-category": "Per categoria",
+    "no-category": "Senza categoria",
+    "others": "Altre",
+    "percent-small": "< 1%",
+    "empty": "Nessuna spesa in questo periodo",
+    "load-error": "Impossibile caricare le spese, riprova"
   },
   "settlements": {
     "they-paid-you": "{{name}} ti ha dato",

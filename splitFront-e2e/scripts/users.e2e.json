@@ -11,5 +11,7 @@
   { "email": "gastone@disney.test", "nickName": "Gastone" },
   { "email": "archimede@disney.test", "nickName": "Archimede" },
   { "email": "nonnapapera@disney.test", "nickName": "NonnaPapera" },
-  { "email": "amelia@disney.test", "nickName": "Amelia" }
+  { "email": "amelia@disney.test", "nickName": "Amelia" },
+  { "email": "ciccio@disney.test", "nickName": "Ciccio" },
+  { "email": "clarabella@disney.test", "nickName": "Clarabella" }
 ]

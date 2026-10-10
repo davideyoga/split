@@ -104,7 +104,9 @@
     "month-spent": "Spent this month",
     "month-none": "No expenses this month",
     "month-count": "Expenses this month: {{count}}",
-    "month-paid": "You paid"
+    "month-paid": "You paid",
+    "month-spent-since": "Spent since {{date}}",
+    "month-details": "See by category"
   },
   "tabs": {
     "activity": "Activity",
@@ -146,6 +148,23 @@
     "settle-up": "Settle up",
     "settle-title": "Settle up with {{name}}",
     "add-expense": "Add an expense"
+  },
+  "spending": {
+    "title": "Monthly spending",
+    "previous": "Previous period",
+    "next": "Next period",
+    "current": "Current period",
+    "start-day": "Month starts on day",
+    "start-day-hint": "In shorter months the period starts on the last day of the month.",
+    "total": "spent",
+    "count": "Expenses: {{count}}",
+    "paid": "You paid",
+    "by-category": "By category",
+    "no-category": "No category",
+    "others": "Others",
+    "percent-small": "< 1%",
+    "empty": "No expenses in this period",
+    "load-error": "Couldn't load expenses, please try again"
   },
   "settlements": {
     "they-paid-you": "{{name}} paid you",

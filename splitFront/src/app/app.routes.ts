@@ -24,6 +24,12 @@ export const routes: Routes = [
             (m) => m.ExpenseDetailPage,
           ),
       },
+      // Spese per categoria, aperta toccando "Speso questo mese" in Attivita'.
+      {
+        path: 'activity/spending',
+        loadComponent: () =>
+          import('./pages/spending/spending.page').then((m) => m.SpendingPage),
+      },
       {
         path: 'groups',
         loadComponent: () =>

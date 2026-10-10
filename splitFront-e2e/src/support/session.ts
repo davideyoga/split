@@ -22,6 +22,8 @@ export const USERS = {
   archimede: 'archimede@disney.test',
   nonnapapera: 'nonnapapera@disney.test',
   amelia: 'amelia@disney.test',
+  ciccio: 'ciccio@disney.test',
+  clarabella: 'clarabella@disney.test',
 } as const;
 
 export interface Session {
@@ -75,6 +77,9 @@ export async function createExpense(
     groupPublicId?: string;
     paidByPublicId?: string;
     shares?: { userPublicId: string; share: number }[];
+    // 'YYYY-MM-DD'; senza, il server usa la sua data di oggi.
+    date?: string;
+    categoryPublicId?: string;
   },
 ): Promise<void> {
   const response = await request.post(`${API_URL}/expense`, {
@@ -97,4 +102,20 @@ export async function createGroup(
   });
   expect(response.ok(), `creazione gruppo ${name}`).toBeTruthy();
   return response.json();
+}
+
+/** publicId di una categoria preconfigurata (per slug: 'food', 'transport', ...). */
+export async function presetCategoryId(
+  request: APIRequestContext,
+  session: Session,
+  slug: string,
+): Promise<string> {
+  const response = await request.get(`${API_URL}/category`, {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+  expect(response.ok(), 'elenco categorie').toBeTruthy();
+  const categories = (await response.json()) as { publicId: string; slug: string | null }[];
+  const category = categories.find((c) => c.slug === slug);
+  expect(category, `categoria preconfigurata ${slug}`).toBeTruthy();
+  return (category as { publicId: string }).publicId;
 }

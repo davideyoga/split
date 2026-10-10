@@ -1,0 +1,31 @@
+<ion-list>
+  @for (row of rows(); track row.expense.publicId) {
+    <ion-item button [routerLink]="row.link">
+      <ion-label>
+        <h2>
+          {{ row.expense.description || ((isSmartSplit(row.expense) ? 'categories.smart-split' : 'expense-detail.untitled') | translate) }}
+        </h2>
+        <p>{{ 'expense-list.paid-by' | translate }}: {{ row.expense.paidBy.nickName }}</p>
+        @if (row.share !== null) {
+          <p>{{ 'expense-list.your-share' | translate }}: {{ row.share | amount }} {{ row.expense.currency }}</p>
+        }
+        @if (row.expense.category; as category) {
+          <ion-chip class="category-chip" [outline]="true" color="medium">
+            <ion-icon [name]="category.icon"></ion-icon>
+            <ion-label>
+              @if (category.name) {
+                {{ category.name }}
+              } @else {
+                {{ 'categories.' + category.slug | translate }}
+              }
+            </ion-label>
+          </ion-chip>
+        }
+      </ion-label>
+      <ion-note slot="end">
+        <div>{{ row.expense.amount | amount }} {{ row.expense.currency }}</div>
+        <div>{{ row.expense.date | date: 'dd/MM/yyyy' : 'UTC' }}</div>
+      </ion-note>
+    </ion-item>
+  }
+</ion-list>

@@ -1,6 +1,5 @@
 import { RouterLink } from '@angular/router';
 import { Component, inject, ViewChild } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import {
   IonButton,
   IonButtons,
@@ -9,17 +8,13 @@ import {
   IonCardHeader,
   IonCardSubtitle,
   IonCardTitle,
-  IonChip,
   IonContent,
   IonFab,
   IonFabButton,
   IonHeader,
   IonIcon,
-  IonItem,
   IonLabel,
-  IonList,
   IonListHeader,
-  IonNote,
   IonRefresher,
   IonRefresherContent,
   IonSearchbar,
@@ -36,16 +31,16 @@ import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { SettlementService } from '../../services/settlement.service';
-import { CATEGORY_ICONS, isSmartSplit } from '../../models/category.model';
+import { isSmartSplit } from '../../models/category.model';
 import {
   BalanceSummary,
   computeBalances,
   formatCents,
   formatSignedCents,
 } from '../../utils/balance';
-import { AmountPipe } from '../../pipes/amount.pipe';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
 import { MonthlySpendingComponent } from '../../components/monthly-spending/monthly-spending.component';
+import { ExpenseListComponent } from '../../components/expense-list/expense-list.component';
 
 // Tab Attivita': card saldo netto (-> tab Saldi) + spese recenti. Gruppi e
 // saldi per persona hanno ciascuno la propria tab, quindi qui non si ripetono.
@@ -55,8 +50,7 @@ import { MonthlySpendingComponent } from '../../components/monthly-spending/mont
   styleUrls: ['./activity.page.scss'],
   standalone: true,
   imports: [
-    AmountPipe,
-    CommonModule,
+    ExpenseListComponent,
     IonButton,
     IonButtons,
     IonCard,
@@ -64,17 +58,13 @@ import { MonthlySpendingComponent } from '../../components/monthly-spending/mont
     IonCardHeader,
     IonCardSubtitle,
     IonCardTitle,
-    IonChip,
     IonContent,
     IonFab,
     IonFabButton,
     IonHeader,
     IonIcon,
-    IonItem,
     IonLabel,
-    IonList,
     IonListHeader,
-    IonNote,
     IonRefresher,
     IonRefresherContent,
     IonSearchbar,
@@ -108,8 +98,7 @@ export class ActivityPage {
   formatSigned = formatSignedCents;
 
   constructor() {
-    // Le icone delle categorie arrivano dal DB: vanno registrate tutte.
-    addIcons({ add, 'search-outline': searchOutline, ...CATEGORY_ICONS });
+    addIcons({ add, 'search-outline': searchOutline });
   }
 
   // Non ngOnInit: la pagina resta montata nella tab, e una spesa creata da

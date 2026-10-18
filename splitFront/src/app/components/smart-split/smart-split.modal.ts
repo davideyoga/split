@@ -9,7 +9,6 @@ import {
   IonLabel,
   IonList,
   IonListHeader,
-  IonNote,
   IonSpinner,
   IonText,
   IonTitle,
@@ -29,7 +28,7 @@ import { AuthService } from '../../services/auth.service';
 import { CategoryService } from '../../services/category.service';
 import { CreateExpensePayload, ExpenseService } from '../../services/expense.service';
 import { GroupService } from '../../services/group.service';
-import { formatCents } from '../../utils/balance';
+import { MoneyPipe } from '../../pipes/money.pipe';
 import { todayIso } from '../../utils/date';
 import { planRebalance, RebalanceExpense, RebalancePlan } from '../../utils/simplify';
 
@@ -43,6 +42,7 @@ import { planRebalance, RebalanceExpense, RebalancePlan } from '../../utils/simp
   templateUrl: './smart-split.modal.html',
   standalone: true,
   imports: [
+    MoneyPipe,
     TranslatePipe,
     IonButton,
     IonButtons,
@@ -53,7 +53,6 @@ import { planRebalance, RebalanceExpense, RebalancePlan } from '../../utils/simp
     IonLabel,
     IonList,
     IonListHeader,
-    IonNote,
     IonSpinner,
     IonText,
     IonTitle,
@@ -78,7 +77,6 @@ export class SmartSplitModal implements OnInit {
   plan: RebalancePlan | null = null;
 
   mePublicId = this.authService.currentUser()?.publicId ?? '';
-  format = formatCents;
 
   private categoryPublicId = '';
 

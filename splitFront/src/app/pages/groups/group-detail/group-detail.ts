@@ -23,13 +23,20 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add, ellipsisVertical, settingsOutline, sparklesOutline } from 'ionicons/icons';
+import {
+  add,
+  chevronForward,
+  ellipsisVertical,
+  settingsOutline,
+  sparklesOutline,
+} from 'ionicons/icons';
 
 import { ExpenseBalancesComponent } from '../../../components/expense-balances/expense-balances.component';
 import { GroupExpensesComponent } from '../../../components/group-expenses/group-expenses.component';
 import { SmartSplitModal } from '../../../components/smart-split/smart-split.modal';
 import { ExpenseFormModal } from '../../expense-form/expense-form.modal';
 import { Group } from '../../../models/group.model';
+import { initialOf } from '../../../utils/initial';
 import { AuthService } from '../../../services/auth.service';
 import { ExpenseListItem } from '../../../services/expense.service';
 import { GroupService } from '../../../services/group.service';
@@ -82,6 +89,7 @@ export class GroupDetail implements OnInit {
 
   publicId = '';
   mePublicId = this.authService.currentUser()?.publicId ?? '';
+  initial = initialOf;
 
   // Serve per ricaricare la lista dopo aver creato una spesa dalla modale.
   @ViewChild(GroupExpensesComponent) private expensesList?: GroupExpensesComponent;
@@ -89,6 +97,7 @@ export class GroupDetail implements OnInit {
   constructor() {
     addIcons({
       add,
+      'chevron-forward': chevronForward,
       'ellipsis-vertical': ellipsisVertical,
       'settings-outline': settingsOutline,
       'sparkles-outline': sparklesOutline,

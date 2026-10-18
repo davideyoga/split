@@ -18,7 +18,8 @@ import { ExpenseListComponent } from '../../components/expense-list/expense-list
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { SpendingSettingsService } from '../../services/spending-settings.service';
-import { formatCents, toCents } from '../../utils/balance';
+import { toCents } from '../../utils/balance';
+import { MoneyPipe } from '../../pipes/money.pipe';
 import { dayOf, formatDay } from '../../utils/date';
 import { expensesInCategory, SpendingPeriod, spendingPeriod } from '../../utils/spending';
 
@@ -33,6 +34,7 @@ import { expensesInCategory, SpendingPeriod, spendingPeriod } from '../../utils/
   styleUrls: ['./spending-category.page.scss'],
   standalone: true,
   imports: [
+    MoneyPipe,
     ExpenseListComponent,
     IonBackButton,
     IonButtons,
@@ -92,7 +94,6 @@ export class SpendingCategoryPage {
     );
   });
 
-  format = formatCents;
 
   ionViewWillEnter() {
     this.load();

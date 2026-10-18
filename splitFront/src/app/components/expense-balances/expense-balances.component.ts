@@ -1,11 +1,12 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import {
   IonButton,
+  IonCard,
   IonItem,
   IonLabel,
   IonList,
   IonListHeader,
-  IonNote,
+  IonText,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -15,12 +16,13 @@ import {
   BalanceExpenseInput,
   BalanceSettlementInput,
   computeBalances,
-  formatCents,
-  formatSignedCents,
 } from '../../utils/balance';
+import { MoneyPipe } from '../../pipes/money.pipe';
+import { initialOf } from '../../utils/initial';
 
 // Saldi ("chi mi deve quanto" / "a chi devo quanto") calcolati sulla lista di
-// spese ricevuta in input. Componente puramente presentazionale: non fa nessuna
+// spese ricevuta in input: in cima due riquadri gemelli (ti devono / devi, come
+// quelli di Attivita'), poi una riga per persona con l'iniziale nel cerchio. Componente puramente presentazionale: non fa nessuna
 // chiamata HTTP, cosi' puo' essere inserito in qualunque pagina che abbia gia'
 // delle spese in mano (home, dettaglio gruppo, ...) senza duplicare fetch.
 @Component({
@@ -28,7 +30,17 @@ import {
   templateUrl: './expense-balances.component.html',
   styleUrls: ['./expense-balances.component.scss'],
   standalone: true,
-  imports: [TranslatePipe, IonButton, IonItem, IonLabel, IonList, IonListHeader, IonNote],
+  imports: [
+    TranslatePipe,
+    MoneyPipe,
+    IonButton,
+    IonCard,
+    IonItem,
+    IonLabel,
+    IonList,
+    IonListHeader,
+    IonText,
+  ],
 })
 export class ExpenseBalancesComponent {
   // Le spese su cui calcolare i saldi: qualunque lista con `paidBy` e
@@ -74,6 +86,13 @@ export class ExpenseBalancesComponent {
     computeBalances(this.expenses(), this.mePublicId(), this.settlements()),
   );
 
-  format = formatCents;
-  formatSigned = formatSignedCents;
+  // Quante persone mi devono qualcosa, e a quante devo qualcosa.
+  readonly owedByCount = computed(() => this.summary().balances.filter((b) => b.cents > 0).length);
+  readonly oweToCount = computed(() => this.summary().balances.filter((b) => b.cents < 0).length);
+
+  initial = initialOf;
+
+  peopleKey(count: number): string {
+    return count === 1 ? 'balances.people-one' : 'balances.people';
+  }
 }

@@ -35,5 +35,5 @@ test('gruppo nuovo, spesa di gruppo e saldo del gruppo', async ({ page }) => {
   await visible(page.locator('ion-segment-button[value="balances"]')).click();
   await expect(
     visible(page.locator('ion-item').filter({ hasText: t('balances.owes-you', { name: 'Archimede' }) })),
-  ).toContainText('25.00 EUR');
+  ).toContainText('€25.00');
 });

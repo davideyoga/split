@@ -22,6 +22,8 @@ import { pieChartOutline } from 'ionicons/icons';
 
 import { User } from '../../models/user.model';
 import { formatCents, toCents } from '../../utils/balance';
+import { initialOf } from '../../utils/initial';
+import { MoneyPipe } from '../../pipes/money.pipe';
 import { splitEqually } from '../../utils/split';
 
 // Quote personalizzate, in centesimi, per publicId dell'utente.
@@ -40,6 +42,7 @@ export type ShareMap = Record<string, number>;
   styleUrls: ['./split-shares.modal.scss'],
   standalone: true,
   imports: [
+    MoneyPipe,
     TranslatePipe,
     IonButton,
     IonButtons,
@@ -110,9 +113,7 @@ export class SplitSharesModal implements OnInit {
   }
 
   // Valore assoluto a 2 decimali: il segno lo danno etichetta e colore.
-  format(cents: number): string {
-    return formatCents(cents);
-  }
+  initial = initialOf;
 
   fillEqually() {
     const cents = splitEqually(this.totalCents, this.people.length);

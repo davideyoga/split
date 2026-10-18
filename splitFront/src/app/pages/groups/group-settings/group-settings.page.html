@@ -7,12 +7,12 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content class="ion-padding">
+<ion-content>
   @if (loadError) {
-    <p>{{ 'groups.load-error' | translate }}</p>
+    <p class="ion-padding">{{ 'groups.load-error' | translate }}</p>
   } @else if (group) {
     <!-- RINOMINA -->
-    <form [formGroup]="nameForm" (ngSubmit)="rename()">
+    <form class="ion-padding" [formGroup]="nameForm" (ngSubmit)="rename()">
       <ion-input
         fill="outline"
         label="{{ 'groups.name-label' | translate }}"
@@ -42,19 +42,22 @@
     <ion-list-header>
       <ion-label>{{ 'groups.segment-members' | translate }}</ion-label>
     </ion-list-header>
-    <ion-list>
+    <ion-list lines="none">
       @for (member of group.members; track member.publicId) {
         <ion-item>
+          <div slot="start" class="avatar initial" aria-hidden="true">{{ initial(member.nickName) }}</div>
           <ion-label>
-            {{ member.nickName }}
-            @if (member.publicId === mePublicId) {
-              ({{ 'groups.you' | translate }})
-            }
+            <h2>
+              {{ member.nickName }}
+              @if (member.publicId === mePublicId) {
+                ({{ 'groups.you' | translate }})
+              }
+            </h2>
           </ion-label>
           <ion-button
             slot="end"
             fill="clear"
-            color="danger"
+            color="medium"
             [attr.aria-label]="'groups.remove' | translate"
             (click)="confirmRemoveMember(member)"
           >
@@ -64,7 +67,7 @@
       }
     </ion-list>
 
-    <div class="ion-padding-top ion-text-center">
+    <div class="ion-padding ion-text-center">
       <ion-button fill="outline" (click)="openMemberModal()">
         <ion-icon slot="start" name="person-add-outline"></ion-icon>
         {{ 'groups.add-member' | translate }}

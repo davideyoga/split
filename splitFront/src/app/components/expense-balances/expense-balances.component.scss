@@ -1,11 +1,9 @@
-.balance-amount {
-  font-weight: 600;
+// Riquadri (.summary-tile), cerchi (.avatar) e cifre (.row-amount) sono stili
+// globali (styles.scss), condivisi con Attivita'.
+:host {
+  display: block;
 }
 
-.totals {
-  font-size: 0.85rem;
-}
-
-.net-amount {
-  font-weight: 600;
+ion-list {
+  padding-top: 0;
 }

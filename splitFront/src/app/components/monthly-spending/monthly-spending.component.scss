@@ -1,17 +1,19 @@
-.header-row {
+// Il riquadro ha lo stile globale `.summary-tile` (styles.scss); qui solo la
+// barra delle categorie. Lo spazio fra i segmenti separa due colori vicini.
+:host {
+  display: block;
+}
+
+.bar {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 2px;
+  height: 6px;
+  margin-top: 6px;
+  border-radius: 3px;
+  overflow: hidden;
 }
 
-.header-row ion-icon {
-  flex-shrink: 0;
-  font-size: 20px;
-}
-
-.details-hint {
-  margin-top: 8px;
-  color: var(--ion-color-primary);
-  font-weight: 500;
+.bar span {
+  display: block;
+  height: 100%;
 }

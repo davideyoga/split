@@ -16,19 +16,19 @@
     <div class="summary">
       <div class="summary-cell">
         <ion-note>{{ 'split-shares.total' | translate }}</ion-note>
-        <strong>{{ format(totalCents) }}</strong>
+        <strong>{{ totalCents | money }}</strong>
       </div>
       <div class="summary-cell">
         <ion-note>{{ 'split-shares.assigned' | translate }}</ion-note>
-        <strong>{{ format(assignedCents) }}</strong>
+        <strong>{{ assignedCents | money }}</strong>
       </div>
       <div class="summary-cell">
         @if (remainingCents > 0) {
           <ion-note>{{ 'split-shares.remaining' | translate }}</ion-note>
-          <ion-text color="warning"><strong>{{ format(remainingCents) }}</strong></ion-text>
+          <ion-text color="warning"><strong>{{ remainingCents | money }}</strong></ion-text>
         } @else if (remainingCents < 0) {
           <ion-note>{{ 'split-shares.over' | translate }}</ion-note>
-          <ion-text color="danger"><strong>{{ format(remainingCents) }}</strong></ion-text>
+          <ion-text color="danger"><strong>{{ remainingCents | money }}</strong></ion-text>
         } @else {
           <ion-note>{{ 'split-shares.remaining' | translate }}</ion-note>
           <ion-text color="success"><strong>{{ 'split-shares.complete' | translate }}</strong></ion-text>
@@ -46,6 +46,7 @@
   <ion-list>
     @for (person of people; track person.publicId) {
       <ion-item>
+        <div slot="start" class="avatar initial" aria-hidden="true">{{ initial(person.nickName) }}</div>
         <ion-label>
           {{ person.nickName }}
           @if (person.publicId === mePublicId) {
@@ -58,7 +59,7 @@
         <!-- "+ quel che manca" a questa persona -->
         @if (remainingCents > 0) {
           <ion-button slot="end" fill="clear" size="small" (click)="assignRemaining(person)">
-            +{{ format(remainingCents) }}
+            +{{ remainingCents | money: null }}
           </ion-button>
         }
         <ion-input

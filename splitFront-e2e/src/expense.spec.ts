@@ -35,20 +35,28 @@ test('nuova spesa divisa in parti uguali, dettaglio ed eliminazione', async ({ p
 
   // Tornati alla form: 30 € in due
   await expect(
-    topModal(page).getByText(t('expense-form.split-each', { amount: '15.00' })),
+    topModal(page).getByText(t('expense-form.split-each', { amount: '€15.00' })),
   ).toBeVisible();
   await topModal(page).getByRole('button', { name: t('expense-form.save') }).click();
   await expect(toast(page, t('expense-form.created'))).toBeVisible();
 
-  // La spesa è in cima ad Activity; il dettaglio mostra le quote
-  await visible(page.getByText('Cena al lago')).click();
+  // In Activity la riga mostra in grande la mia quota, e sotto quanto ho
+  // anticipato per Pluto
+  const cena = visible(page.locator('app-expense-list ion-item').filter({ hasText: 'Cena al lago' }));
+  await expect(cena.locator('.main')).toHaveText('€15.00');
+  await expect(cena).toContainText(t('expense-list.you-paid', { amount: '€30.00' }));
+  await expect(cena).toContainText(t('expense-list.with-one', { name: 'Pluto' }));
+  await expect(cena).toContainText(t('expense-list.you-lent', { amount: '15.00' }));
+
+  // Il dettaglio mostra le quote
+  await cena.click();
   await expect(page).toHaveURL(/\/tabs\/activity\/expense\/[0-9a-f-]{36}$/);
   // Per ruolo, non per testo: durante la transizione Activity (che mostra
-  // anch'essa "30.00 EUR") è ancora visibile sotto il dettaglio.
-  await expect(page.getByRole('heading', { name: '30.00 EUR' })).toBeVisible();
+  // anch'essa "€30.00") è ancora visibile sotto il dettaglio.
+  await expect(page.getByRole('heading', { name: '€30.00' })).toBeVisible();
   await expect(
-    visible(page.locator('ion-item').filter({ hasText: 'Pluto' })),
-  ).toContainText('15.00 EUR');
+    visible(page.locator('app-expense-detail ion-item').filter({ hasText: 'Pluto' })),
+  ).toContainText('€15.00');
 
   // Elimina, con conferma
   await page.getByRole('button', { name: t('expense-detail.delete') }).click();
@@ -76,8 +84,12 @@ test('data della spesa: oggi di default, modificabile; la data di inserimento la
   await expect(toast(page, t('expense-form.created'))).toBeVisible();
 
   const today = new Date();
-  const row = visible(page.locator('ion-item').filter({ hasText: 'Gelato' }));
-  await expect(row).toContainText(label(today));
+  // Le spese sono raggruppate per giorno: l'unica spesa sta sotto "Oggi". Una
+  // spesa senza partecipanti e' solo mia.
+  const row = visible(page.locator('app-expense-list ion-item').filter({ hasText: 'Gelato' }));
+  await expect(visible(page.locator('app-expense-list h3.day'))).toHaveText(t('expense-list.today'));
+  await expect(row).toContainText(t('expense-list.only-you'));
+  await expect(row.locator('.main')).toHaveText('€12.00');
 
   // Dettaglio → Modifica → un altro giorno dello stesso mese dal calendario
   await row.click();

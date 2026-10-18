@@ -18,6 +18,8 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { SettlementService } from '../../services/settlement.service';
 import { Balance, formatCents, toCents } from '../../utils/balance';
+import { currencySymbol } from '../../utils/money';
+import { MoneyPipe } from '../../pipes/money.pipe';
 
 // Registra un rimborso con la controparte di un saldo, aperta dal bottone
 // "Salda" della tab Saldi. La direzione viene dal segno del saldo (se la
@@ -31,6 +33,7 @@ import { Balance, formatCents, toCents } from '../../utils/balance';
   styleUrls: ['./settle-up.modal.scss'],
   standalone: true,
   imports: [
+    MoneyPipe,
     TranslatePipe,
     IonButton,
     IonButtons,
@@ -59,7 +62,8 @@ export class SettleUpModal implements OnInit {
   saving = false;
   errorMessage = '';
 
-  format = formatCents;
+  // Simbolo accanto al campo importo.
+  readonly symbol = currencySymbol();
 
   ngOnInit() {
     this.amount = formatCents(this.balance.cents);

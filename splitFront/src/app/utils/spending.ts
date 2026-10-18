@@ -54,6 +54,21 @@ export interface MonthlySpending {
   byCategory: CategorySpending[];
 }
 
+// Categorie con un colore proprio; dalla settima in poi si raggruppano in
+// "Altre" (grigio). I colori sono `--spending-slot-N` in theme/variables.scss.
+export const COLORED_CATEGORIES = 6;
+
+// Colore della categoria in posizione `index` di `byCategory`. Il colore va
+// alla posizione nella classifica del periodo, non alla categoria: le
+// categorie possibili sono piu' dei colori distinguibili, quindi una stessa
+// categoria puo' cambiare colore fra due periodi. Nome e icona accanto la
+// identificano.
+export function categoryColor(index: number): string {
+  return index < COLORED_CATEGORIES ? `var(--spending-slot-${index + 1})` : OTHERS_COLOR;
+}
+
+export const OTHERS_COLOR = 'var(--spending-others)';
+
 // Giorno d'inizio valido (1-31); qualsiasi altro valore torna al default, 1.
 export function normalizeStartDay(value: unknown): number {
   const day = Number(value);

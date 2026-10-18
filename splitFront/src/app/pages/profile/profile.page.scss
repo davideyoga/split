@@ -1,0 +1,46 @@
+// Cerchi (.avatar) sono stili globali (styles.scss).
+
+// Chi sei: iniziale in grande, nickname, email.
+.hero {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 24px 16px 16px;
+  text-align: center;
+
+  h2 {
+    margin: 8px 0 0;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+  }
+}
+
+.avatar.large {
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  font-size: 28px;
+}
+
+// Impostazioni su un riquadro, come i fatti del dettaglio spesa.
+.settings {
+  margin: 8px 16px;
+  padding: 4px 0;
+  border-radius: 14px;
+  background: var(--split-surface);
+
+  ion-item {
+    --background: transparent;
+  }
+}
+
+// Sul riquadro il cerchio neutro prende il colore della pagina, altrimenti
+// sparirebbe nello sfondo.
+.settings .avatar.neutral {
+  background: var(--ion-background-color, #fff);
+}

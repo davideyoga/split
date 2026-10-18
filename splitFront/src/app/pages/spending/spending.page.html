@@ -34,7 +34,7 @@
   </div>
 
   <!-- GIORNO D'INIZIO DEL MESE -->
-  <ion-list>
+  <ion-list lines="none" class="start-day">
     <ion-item>
       <ion-select
         [label]="'spending.start-day' | translate"
@@ -94,38 +94,37 @@
           }
         </svg>
         <div class="donut-center">
-          <div class="donut-total">{{ format(spending().shareCents) }} <span class="donut-currency">EUR</span></div>
+          <div class="donut-total">{{ spending().shareCents | money }}</div>
           <div class="donut-caption">{{ 'spending.total' | translate }}</div>
         </div>
       </div>
       <p class="summary ion-text-center">
         <ion-note>
           {{ 'spending.count' | translate: { count: spending().count } }} ·
-          {{ 'spending.paid' | translate }}: {{ format(spending().paidCents) }} EUR
+          {{ 'spending.paid' | translate }}: {{ spending().paidCents | money }}
         </ion-note>
       </p>
 
       <!-- LISTA COMPLETA: tutte le categorie, anche quelle finite in "Altre".
            Ogni riga apre le spese di quella categoria nel periodo mostrato. -->
-      <ion-list>
+      <ion-list lines="none">
         <ion-list-header>
           <ion-label>{{ 'spending.by-category' | translate }}</ion-label>
         </ion-list-header>
         @for (row of rows(); track row.key) {
           <ion-item
             button
+            [detail]="false"
             class="category-row"
             [routerLink]="['/tabs/activity/spending/category']"
             [queryParams]="{ category: row.key || null, from: period().start, to: period().end }"
           >
-            <ion-icon
-              slot="start"
-              color="medium"
-              [name]="row.category?.icon || 'help-circle-outline'"
-            ></ion-icon>
+            <!-- Il cerchio ha il colore della fetta: sostituisce il pallino. -->
+            <div slot="start" class="avatar category" [style.--slice]="row.color">
+              <ion-icon [name]="row.category?.icon || 'help-circle-outline'" aria-hidden="true"></ion-icon>
+            </div>
             <ion-label>
-              <h2 class="row-title">
-                <span class="swatch" [style.background]="row.color"></span>
+              <h2>
                 @if (row.category?.name) {
                   {{ row.category?.name }}
                 } @else if (row.category?.slug) {
@@ -142,15 +141,15 @@
                 ></div>
               </div>
             </ion-label>
-            <div slot="end" class="row-values">
-              <div class="row-amount">{{ format(row.shareCents) }} EUR</div>
-              <ion-note class="row-percent">
+            <div slot="end" class="row-amount">
+              <div class="main">{{ row.shareCents | money }}</div>
+              <div class="sub">
                 @if (row.percent === 0) {
                   {{ 'spending.percent-small' | translate }}
                 } @else {
                   {{ row.percent }}%
                 }
-              </ion-note>
+              </div>
             </div>
           </ion-item>
         }

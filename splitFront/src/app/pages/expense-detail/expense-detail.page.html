@@ -33,15 +33,18 @@
   } @else if (notFound) {
     <p class="ion-padding">{{ 'expense-detail.not-found' | translate }}</p>
   } @else if (expense) {
-    <ion-list>
-      <ion-item>
-        <ion-label>
-          <h1>{{ expense.amount | amount }} {{ expense.currency }}</h1>
-          @if (expense.description) {
-            <p>{{ expense.description }}</p>
-          }
-        </ion-label>
-      </ion-item>
+    <!-- Testata: categoria, importo in grande, descrizione. -->
+    <div class="hero">
+      <div class="avatar large" [class.neutral]="!expense.category">
+        <ion-icon [name]="expense.category?.icon ?? 'receipt-outline'" aria-hidden="true"></ion-icon>
+      </div>
+      <h1>{{ expense.amount | amount: expense.currency }}</h1>
+      @if (expense.description) {
+        <p>{{ expense.description }}</p>
+      }
+    </div>
+
+    <ion-list lines="none" class="facts">
       <ion-item>
         <ion-label>{{ 'expense-detail.paid-by' | translate }}</ion-label>
         <ion-note slot="end">
@@ -64,16 +67,13 @@
       @if (expense.category) {
         <ion-item>
           <ion-label>{{ 'expense-detail.category' | translate }}</ion-label>
-          <ion-chip slot="end" [outline]="true" color="medium">
-            <ion-icon [name]="expense.category.icon"></ion-icon>
-            <ion-label>
-              @if (expense.category.name) {
-                {{ expense.category.name }}
-              } @else {
-                {{ 'categories.' + expense.category.slug | translate }}
-              }
-            </ion-label>
-          </ion-chip>
+          <ion-note slot="end">
+            @if (expense.category.name) {
+              {{ expense.category.name }}
+            } @else {
+              {{ 'categories.' + expense.category.slug | translate }}
+            }
+          </ion-note>
         </ion-item>
       }
     </ion-list>
@@ -81,23 +81,31 @@
     <ion-list-header>
       <ion-label>{{ 'expense-detail.participants' | translate }}</ion-label>
     </ion-list-header>
-    <ion-list>
+    <ion-list lines="none">
       @for (contribution of expense.expenseContributions; track contribution.id) {
         <ion-item>
+          <div slot="start" class="avatar initial" aria-hidden="true">{{ initial(contribution.user.nickName) }}</div>
           <ion-label>
-            {{ contribution.user.nickName }}
-            @if (contribution.user.publicId === mePublicId) {
-              ({{ 'expense-detail.you' | translate }})
+            <h2>
+              {{ contribution.user.nickName }}
+              @if (contribution.user.publicId === mePublicId) {
+                ({{ 'expense-detail.you' | translate }})
+              }
+            </h2>
+            @if (contribution.user.publicId === expense.paidBy.publicId) {
+              <p>{{ 'expense-detail.paid' | translate: { amount: (expense.amount | amount: expense.currency) } }}</p>
             }
           </ion-label>
-          <ion-note slot="end">{{ contribution.share | amount }} {{ expense.currency }}</ion-note>
+          <div slot="end" class="row-amount">
+            <div class="main">{{ contribution.share | amount: expense.currency }}</div>
+          </div>
         </ion-item>
       }
     </ion-list>
 
     <!-- Quando e' stata inserita: la imposta il server, solo in lettura (nel
          fuso del dispositivo, a differenza del giorno della spesa). -->
-    <p class="ion-padding-horizontal">
+    <p class="created ion-padding-horizontal">
       <ion-note>{{ 'expense-detail.created' | translate: { date: (expense.createdDate | date: 'dd/MM/yyyy HH:mm') } }}</ion-note>
     </p>
   }

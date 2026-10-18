@@ -5,6 +5,10 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <!-- Il logo dell'app (splitFront/icon/icon.svg), decorativo: il titolo dice gia' dove sei. -->
+  <div class="brand">
+    <img src="icons/icon-192.png" alt="" width="72" height="72" />
+  </div>
   @if (step === 'email') {
     <form [formGroup]="emailForm" (ngSubmit)="sendCode()">
       <ion-list>

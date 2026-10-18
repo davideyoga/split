@@ -24,7 +24,7 @@
   <div class="summary ion-text-center">
     <h2>{{ periodLabel() }}</h2>
     @if (loaded && !loadError) {
-      <div class="total">{{ format(totalCents()) }} <span class="currency">EUR</span></div>
+      <div class="total">{{ totalCents() | money }}</div>
       <ion-note>
         {{ 'spending.total' | translate }} · {{ 'spending.count' | translate: { count: expenses().length } }}
       </ion-note>
@@ -42,7 +42,7 @@
       <app-expense-list
         [expenses]="expenses()"
         [detailPath]="['/tabs/activity/expense']"
-        [shareOf]="me()"
+        [showMyShare]="true"
       ></app-expense-list>
     }
   }

@@ -27,12 +27,12 @@ test('"Speso questo mese": pagina per categoria, giorno d\'inizio e periodi prec
   await createExpense(page.request, ciccio, { amount: 30, description: 'Panino', date: '2026-09-10', categoryPublicId: food });
   await createExpense(page.request, ciccio, { amount: 50, description: 'Frutta', date: '2026-09-27', categoryPublicId: groceries });
 
-  // Card in Attività: mese solare, quote mie (non quanto ho pagato)
+  // Riquadro in Attività: mese solare, quote mie (non quanto ho pagato)
   await page.goto('/tabs/activity');
   const card = visible(page.locator('app-monthly-spending ion-card'));
-  await expect(card).toContainText(t('activity.month-spent'));
-  await expect(card).toContainText('1000.00 EUR');
-  await expect(card).toContainText(t('activity.month-details'));
+  await expect(card).toContainText(t('activity.month-spent-in', { month: 'October' }));
+  await expect(card.locator('.tile-value')).toHaveText('€1,000.00');
+  await expect(card).toContainText(t('activity.month-sub', { count: 3, paid: '1,050.00' }));
 
   // Toccandola si apre la pagina, sul periodo in corso
   await card.click();
@@ -44,12 +44,12 @@ test('"Speso questo mese": pagina per categoria, giorno d\'inizio e periodi prec
   await expect(rows).toHaveCount(2);
   // Dalla categoria piu' alta: trasporti 80%, cibo 20%
   await expect(rows.nth(0)).toContainText(t('categories.transport'));
-  await expect(rows.nth(0)).toContainText('800.00 EUR');
+  await expect(rows.nth(0)).toContainText('€800.00');
   await expect(rows.nth(0)).toContainText('80%');
   await expect(rows.nth(1)).toContainText(t('categories.food'));
-  await expect(rows.nth(1)).toContainText('200.00 EUR');
+  await expect(rows.nth(1)).toContainText('€200.00');
   await expect(rows.nth(1)).toContainText('20%');
-  await expect(page.locator('.donut-total')).toHaveText('1000.00 EUR');
+  await expect(page.locator('.donut-total')).toHaveText('€1,000.00');
 
   // Toccando una categoria si aprono le sue spese del periodo (non il panino
   // di settembre), dalla piu' recente, ciascuna con la mia quota
@@ -60,11 +60,12 @@ test('"Speso questo mese": pagina per categoria, giorno d\'inizio e periodi prec
   await expect(categoryPage.locator('ion-title')).toContainText(t('categories.food'));
   await expect(items).toHaveCount(2);
   await expect(items.nth(0)).toContainText('Pizza');
-  await expect(items.nth(0)).toContainText('100.00 EUR');
-  await expect(items.nth(0)).toContainText(`${t('expense-list.your-share')}: 50.00 EUR`);
+  await expect(items.nth(0)).toContainText(t('expense-list.you-paid', { amount: '€100.00' }));
+  await expect(items.nth(0).locator('.main')).toHaveText('€50.00');
   await expect(items.nth(1)).toContainText('Spesa');
-  await expect(items.nth(1)).toContainText(`${t('expense-list.your-share')}: 150.00 EUR`);
-  await expect(categoryPage.locator('.total')).toHaveText('200.00 EUR');
+  await expect(items.nth(1)).toContainText(t('expense-list.only-you'));
+  await expect(items.nth(1).locator('.main')).toHaveText('€150.00');
+  await expect(categoryPage.locator('.total')).toHaveText('€200.00');
 
   // Una spesa della lista apre il suo dettaglio; indietro si torna alla lista
   await items.nth(0).click();
@@ -81,7 +82,7 @@ test('"Speso questo mese": pagina per categoria, giorno d\'inizio e periodi prec
   await page.locator('ion-select').click();
   await page.locator('ion-popover').getByRole('radio', { name: '25', exact: true }).click();
   await expect(page.getByRole('heading', { name: '25/09/2026 – 24/10/2026' })).toBeVisible();
-  await expect(page.locator('.donut-total')).toHaveText('1050.00 EUR');
+  await expect(page.locator('.donut-total')).toHaveText('€1,050.00');
   await expect(rows).toHaveCount(3);
   // 76.19 / 19.05 / 4.76: i resti maggiori fanno 76 + 19 + 5 = 100
   await expect(rows.nth(0)).toContainText('76%');
@@ -94,7 +95,7 @@ test('"Speso questo mese": pagina per categoria, giorno d\'inizio e periodi prec
   await expect(page.getByRole('heading', { name: '25/08/2026 – 24/09/2026' })).toBeVisible();
   await expect(page.getByText(t('spending.current'))).toBeHidden();
   await expect(rows).toHaveCount(1);
-  await expect(rows.nth(0)).toContainText('30.00 EUR');
+  await expect(rows.nth(0)).toContainText('€30.00');
   await expect(rows.nth(0)).toContainText('100%');
   await page.getByRole('button', { name: t('spending.next') }).click();
   await expect(page.getByRole('heading', { name: '25/09/2026 – 24/10/2026' })).toBeVisible();
@@ -102,5 +103,5 @@ test('"Speso questo mese": pagina per categoria, giorno d\'inizio e periodi prec
   // La card segue lo stesso periodo, anche dopo un riavvio (giorno salvato sul dispositivo)
   await page.goto('/tabs/activity');
   await expect(card).toContainText(t('activity.month-spent-since', { date: '25/09' }));
-  await expect(card).toContainText('1050.00 EUR');
+  await expect(card).toContainText('€1,050.00');
 });

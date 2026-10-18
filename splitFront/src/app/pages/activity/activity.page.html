@@ -37,40 +37,44 @@
       <ion-button (click)="openExpenseForm()">{{ 'activity.empty-cta' | translate }}</ion-button>
     </div>
   } @else if (expenses.length > 0) {
-    <!-- SALDO NETTO -> tab Saldi (nascosto durante la ricerca) -->
+    <!-- I due lavori dell'app alla pari: quanto ho speso nel mese (-> pagina
+         Spese) e il saldo con gli altri (-> tab Saldi). Nascosti durante la ricerca. -->
     @if (!query) {
-      <ion-card>
-        <ion-card-header>
-          <ion-card-subtitle>{{ 'balances.net' | translate }}</ion-card-subtitle>
-          <ion-card-title>
-            <ion-text [color]="summary.netCents > 0 ? 'success' : summary.netCents < 0 ? 'danger' : 'medium'">
-              {{ formatSigned(summary.netCents) }} EUR
-            </ion-text>
-          </ion-card-title>
-        </ion-card-header>
-        <ion-card-content>
-          {{ 'balances.total-owed-to-you' | translate }}: {{ format(summary.owedToMeCents) }} EUR ·
-          {{ 'balances.total-you-owe' | translate }}: {{ format(summary.iOweCents) }} EUR
-        </ion-card-content>
-        <div class="card-actions">
-          <ion-button fill="clear" routerLink="/tabs/balances">
-            {{ 'activity.settle-cta' | translate }}
-          </ion-button>
-        </div>
-      </ion-card>
+      <div class="summary-tiles">
+        <app-monthly-spending [expenses]="expenses"></app-monthly-spending>
 
-      <!-- SPESO QUESTO MESE -->
-      <app-monthly-spending [expenses]="expenses"></app-monthly-spending>
+        <ion-card button routerLink="/tabs/balances" class="summary-tile">
+          <div class="tile-body">
+            <div class="tile-label">
+              <span>{{ 'activity.balance' | translate }}</span>
+              <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
+            </div>
+            <div class="tile-value">
+              <ion-text [color]="summary.netCents > 0 ? 'success' : summary.netCents < 0 ? 'danger' : undefined">
+                {{ summary.netCents | money: 'EUR' : true }}
+              </ion-text>
+            </div>
+            <div class="tile-sub">
+              @if (summary.iOweCents === 0 && summary.owedToMeCents === 0) {
+                {{ 'activity.balance-even' | translate }}
+              } @else {
+                {{ 'activity.balance-sub' | translate: { owe: (summary.iOweCents | money: null), owed: (summary.owedToMeCents | money: null) } }}
+              }
+            </div>
+          </div>
+        </ion-card>
+      </div>
     }
 
-    <!-- SPESE -->
-    <ion-list-header>
-      <ion-label>{{ 'activity.recent' | translate }}</ion-label>
-    </ion-list-header>
+    <!-- SPESE: in grande la mia quota, che entra nello speso del mese -->
     @if (filteredExpenses.length === 0) {
       <p class="ion-padding-horizontal">{{ 'activity.no-results' | translate }}</p>
     }
-    <app-expense-list [expenses]="filteredExpenses" [detailPath]="['/tabs/activity/expense']"></app-expense-list>
+    <app-expense-list
+      [expenses]="filteredExpenses"
+      [detailPath]="['/tabs/activity/expense']"
+      [showMyShare]="true"
+    ></app-expense-list>
   }
 
   <ion-fab slot="fixed" vertical="bottom" horizontal="end">

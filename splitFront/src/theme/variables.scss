@@ -1,2 +1,106 @@
-// For information on how to create your own theme, please see:
-// http://ionicframework.com/docs/theming/
+// Tema di Split (2026-10-18). Caricato per ultimo in project.json, dopo tutti
+// i CSS di Ionic compresa la palette scura (palettes/dark.system.css): qui c'e'
+// l'ultima parola su ogni colore, in entrambi i temi. Per questo il blocco
+// chiaro (:root) e quello scuro ridefiniscono gli stessi token: un colore
+// cambiato solo nel blocco chiaro varrebbe anche al buio.
+// Per creare un tema: https://ionicframework.com/docs/theming/
+
+// ---------------------------------------------------------------- tema chiaro
+:root {
+  // Primario = il teal del logo (splitFront/icon/icon.svg).
+  --ion-color-primary: #0f5e56;
+  --ion-color-primary-rgb: 15, 94, 86;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #0d534c;
+  --ion-color-primary-tint: #276e67;
+
+  // Verde di "ti devono" / "hai prestato", piu' scuro di quello di Ionic
+  // (#2dd55b, circa 2:1 su bianco, illeggibile come testo): circa 5:1.
+  --ion-color-success: #15803d;
+  --ion-color-success-rgb: 21, 128, 61;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #127136;
+  --ion-color-success-tint: #2c8d50;
+
+  // Testo secondario (sottotitoli, etichette): il grigio di Ionic appena tinto
+  // di teal, come le superfici.
+  --ion-color-medium: #5f6e6c;
+  --ion-color-medium-rgb: 95, 110, 108;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #54615f;
+  --ion-color-medium-tint: #6f7d7b;
+
+  // Superfici di Split: riquadri, cerchi neutri, fili. Un grigio appena tinto
+  // di teal invece del grigio puro di Ionic.
+  --split-surface: #f2f6f5;
+  --split-line: #e3e9e8;
+
+  // Colori delle categorie di spesa (ciambella della pagina Spese, barra del
+  // riquadro "Speso" in Attivita'): i primi 6 della palette categoriale della
+  // skill dataviz, nell'ordine validato per i daltonici (fette vicine
+  // distinguibili, anche l'ultima con la prima e con il grigio di "Altre").
+  // Il testo non usa mai questi colori: il colore sta nel pallino, nella
+  // barra o nel cerchio accanto al nome.
+  --spending-slot-1: #2a78d6;
+  --spending-slot-2: #eb6834;
+  --spending-slot-3: #1baf7a;
+  --spending-slot-4: #eda100;
+  --spending-slot-5: #e87ba4;
+  --spending-slot-6: #008300;
+  --spending-others: #898781;
+}
+
+// ----------------------------------------------------------------- tema scuro
+@media (prefers-color-scheme: dark) {
+  :root {
+    // Il mint della meta' chiara del logo: il teal scuro su sfondo scuro non
+    // si leggerebbe.
+    --ion-color-primary: #5eead4;
+    --ion-color-primary-rgb: 94, 234, 212;
+    --ion-color-primary-contrast: #042f2e;
+    --ion-color-primary-contrast-rgb: 4, 47, 46;
+    --ion-color-primary-shade: #53cebb;
+    --ion-color-primary-tint: #6eecd8;
+
+    // Il verde di Ionic, che sullo sfondo scuro si legge.
+    --ion-color-success: #2dd55b;
+    --ion-color-success-rgb: 45, 213, 91;
+    --ion-color-success-contrast: #000000;
+    --ion-color-success-contrast-rgb: 0, 0, 0;
+    --ion-color-success-shade: #28bb50;
+    --ion-color-success-tint: #42d96b;
+
+    --ion-color-medium: #93a3a0;
+    --ion-color-medium-rgb: 147, 163, 160;
+    --ion-color-medium-contrast: #000000;
+    --ion-color-medium-contrast-rgb: 0, 0, 0;
+    --ion-color-medium-shade: #818f8d;
+    --ion-color-medium-tint: #9eacaa;
+
+    --split-surface: #1a2321;
+    --split-line: #26302f;
+
+    --spending-slot-1: #3987e5;
+    --spending-slot-2: #d95926;
+    --spending-slot-3: #199e70;
+    --spending-slot-4: #c98500;
+    --spending-slot-5: #d55181;
+    --spending-slot-6: #008300;
+  }
+
+  // Sfondi: dark.system.css li mette su :root.md / :root.ios, quindi servono
+  // gli stessi selettori. Pagina, barre e righe hanno lo stesso colore (un nero
+  // appena tinto di teal), come nel tema chiaro dove sono tutte bianche.
+  :root.md,
+  :root.ios {
+    --ion-background-color: #111716;
+    --ion-background-color-rgb: 17, 23, 22;
+    --ion-toolbar-background: #111716;
+    --ion-tab-bar-background: #111716;
+    --ion-item-background: #111716;
+    --ion-card-background: #1a2321;
+  }
+}

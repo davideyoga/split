@@ -9,8 +9,198 @@
  * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
+// Lo stile di Split (2026-10-18, dal mockup della pagina Attivita'): superfici
+// piatte separate dallo sfondo invece che dalle ombre, niente maiuscolo, righe
+// con un cerchio a sinistra e la cifra in grassetto a destra. I colori sono in
+// theme/variables.scss. Questo file e' l'ultimo in project.json, dopo i CSS di
+// Ionic; le sue regole battono anche quelle dentro i componenti (`:host`), che
+// valgono meno dello stile del documento.
+
+// ------------------------------------------------------------------ superfici
+
+// Header piatto: niente ombra sotto la barra.
+ion-header.header-md {
+  box-shadow: none;
+}
+
+ion-tab-bar {
+  border-top: 1px solid var(--split-line);
+}
+
+ion-card {
+  box-shadow: none;
+  border-radius: 14px;
+  --background: var(--split-surface);
+}
+
+// Ricerca piatta, sullo stesso fondo dei riquadri.
+ion-searchbar {
+  --box-shadow: none;
+  --background: var(--split-surface);
+  --border-radius: 12px;
+}
+
+// ------------------------------------------------------------ testi e bottoni
+
+ion-button,
+ion-segment-button,
+ion-tab-button {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+// Bottoni a pillola, tranne quelli senza bordo (nelle barre e nelle righe).
+ion-button:not([fill='clear']) {
+  --border-radius: 999px;
+}
+
+// FAB quadrato con gli angoli arrotondati, come il "+" del mockup.
+ion-fab-button {
+  --border-radius: 18px;
+}
+
+// Intestazioni di sezione piccole e discrete, come i giorni della lista spese.
+ion-list-header {
+  min-height: 36px;
+  padding-top: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+}
+
+// Righe: titolo medio, sottotitolo piu' piccolo. `.item` (classe di ion-item)
+// perche' Ionic li stila con le sue classi .sc-ion-label-*.
+.item ion-label h2 {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.item ion-label p {
+  font-size: 13px;
+}
+
 // Pagine con un FAB in basso a destra: spazio in fondo al contenuto perche' il
 // FAB (56px + 16px di margine) non copra l'ultima riga della lista.
 ion-content.has-fab {
   --padding-bottom: 88px;
+}
+
+// ------------------------------------------------------------------- cerchi
+
+// Cerchio a sinistra di una riga (slot="start"): l'icona della categoria, del
+// gruppo, di un rimborso, o l'iniziale di una persona. Tinto col primario;
+// `.neutral` per "senza categoria" e simili.
+.avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  margin-inline-end: 14px;
+  border-radius: 50%;
+  background: rgba(var(--ion-color-primary-rgb), 0.12);
+  color: var(--ion-color-primary);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.avatar.initial {
+  font-size: 16px;
+}
+
+.avatar.neutral {
+  background: var(--split-surface);
+  color: var(--ion-color-medium);
+}
+
+// Cifra a destra di una riga (slot="end"), con una riga sotto facoltativa
+// (percentuale, "hai prestato", data).
+.row-amount {
+  margin-inline-start: 8px;
+  text-align: right;
+  line-height: 1.25;
+  font-variant-numeric: tabular-nums;
+
+  .main {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ion-text-color, #000);
+  }
+
+  .sub {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+    white-space: nowrap;
+  }
+
+  // Dentro <ion-text color="…"> cifra e riga sotto prendono quel colore
+  // (verde "ti deve", rosso "devi").
+  ion-text .main,
+  ion-text .sub {
+    color: inherit;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+// ------------------------------------------------------------ riquadri riepilogo
+
+// Riquadri gemelli in cima ad Attivita' (speso del mese e saldo) e a Saldi:
+// stessa forma, stessa struttura (etichetta, cifra, riga sotto), su uno
+// sfondo appena diverso dalla pagina invece dell'ombra. Globali perche' stanno
+// in componenti diversi.
+.summary-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 8px 16px 4px;
+}
+
+ion-card.summary-tile {
+  margin: 0;
+  height: 100%;
+
+  .tile-body {
+    display: grid;
+    gap: 2px;
+    padding: 11px 12px 12px;
+  }
+
+  .tile-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    font-size: 13px;
+    color: var(--ion-color-medium);
+  }
+
+  .tile-label ion-icon {
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  .tile-value {
+    font-size: 21px;
+    font-weight: 500;
+    // Ionic definisce --ion-text-color solo nel tema scuro.
+    color: var(--ion-text-color, #000);
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+  }
+
+  .tile-sub {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+  }
 }

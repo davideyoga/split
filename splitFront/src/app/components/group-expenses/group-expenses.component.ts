@@ -7,7 +7,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { IonButton, IonLabel, IonListHeader } from '@ionic/angular/standalone';
+import { IonButton } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
@@ -18,7 +18,7 @@ import { ExpenseListComponent } from '../expense-list/expense-list.component';
   selector: 'app-group-expenses',
   templateUrl: './group-expenses.component.html',
   standalone: true,
-  imports: [ExpenseListComponent, TranslatePipe, IonButton, IonLabel, IonListHeader],
+  imports: [ExpenseListComponent, TranslatePipe, IonButton],
 })
 export class GroupExpensesComponent implements OnChanges {
   @Input({ required: true }) groupPublicId = '';

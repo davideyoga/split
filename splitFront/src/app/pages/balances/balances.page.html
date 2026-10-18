@@ -27,13 +27,13 @@
 
     <!-- STORICO RIMBORSI: ognuno coinvolge me, come chi da' o chi riceve -->
     @if (settlements.length > 0) {
-      <ion-list>
+      <ion-list lines="none">
         <ion-list-header>
           <ion-label>{{ 'settlements.history-title' | translate }}</ion-label>
         </ion-list-header>
         @for (settlement of settlements; track settlement.publicId) {
           <ion-item>
-            <ion-icon slot="start" name="cash-outline" color="medium"></ion-icon>
+            <div slot="start" class="avatar"><ion-icon name="cash-outline" aria-hidden="true"></ion-icon></div>
             <ion-label>
               <h2>
                 @if (settlement.to.publicId === mePublicId) {
@@ -49,7 +49,9 @@
                 }
               </p>
             </ion-label>
-            <ion-note slot="end">{{ settlement.amount | amount }} {{ settlement.currency }}</ion-note>
+            <div slot="end" class="row-amount">
+              <div class="main">{{ settlement.amount | amount: settlement.currency }}</div>
+            </div>
             <ion-button
               slot="end"
               fill="clear"

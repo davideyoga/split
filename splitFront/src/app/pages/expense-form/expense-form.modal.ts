@@ -58,6 +58,8 @@ import { CategoryService } from '../../services/category.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { GroupService } from '../../services/group.service';
 import { formatCents, toCents } from '../../utils/balance';
+import { currencySymbol } from '../../utils/money';
+import { MoneyPipe } from '../../pipes/money.pipe';
 import { dayOf, todayIso } from '../../utils/date';
 import { isEqualSplit } from '../../utils/split';
 
@@ -75,6 +77,7 @@ import { isEqualSplit } from '../../utils/split';
   styleUrls: ['./expense-form.modal.scss'],
   standalone: true,
   imports: [
+    MoneyPipe,
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
@@ -256,15 +259,18 @@ export class ExpenseFormModal implements OnInit {
     this.ready = true;
   }
 
-  // Quota equa a testa, come la calcola il backend (round a 2 decimali).
-  // null se l'importo non e' ancora valido.
-  get sharePerHead(): string | null {
+  // Quota equa a testa in centesimi, come la calcola il backend (round a 2
+  // decimali). null se l'importo non e' ancora valido.
+  get sharePerHeadCents(): number | null {
     const amount = this.expenseForm.get('amount');
     if (!amount?.valid || this.payerCandidates.length === 0) {
       return null;
     }
-    return formatCents(Math.round(toCents(amount.value) / this.payerCandidates.length));
+    return Math.round(toCents(amount.value) / this.payerCandidates.length);
   }
+
+  // Simbolo accanto al campo importo.
+  readonly symbol = currencySymbol();
 
   // Importo in centesimi, null se non ancora valido.
   get amountCents(): number | null {
@@ -284,10 +290,6 @@ export class ExpenseFormModal implements OnInit {
       0,
     );
     return total - assigned;
-  }
-
-  formatCents(cents: number): string {
-    return formatCents(cents);
   }
 
   async openSplitModal() {

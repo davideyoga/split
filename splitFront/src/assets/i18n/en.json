@@ -61,7 +61,8 @@
     "delete-confirm-message": "It will be removed for all participants and balances will be recalculated. This cannot be undone.",
     "delete-smart-split-message": "It's part of a smart split: deleting it on its own changes the group members' net balances. It will be removed for all participants. This cannot be undone.",
     "deleted": "Expense deleted",
-    "delete-error": "Couldn't delete the expense, please try again"
+    "delete-error": "Couldn't delete the expense, please try again",
+    "paid": "Paid {{amount}}"
   },
   "select-participant": {
     "title": "Select participant",
@@ -91,21 +92,21 @@
     "generic-error": "Something went wrong, please try again"
   },
   "activity": {
-    "recent": "Recent expenses",
     "load-error": "Couldn't load expenses, please try again",
     "empty-title": "No expenses yet",
     "empty-text": "Expenses you create or are included in show up here.",
     "empty-cta": "Add your first expense",
-    "settle-cta": "See balances",
     "search": "Search",
     "search-placeholder": "Description, person, group or category",
     "no-results": "No matching expenses",
-    "month-spent": "Spent this month",
     "month-none": "No expenses this month",
-    "month-count": "Expenses this month: {{count}}",
-    "month-paid": "You paid",
     "month-spent-since": "Spent since {{date}}",
-    "month-details": "See by category"
+    "month-spent-in": "Spent in {{month}}",
+    "month-sub": "{{count}} expenses · paid {{paid}}",
+    "month-sub-one": "1 expense · paid {{paid}}",
+    "balance": "Balance",
+    "balance-sub": "you owe {{owe}} · owed {{owed}}",
+    "balance-even": "All settled up"
   },
   "tabs": {
     "activity": "Activity",
@@ -142,10 +143,11 @@
     "you-owe": "You owe {{name}}",
     "total-owed-to-you": "Owed to you",
     "total-you-owe": "You owe",
-    "net": "Net balance",
     "settle-up": "Settle up",
     "settle-title": "Settle up with {{name}}",
-    "add-expense": "Add an expense"
+    "add-expense": "Add an expense",
+    "people-one": "1 person",
+    "people": "{{count}} people"
   },
   "spending": {
     "title": "Monthly spending",
@@ -166,8 +168,18 @@
     "load-error": "Couldn't load expenses, please try again"
   },
   "expense-list": {
-    "paid-by": "Paid by",
-    "your-share": "Your share"
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "only-you": "Just you",
+    "you-paid": "You paid {{amount}}",
+    "they-paid": "{{name}} paid {{amount}}",
+    "paid-by-you": "Paid by you",
+    "paid-by-name": "Paid by {{name}}",
+    "with-one": "with {{name}}",
+    "with-two": "with {{first}} and {{second}}",
+    "with-many": "with {{name}} and {{count}} others",
+    "you-lent": "you lent {{amount}}",
+    "you-owe": "you owe {{amount}}"
   },
   "settlements": {
     "they-paid-you": "{{name}} paid you",
@@ -250,7 +262,6 @@
     "rename-error": "Couldn't rename the group, please try again",
     "member-error": "Couldn't update members, please try again",
     "balances-title": "Group balances",
-    "expenses-title": "Group expenses",
     "expenses-loading": "Loading expenses...",
     "expenses-load-error": "Couldn't load the group expenses, please try again",
     "no-expenses": "No expenses in this group yet",

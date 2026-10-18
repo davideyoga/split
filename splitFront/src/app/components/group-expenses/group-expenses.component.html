@@ -1,7 +1,4 @@
-<ion-list-header>
-  <ion-label>{{ 'groups.expenses-title' | translate }}</ion-label>
-</ion-list-header>
-
+<!-- Niente intestazione: il segmento "Spese" sopra dice gia' cosa c'e'. -->
 @if (loading) {
   <p class="ion-padding-horizontal">{{ 'groups.expenses-loading' | translate }}</p>
 } @else if (loadError) {
@@ -17,5 +14,6 @@
   <app-expense-list
     [expenses]="expenses"
     [detailPath]="['/tabs/groups', groupPublicId, 'expense']"
+    [showGroup]="false"
   ></app-expense-list>
 }

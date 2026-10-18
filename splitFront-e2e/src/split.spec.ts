@@ -43,5 +43,5 @@ test('divisione non uniforme: "io 10, il resto a Paperone" e saldo coerente', as
   await page.locator('ion-tab-button[tab="balances"]').click();
   await expect(
     visible(page.locator('ion-item').filter({ hasText: t('balances.owes-you', { name: 'Paperone' }) })),
-  ).toContainText('20.00 EUR');
+  ).toContainText('€20.00');
 });

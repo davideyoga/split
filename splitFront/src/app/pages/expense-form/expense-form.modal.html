@@ -29,7 +29,7 @@
         [attr.aria-label]="'expense-form.amount' | translate"
         (ionInput)="sanitizeAmountInput($event)"
       >
-        <ion-text slot="end" color="medium" class="amount-currency">EUR</ion-text>
+        <ion-text slot="end" color="medium" class="amount-currency">{{ symbol }}</ion-text>
       </ion-input>
     </ion-item>
     @if (expenseForm.get('amount')?.touched && expenseForm.get('amount')?.invalid) {
@@ -138,16 +138,16 @@
           <ion-note slot="end" [color]="splitRemainingCents !== 0 ? 'danger' : undefined">
             {{ 'expense-form.split-custom' | translate }}
             @if (splitRemainingCents > 0) {
-              · {{ 'expense-form.split-left' | translate: { amount: formatCents(splitRemainingCents) } }}
+              · {{ 'expense-form.split-left' | translate: { amount: (splitRemainingCents | money) } }}
             } @else if (splitRemainingCents < 0) {
-              · {{ 'expense-form.split-over' | translate: { amount: formatCents(splitRemainingCents) } }}
+              · {{ 'expense-form.split-over' | translate: { amount: (splitRemainingCents | money) } }}
             }
           </ion-note>
         } @else {
           <ion-note slot="end">
             {{ 'expense-form.split-equal' | translate }}
-            @if (sharePerHead; as share) {
-              · {{ 'expense-form.split-each' | translate: { amount: share } }}
+            @if (sharePerHeadCents !== null) {
+              · {{ 'expense-form.split-each' | translate: { amount: (sharePerHeadCents | money) } }}
             }
           </ion-note>
         }

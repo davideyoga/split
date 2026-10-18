@@ -7,7 +7,6 @@ import {
   IonBackButton,
   IonButton,
   IonButtons,
-  IonChip,
   IonContent,
   IonHeader,
   IonIcon,
@@ -24,12 +23,13 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { createOutline, trashOutline } from 'ionicons/icons';
+import { createOutline, receiptOutline, trashOutline } from 'ionicons/icons';
 
 import { CATEGORY_ICONS, isSmartSplit } from '../../models/category.model';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { AmountPipe } from '../../pipes/amount.pipe';
+import { initialOf } from '../../utils/initial';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
 
 // Dettaglio di una spesa. Stessa pagina su due rotte, cosi' resta nella tab da
@@ -42,6 +42,7 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
 @Component({
   selector: 'app-expense-detail',
   templateUrl: './expense-detail.page.html',
+  styleUrls: ['./expense-detail.page.scss'],
   standalone: true,
   imports: [
     AmountPipe,
@@ -50,7 +51,6 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
     IonBackButton,
     IonButton,
     IonButtons,
-    IonChip,
     IonContent,
     IonHeader,
     IonIcon,
@@ -80,6 +80,7 @@ export class ExpenseDetailPage implements OnInit {
   groupPublicId = '';
   backHref = '/tabs/activity';
   mePublicId = this.authService.currentUser()?.publicId ?? '';
+  initial = initialOf;
   canEdit = false;
   deleting = false;
   isSmartSplit = isSmartSplit;
@@ -90,6 +91,7 @@ export class ExpenseDetailPage implements OnInit {
       'create-outline': createOutline,
       'trash-outline': trashOutline,
       ...CATEGORY_ICONS,
+      'receipt-outline': receiptOutline,
     });
   }
 

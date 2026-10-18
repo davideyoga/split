@@ -34,6 +34,7 @@ import { Group } from '../../../models/group.model';
 import { User } from '../../../models/user.model';
 import { AuthService } from '../../../services/auth.service';
 import { GroupService } from '../../../services/group.service';
+import { initialOf } from '../../../utils/initial';
 
 // Impostazioni di un gruppo: rinomina e gestione membri, spostate fuori dal
 // dettaglio (che ora e' un contenitore a segmenti Spese/Saldi/Membri).
@@ -77,6 +78,7 @@ export class GroupSettingsPage implements OnInit {
   errorMessage = '';
   publicId = '';
   mePublicId = this.authService.currentUser()?.publicId ?? '';
+  initial = initialOf;
 
   nameForm = this.fb.group({
     name: ['', Validators.required],

@@ -1,10 +1,9 @@
-@if (titleKey()) {
-  <ion-list-header>
-    <ion-label>{{ titleKey() | translate }}</ion-label>
-  </ion-list-header>
-}
-
 @if (summary().balances.length === 0) {
+  @if (titleKey()) {
+    <ion-list-header>
+      <ion-label>{{ titleKey() | translate }}</ion-label>
+    </ion-list-header>
+  }
   <p class="ion-padding-horizontal">{{ 'balances.none' | translate }}</p>
   @if (emptyCtaKey()) {
     <div class="ion-padding-horizontal">
@@ -14,62 +13,63 @@
     </div>
   }
 } @else {
-  <ion-list>
+  <!-- Riepilogo prima del dettaglio: due riquadri gemelli come in Attivita'. -->
+  @if (showTotals()) {
+    <div class="summary-tiles">
+      <ion-card class="summary-tile">
+        <div class="tile-body">
+          <div class="tile-label">{{ 'balances.total-owed-to-you' | translate }}</div>
+          <div class="tile-value">
+            <ion-text [color]="summary().owedToMeCents > 0 ? 'success' : undefined">
+              {{ summary().owedToMeCents | money: currency() }}
+            </ion-text>
+          </div>
+          <div class="tile-sub">{{ peopleKey(owedByCount()) | translate: { count: owedByCount() } }}</div>
+        </div>
+      </ion-card>
+      <ion-card class="summary-tile">
+        <div class="tile-body">
+          <div class="tile-label">{{ 'balances.total-you-owe' | translate }}</div>
+          <div class="tile-value">
+            <ion-text [color]="summary().iOweCents > 0 ? 'danger' : undefined">
+              {{ summary().iOweCents | money: currency() }}
+            </ion-text>
+          </div>
+          <div class="tile-sub">{{ peopleKey(oweToCount()) | translate: { count: oweToCount() } }}</div>
+        </div>
+      </ion-card>
+    </div>
+  }
+
+  @if (titleKey()) {
+    <ion-list-header>
+      <ion-label>{{ titleKey() | translate }}</ion-label>
+    </ion-list-header>
+  }
+  <ion-list lines="none">
     @for (balance of summary().balances; track balance.user.publicId) {
       <ion-item>
+        <div slot="start" class="avatar initial" aria-hidden="true">{{ initial(balance.user.nickName) }}</div>
         <ion-label>
-          @if (balance.cents > 0) {
-            <h2>
-              {{
-                'balances.owes-you'
-                  | translate: { name: balance.user.nickName }
-              }}
-            </h2>
-          } @else {
-            <h2>
-              {{
-                'balances.you-owe' | translate: { name: balance.user.nickName }
-              }}
-            </h2>
-          }
+          <h2>
+            @if (balance.cents > 0) {
+              {{ 'balances.owes-you' | translate: { name: balance.user.nickName } }}
+            } @else {
+              {{ 'balances.you-owe' | translate: { name: balance.user.nickName } }}
+            }
+          </h2>
         </ion-label>
-        <ion-note
-          slot="end"
-          [color]="balance.cents > 0 ? 'success' : 'danger'"
-          class="balance-amount"
-        >
-          {{ format(balance.cents) }} {{ currency() }}
-        </ion-note>
+        <div slot="end" class="row-amount">
+          <ion-text [color]="balance.cents > 0 ? 'success' : 'danger'">
+            <div class="main">{{ balance.cents | money: currency() }}</div>
+          </ion-text>
+        </div>
         @if (showSettleAction()) {
-          <ion-button slot="end" fill="clear" (click)="settle.emit(balance)">
+          <ion-button slot="end" size="small" fill="outline" (click)="settle.emit(balance)">
             {{ 'balances.settle-up' | translate }}
           </ion-button>
         }
       </ion-item>
     }
   </ion-list>
-
-  @if (showTotals()) {
-    <ion-item lines="none" class="totals">
-      <ion-label>
-        <p>
-          {{ 'balances.total-owed-to-you' | translate }}:
-          {{ format(summary().owedToMeCents) }} {{ currency() }}
-        </p>
-        <p>
-          {{ 'balances.total-you-owe' | translate }}:
-          {{ format(summary().iOweCents) }} {{ currency() }}
-        </p>
-      </ion-label>
-      <ion-note
-        slot="end"
-        [color]="summary().netCents >= 0 ? 'success' : 'danger'"
-      >
-        <div>{{ 'balances.net' | translate }}</div>
-        <div class="net-amount">
-          {{ formatSigned(summary().netCents) }} {{ currency() }}
-        </div>
-      </ion-note>
-    </ion-item>
-  }
 }

@@ -61,7 +61,8 @@
     "delete-confirm-message": "Verrà eliminata per tutti i partecipanti e i saldi saranno ricalcolati. L'operazione non si può annullare.",
     "delete-smart-split-message": "Fa parte di una divisione intelligente: eliminarla da sola cambia i saldi netti dei membri del gruppo. Verrà eliminata per tutti i partecipanti. L'operazione non si può annullare.",
     "deleted": "Spesa eliminata",
-    "delete-error": "Impossibile eliminare la spesa, riprova"
+    "delete-error": "Impossibile eliminare la spesa, riprova",
+    "paid": "Ha pagato {{amount}}"
   },
   "select-participant": {
     "title": "Seleziona partecipante",
@@ -91,21 +92,21 @@
     "generic-error": "Qualcosa è andato storto, riprova"
   },
   "activity": {
-    "recent": "Spese recenti",
     "load-error": "Impossibile caricare le spese, riprova",
     "empty-title": "Nessuna spesa",
     "empty-text": "Qui compaiono le spese che crei e quelle in cui sei incluso.",
     "empty-cta": "Aggiungi la prima spesa",
-    "settle-cta": "Vedi i saldi",
     "search": "Cerca",
     "search-placeholder": "Descrizione, persona, gruppo o categoria",
     "no-results": "Nessuna spesa trovata",
-    "month-spent": "Speso questo mese",
     "month-none": "Nessuna spesa questo mese",
-    "month-count": "Spese del mese: {{count}}",
-    "month-paid": "Hai pagato",
     "month-spent-since": "Speso dal {{date}}",
-    "month-details": "Vedi per categoria"
+    "month-spent-in": "Speso a {{month}}",
+    "month-sub": "{{count}} spese · pagato {{paid}}",
+    "month-sub-one": "1 spesa · pagato {{paid}}",
+    "balance": "Saldo",
+    "balance-sub": "devi {{owe}} · ti devono {{owed}}",
+    "balance-even": "Sei in pari"
   },
   "tabs": {
     "activity": "Attività",
@@ -142,10 +143,11 @@
     "you-owe": "Devi a {{name}}",
     "total-owed-to-you": "Ti devono",
     "total-you-owe": "Tu devi",
-    "net": "Saldo netto",
     "settle-up": "Salda",
     "settle-title": "Salda con {{name}}",
-    "add-expense": "Aggiungi una spesa"
+    "add-expense": "Aggiungi una spesa",
+    "people-one": "1 persona",
+    "people": "{{count}} persone"
   },
   "spending": {
     "title": "Spese del mese",
@@ -166,8 +168,18 @@
     "load-error": "Impossibile caricare le spese, riprova"
   },
   "expense-list": {
-    "paid-by": "Pagata da",
-    "your-share": "La tua quota"
+    "today": "Oggi",
+    "yesterday": "Ieri",
+    "only-you": "Solo tua",
+    "you-paid": "Hai pagato {{amount}}",
+    "they-paid": "{{name}} ha pagato {{amount}}",
+    "paid-by-you": "Pagata da te",
+    "paid-by-name": "Pagata da {{name}}",
+    "with-one": "con {{name}}",
+    "with-two": "con {{first}} e {{second}}",
+    "with-many": "con {{name}} e altri {{count}}",
+    "you-lent": "hai prestato {{amount}}",
+    "you-owe": "devi {{amount}}"
   },
   "settlements": {
     "they-paid-you": "{{name}} ti ha dato",
@@ -250,7 +262,6 @@
     "rename-error": "Impossibile rinominare il gruppo, riprova",
     "member-error": "Impossibile aggiornare i membri, riprova",
     "balances-title": "Saldi del gruppo",
-    "expenses-title": "Spese del gruppo",
     "expenses-loading": "Caricamento spese...",
     "expenses-load-error": "Impossibile caricare le spese del gruppo, riprova",
     "no-expenses": "Nessuna spesa in questo gruppo",

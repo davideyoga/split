@@ -19,11 +19,12 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { pencilOutline } from 'ionicons/icons';
+import { languageOutline, logOutOutline, pencilOutline, personOutline } from 'ionicons/icons';
 
 import { AuthService } from '../../services/auth.service';
 import { AppLang, LanguageService } from '../../services/language.service';
 import { EditNicknameModal } from './edit-nickname/edit-nickname.modal';
+import { initialOf } from '../../utils/initial';
 
 // Profilo: chi sei (nickname modificabile), lingua (it/en, persistita da
 // LanguageService) e logout con conferma. E' l'unico punto dell'app da cui si esce.
@@ -32,6 +33,7 @@ import { EditNicknameModal } from './edit-nickname/edit-nickname.modal';
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
+  styleUrls: ['./profile.page.scss'],
   standalone: true,
   imports: [
     IonBackButton,
@@ -61,9 +63,15 @@ export class ProfilePage {
   user = this.authService.currentUser;
   languages = this.languageService.supported;
   language = this.languageService.current;
+  initial = initialOf;
 
   constructor() {
-    addIcons({ 'pencil-outline': pencilOutline });
+    addIcons({
+      'language-outline': languageOutline,
+      'log-out-outline': logOutOutline,
+      'pencil-outline': pencilOutline,
+      'person-outline': personOutline,
+    });
   }
 
   // La modale aggiorna da sola AuthService.currentUser, che questa pagina legge.

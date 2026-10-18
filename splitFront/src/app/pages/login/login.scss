@@ -1,0 +1,10 @@
+// Logo in cima, con gli angoli arrotondati come un'icona d'app.
+.brand {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 16px;
+
+  img {
+    border-radius: 18px;
+  }
+}

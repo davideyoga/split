@@ -8,21 +8,24 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-list>
-    <ion-item lines="full">
-      <ion-label>
-        <h2>{{ user()?.nickName }}</h2>
-        @if (user()?.email) {
-          <p>{{ user()?.email }}</p>
-        }
-      </ion-label>
-    </ion-item>
+  <!-- Chi sei: iniziale, nickname, email. -->
+  <div class="hero">
+    <div class="avatar initial large" aria-hidden="true">{{ initial(user()?.nickName) }}</div>
+    <h2>{{ user()?.nickName }}</h2>
+    @if (user()?.email) {
+      <p>{{ user()?.email }}</p>
+    }
+  </div>
+
+  <ion-list lines="none" class="settings">
     <ion-item button="true" [detail]="false" (click)="editNickname()">
+      <div slot="start" class="avatar neutral"><ion-icon name="person-outline" aria-hidden="true"></ion-icon></div>
       <ion-label>{{ 'profile.nickname' | translate }}</ion-label>
       <ion-note slot="end">{{ user()?.nickName }}</ion-note>
-      <ion-icon slot="end" name="pencil-outline" aria-hidden="true"></ion-icon>
+      <ion-icon slot="end" name="pencil-outline" color="medium" aria-hidden="true"></ion-icon>
     </ion-item>
     <ion-item>
+      <div slot="start" class="avatar neutral"><ion-icon name="language-outline" aria-hidden="true"></ion-icon></div>
       <ion-select
         label="{{ 'profile.language' | translate }}"
         interface="popover"
@@ -34,7 +37,8 @@
         }
       </ion-select>
     </ion-item>
-    <ion-item button="true" (click)="confirmLogout()">
+    <ion-item button="true" [detail]="false" (click)="confirmLogout()">
+      <div slot="start" class="avatar neutral"><ion-icon name="log-out-outline" color="danger" aria-hidden="true"></ion-icon></div>
       <ion-label color="danger">{{ 'profile.logout' | translate }}</ion-label>
     </ion-item>
   </ion-list>

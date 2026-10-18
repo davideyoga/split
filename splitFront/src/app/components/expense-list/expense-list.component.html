@@ -1,31 +1,77 @@
-<ion-list>
-  @for (row of rows(); track row.expense.publicId) {
-    <ion-item button [routerLink]="row.link">
-      <ion-label>
-        <h2>
-          {{ row.expense.description || ((isSmartSplit(row.expense) ? 'categories.smart-split' : 'expense-detail.untitled') | translate) }}
-        </h2>
-        <p>{{ 'expense-list.paid-by' | translate }}: {{ row.expense.paidBy.nickName }}</p>
-        @if (row.share !== null) {
-          <p>{{ 'expense-list.your-share' | translate }}: {{ row.share | amount }} {{ row.expense.currency }}</p>
-        }
-        @if (row.expense.category; as category) {
-          <ion-chip class="category-chip" [outline]="true" color="medium">
-            <ion-icon [name]="category.icon"></ion-icon>
-            <ion-label>
-              @if (category.name) {
-                {{ category.name }}
+@for (group of days(); track group.day) {
+  <h3 class="day">
+    @switch (group.kind) {
+      @case ('today') {
+        {{ 'expense-list.today' | translate }}
+      }
+      @case ('yesterday') {
+        {{ 'expense-list.yesterday' | translate }}
+      }
+      @default {
+        {{ group.label }}
+      }
+    }
+  </h3>
+  <ion-list lines="none">
+    @for (row of group.rows; track row.expense.publicId) {
+      <ion-item button [detail]="false" [routerLink]="row.link">
+        <!-- La categoria e' solo l'icona: il nome resta per i lettori di schermo. -->
+        <div slot="start" class="avatar" [class.neutral]="!row.expense.category">
+          <ion-icon [name]="row.icon" aria-hidden="true"></ion-icon>
+          @if (row.expense.category; as category) {
+            <span class="sr-only">
+              {{ category.name || ('categories.' + category.slug | translate) }}
+            </span>
+          }
+        </div>
+        <!-- Una riga per titolo e sottotitolo, troncati: righe tutte alte uguali. -->
+        <ion-label class="ion-text-nowrap">
+          <h2>
+            {{ row.expense.description || ((isSmartSplit(row.expense) ? 'categories.smart-split' : 'expense-detail.untitled') | translate) }}
+          </h2>
+          <p>
+            @if (row.solo) {
+              {{ 'expense-list.only-you' | translate }}
+            } @else {
+              @if (row.showsShare) {
+                @if (row.payerIsMe) {
+                  {{ 'expense-list.you-paid' | translate: { amount: (row.amountCents | money: row.expense.currency) } }}
+                } @else {
+                  {{ 'expense-list.they-paid' | translate: { name: row.expense.paidBy.nickName, amount: (row.amountCents | money: row.expense.currency) } }}
+                }
               } @else {
-                {{ 'categories.' + category.slug | translate }}
+                @if (row.payerIsMe) {
+                  {{ 'expense-list.paid-by-you' | translate }}
+                } @else {
+                  {{ 'expense-list.paid-by-name' | translate: { name: row.expense.paidBy.nickName } }}
+                }
               }
-            </ion-label>
-          </ion-chip>
-        }
-      </ion-label>
-      <ion-note slot="end">
-        <div>{{ row.expense.amount | amount }} {{ row.expense.currency }}</div>
-        <div>{{ row.expense.date | date: 'dd/MM/yyyy' : 'UTC' }}</div>
-      </ion-note>
-    </ion-item>
-  }
-</ion-list>
+              @if (row.context; as context) {
+                ·
+                @if (context.kind === 'group') {
+                  {{ context.name }}
+                } @else if (context.names.length === 1) {
+                  {{ 'expense-list.with-one' | translate: { name: context.names[0] } }}
+                } @else if (context.names.length === 2) {
+                  {{ 'expense-list.with-two' | translate: { first: context.names[0], second: context.names[1] } }}
+                } @else {
+                  {{ 'expense-list.with-many' | translate: { name: context.names[0], count: context.names.length - 1 } }}
+                }
+              }
+            }
+          </p>
+        </ion-label>
+        <div slot="end" class="row-amount">
+          <div class="main">{{ row.mainCents | money: row.expense.currency }}</div>
+          @if (row.effect; as effect) {
+            <ion-text [color]="effect.kind === 'lent' ? 'success' : 'danger'">
+              <div class="sub">
+                {{ (effect.kind === 'lent' ? 'expense-list.you-lent' : 'expense-list.you-owe') | translate: { amount: (effect.cents | money: null) } }}
+              </div>
+            </ion-text>
+          }
+        </div>
+      </ion-item>
+    }
+  </ion-list>
+}

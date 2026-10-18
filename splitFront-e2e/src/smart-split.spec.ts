@@ -38,7 +38,7 @@ test('divisione intelligente: "Quo deve a Qua, Qua deve ad Amelia" diventa "Quo 
   await page.goto(`/tabs/groups/${group.publicId}`);
   await visible(page.locator('ion-segment-button[value="balances"]')).click();
   const quaRow = visible(page.locator('ion-item').filter({ hasText: t('balances.you-owe', { name: 'QuaQua' }) }));
-  await expect(quaRow).toContainText('20.00 EUR');
+  await expect(quaRow).toContainText('€20.00');
 
   // Anteprima: 2 debiti → 1 pagamento (Quo → Amelia), 3 spese di compensazione
   await visible(page.getByRole('button', { name: t('smart-split.button') })).click();
@@ -46,7 +46,7 @@ test('divisione intelligente: "Quo deve a Qua, Qua deve ad Amelia" diventa "Quo 
   const after = modalSection(page, 'smart-split.after').locator('ion-item');
   await expect(after).toHaveCount(1);
   await expect(after).toContainText(t('smart-split.debt', { from: t('smart-split.you'), to: 'Amelia' }));
-  await expect(after).toContainText('20.00 EUR');
+  await expect(after).toContainText('€20.00');
   await expect(modalSection(page, 'smart-split.expenses-title').locator('ion-item')).toHaveCount(3);
   await topModal(page).getByRole('button', { name: t('smart-split.apply') }).click();
   await expect(toast(page, t('smart-split.applied'))).toBeVisible();
@@ -54,7 +54,7 @@ test('divisione intelligente: "Quo deve a Qua, Qua deve ad Amelia" diventa "Quo 
   // Saldi aggiornati: Quo deve 20 ad Amelia e niente a Qua
   await expect(
     visible(page.locator('ion-item').filter({ hasText: t('balances.you-owe', { name: 'Amelia' }) })),
-  ).toContainText('20.00 EUR');
+  ).toContainText('€20.00');
   await expect(quaRow).toHaveCount(0);
 
   // Rilanciata, non trova piu' niente da semplificare

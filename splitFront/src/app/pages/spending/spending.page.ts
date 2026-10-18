@@ -27,18 +27,17 @@ import { CATEGORY_ICONS } from '../../models/category.model';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { SpendingSettingsService } from '../../services/spending-settings.service';
-import { formatCents } from '../../utils/balance';
+import { MoneyPipe } from '../../pipes/money.pipe';
 import { formatDay } from '../../utils/date';
 import {
+  categoryColor,
   CategorySpending,
+  COLORED_CATEGORIES,
   computeMonthlySpending,
+  OTHERS_COLOR,
   shiftPeriod,
   spendingPeriod,
 } from '../../utils/spending';
-
-// Fette colorate della ciambella; dalla settima categoria in poi si
-// raggruppano in "Altre" (grigio). I colori sono `--spending-slot-N` nello SCSS.
-const COLORED_SLICES = 6;
 
 // Geometria della ciambella (unita' del viewBox 0 0 120 120).
 // Anello sottile: dentro deve starci il totale anche a 5 cifre.
@@ -75,6 +74,7 @@ export interface DonutSlice {
   styleUrls: ['./spending.page.scss'],
   standalone: true,
   imports: [
+    MoneyPipe,
     IonBackButton,
     IonButton,
     IonButtons,
@@ -134,12 +134,12 @@ export class SpendingPage {
   // possibili sono piu' dei colori distinguibili, quindi una stessa categoria
   // puo' cambiare colore fra due periodi. Nome e icona accanto la identificano.
   readonly rows = computed<SpendingRow[]>(() =>
-    this.spending().byCategory.map((row, i) => ({ ...row, color: slotColor(i) })),
+    this.spending().byCategory.map((row, i) => ({ ...row, color: categoryColor(i) })),
   );
 
   readonly slices = computed<DonutSlice[]>(() => {
     const rows = this.rows();
-    const colored = rows.length > COLORED_SLICES ? rows.slice(0, COLORED_SLICES) : rows;
+    const colored = rows.length > COLORED_CATEGORIES ? rows.slice(0, COLORED_CATEGORIES) : rows;
     const others = rows.slice(colored.length);
     const total = this.spending().shareCents;
     if (total <= 0) {
@@ -182,7 +182,6 @@ export class SpendingPage {
     });
   });
 
-  format = formatCents;
 
   constructor() {
     addIcons({
@@ -227,10 +226,4 @@ export class SpendingPage {
     this.settings.setMonthStartDay(value);
     this.offset.set(0);
   }
-}
-
-const OTHERS_COLOR = 'var(--spending-others)';
-
-function slotColor(index: number): string {
-  return index < COLORED_SLICES ? `var(--spending-slot-${index + 1})` : OTHERS_COLOR;
 }

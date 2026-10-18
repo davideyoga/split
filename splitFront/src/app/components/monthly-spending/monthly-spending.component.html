@@ -1,28 +1,34 @@
-<!-- Card toccabile (button: ripple e cursore) con la freccia a destra, come le
-     righe che aprono un dettaglio: porta alla pagina Spese. -->
-<ion-card button routerLink="/tabs/activity/spending" class="spending-card">
-  <ion-card-header>
-    <div class="header-row">
-      <div>
-        <ion-card-subtitle>
-          @if (startDay() === 1) {
-            {{ 'activity.month-spent' | translate }}
-          } @else {
-            {{ 'activity.month-spent-since' | translate: { date: view().since } }}
-          }
-        </ion-card-subtitle>
-        <ion-card-title>{{ format(view().spending.shareCents) }} {{ currency() }}</ion-card-title>
-      </div>
-      <ion-icon name="chevron-forward" color="medium" aria-hidden="true"></ion-icon>
+<!-- Riquadro toccabile (button: ripple e cursore) con la freccia accanto
+     all'etichetta, come quello del saldo: porta alla pagina Spese. -->
+<ion-card button routerLink="/tabs/activity/spending" class="summary-tile">
+  <div class="tile-body">
+    <div class="tile-label">
+      <span>
+        @if (startDay() === 1) {
+          {{ 'activity.month-spent-in' | translate: { month: view().month } }}
+        } @else {
+          {{ 'activity.month-spent-since' | translate: { date: view().since } }}
+        }
+      </span>
+      <ion-icon name="chevron-forward" aria-hidden="true"></ion-icon>
     </div>
-  </ion-card-header>
-  <ion-card-content>
-    @if (view().spending.count === 0) {
-      {{ 'activity.month-none' | translate }}
-    } @else {
-      {{ 'activity.month-count' | translate: { count: view().spending.count } }} ·
-      {{ 'activity.month-paid' | translate }}: {{ format(view().spending.paidCents) }} {{ currency() }}
+    <div class="tile-value">{{ view().spending.shareCents | money: currency() }}</div>
+    <div class="tile-sub">
+      @if (view().spending.count === 0) {
+        {{ 'activity.month-none' | translate }}
+      } @else if (view().spending.count === 1) {
+        {{ 'activity.month-sub-one' | translate: { paid: (view().spending.paidCents | money: null) } }}
+      } @else {
+        {{ 'activity.month-sub' | translate: { count: view().spending.count, paid: (view().spending.paidCents | money: null) } }}
+      }
+    </div>
+    <!-- Solo un'anteprima: le categorie per nome sono nella pagina Spese. -->
+    @if (view().bar.length > 0) {
+      <div class="bar" aria-hidden="true">
+        @for (segment of view().bar; track segment.key) {
+          <span [style.width.%]="segment.percent" [style.background]="segment.color"></span>
+        }
+      </div>
     }
-    <div class="details-hint">{{ 'activity.month-details' | translate }}</div>
-  </ion-card-content>
+  </div>
 </ion-card>

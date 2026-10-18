@@ -1,3 +1,21 @@
-.category-chip {
-  margin: 4px 0 0;
+// Cerchio della categoria (.avatar) e cifra a destra (.row-amount) sono stili
+// globali (styles.scss), condivisi con le altre liste.
+:host {
+  display: block;
+}
+
+// Intestazione del giorno: piccola e discreta, separa senza righe. Stesso
+// aspetto delle intestazioni di sezione (ion-list-header).
+.day {
+  margin: 0;
+  padding: 14px 16px 2px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ion-color-medium);
+}
+
+ion-list {
+  padding: 0;
 }

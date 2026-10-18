@@ -12,7 +12,6 @@ import {
   IonLabel,
   IonList,
   IonListHeader,
-  IonNote,
   IonRefresher,
   IonRefresherContent,
   IonTitle,
@@ -21,10 +20,11 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add, people } from 'ionicons/icons';
+import { add, chevronForward, peopleOutline } from 'ionicons/icons';
 
 import { ProfileButtonComponent } from '../../../components/profile-button/profile-button.component';
 import { Group } from '../../../models/group.model';
+import { AuthService } from '../../../services/auth.service';
 import { GroupService } from '../../../services/group.service';
 import { NewGroupModal } from '../new-group/new-group.modal';
 
@@ -49,7 +49,6 @@ import { NewGroupModal } from '../new-group/new-group.modal';
     IonLabel,
     IonList,
     IonListHeader,
-    IonNote,
     IonRefresher,
     IonRefresherContent,
     IonTitle,
@@ -59,13 +58,24 @@ import { NewGroupModal } from '../new-group/new-group.modal';
 export class GroupList {
   private modalCtrl = inject(ModalController);
   private groupService = inject(GroupService);
+  private authService = inject(AuthService);
 
   groups: Group[] = [];
   loadError = false;
   loaded = false;
 
   constructor() {
-    addIcons({ add, people });
+    addIcons({ add, 'chevron-forward': chevronForward, 'people-outline': peopleOutline });
+  }
+
+  // Gli altri membri del gruppo, per il sottotitolo della riga ('' se ci sono
+  // solo io).
+  otherMembers(group: Group): string {
+    const me = this.authService.currentUser()?.publicId;
+    return group.members
+      .filter((member) => member.publicId !== me)
+      .map((member) => member.nickName)
+      .join(', ');
   }
 
   // Non ngOnInit: la pagina resta montata nella tab, e un gruppo puo' sparire

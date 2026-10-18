@@ -4,17 +4,11 @@ import {
   IonButton,
   IonButtons,
   IonCard,
-  IonCardContent,
-  IonCardHeader,
-  IonCardSubtitle,
-  IonCardTitle,
   IonContent,
   IonFab,
   IonFabButton,
   IonHeader,
   IonIcon,
-  IonLabel,
-  IonListHeader,
   IonRefresher,
   IonRefresherContent,
   IonSearchbar,
@@ -26,29 +20,26 @@ import {
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { addIcons } from 'ionicons';
-import { add, searchOutline } from 'ionicons/icons';
+import { add, chevronForward, searchOutline } from 'ionicons/icons';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { SettlementService } from '../../services/settlement.service';
 import { isSmartSplit } from '../../models/category.model';
-import {
-  BalanceSummary,
-  computeBalances,
-  formatCents,
-  formatSignedCents,
-} from '../../utils/balance';
+import { BalanceSummary, computeBalances } from '../../utils/balance';
+import { MoneyPipe } from '../../pipes/money.pipe';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
 import { MonthlySpendingComponent } from '../../components/monthly-spending/monthly-spending.component';
 import { ExpenseListComponent } from '../../components/expense-list/expense-list.component';
 import { ProfileButtonComponent } from '../../components/profile-button/profile-button.component';
 
-// Tab Attivita': card saldo netto (-> tab Saldi) + spese recenti. Gruppi e
-// saldi per persona hanno ciascuno la propria tab, quindi qui non si ripetono.
+// Tab Attivita': i due lavori dell'app alla pari, in due riquadri gemelli
+// (speso del mese -> pagina Spese, saldo netto -> tab Saldi), poi le spese con
+// in grande la mia quota. Gruppi e saldi per persona hanno ciascuno la propria
+// tab, quindi qui non si ripetono.
 @Component({
   selector: 'app-activity',
   templateUrl: './activity.page.html',
-  styleUrls: ['./activity.page.scss'],
   standalone: true,
   imports: [
     ExpenseListComponent,
@@ -56,17 +47,11 @@ import { ProfileButtonComponent } from '../../components/profile-button/profile-
     IonButton,
     IonButtons,
     IonCard,
-    IonCardContent,
-    IonCardHeader,
-    IonCardSubtitle,
-    IonCardTitle,
     IonContent,
     IonFab,
     IonFabButton,
     IonHeader,
     IonIcon,
-    IonLabel,
-    IonListHeader,
     IonRefresher,
     IonRefresherContent,
     IonSearchbar,
@@ -74,6 +59,7 @@ import { ProfileButtonComponent } from '../../components/profile-button/profile-
     IonTitle,
     IonToolbar,
     MonthlySpendingComponent,
+    MoneyPipe,
     RouterLink,
     TranslatePipe,
   ],
@@ -96,11 +82,8 @@ export class ActivityPage {
   loaded = false;
   loadError = false;
 
-  format = formatCents;
-  formatSigned = formatSignedCents;
-
   constructor() {
-    addIcons({ add, 'search-outline': searchOutline });
+    addIcons({ add, 'chevron-forward': chevronForward, 'search-outline': searchOutline });
   }
 
   // Non ngOnInit: la pagina resta montata nella tab, e una spesa creata da

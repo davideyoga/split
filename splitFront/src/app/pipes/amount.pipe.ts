@@ -1,16 +1,23 @@
-import { Pipe, PipeTransform } from '@angular/core';
+import { inject, Pipe, PipeTransform } from '@angular/core';
 
-import { formatCents, toCents } from '../utils/balance';
+import { LanguageService } from '../services/language.service';
+import { toCents } from '../utils/balance';
+import { formatMoney } from '../utils/money';
 
-// Importo sempre con 2 decimali ("5" -> "5.00"): gli amount/share arrivano
-// dall'API come stringhe Decimal senza zeri finali, e senza questa pipe le
-// liste mostravano "5 EUR" mentre dettaglio e saldi "5.00 EUR".
+// Un importo come arriva dall'API (`amount`, `share`: stringhe Decimal senza
+// zeri finali, "5" invece di "5.00") nel formato della lingua: "5,00 €".
+// `{{ expense.amount | amount: expense.currency }}`; con `null` come valuta
+// solo la cifra. Per i centesimi gia' calcolati c'e' la pipe `money`.
+// Impura perche' segue la lingua scelta nel Profilo.
 @Pipe({
   name: 'amount',
   standalone: true,
+  pure: false,
 })
 export class AmountPipe implements PipeTransform {
-  transform(value: string | number | null | undefined): string {
-    return formatCents(toCents(value));
+  private language = inject(LanguageService);
+
+  transform(value: string | number | null | undefined, currency: string | null = 'EUR'): string {
+    return formatMoney(toCents(value), this.language.current(), currency);
   }
 }

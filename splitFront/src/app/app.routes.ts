@@ -72,12 +72,15 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./pages/balances/balances.page').then((m) => m.BalancesPage),
       },
-      {
-        path: 'profile',
-        loadComponent: () =>
-          import('./pages/profile/profile.page').then((m) => m.ProfilePage),
-      },
     ],
+  },
+  // Il Profilo e' fuori dalla shell a tab: si apre dall'icona in alto a destra
+  // delle tre pagine principali e torna indietro con la freccia. Fuori dalla
+  // shell non eredita l'authGuard di `tabs`, quindi ha il suo.
+  {
+    path: 'profile',
+    loadComponent: () => import('./pages/profile/profile.page').then((m) => m.ProfilePage),
+    canActivate: [authGuard],
   },
   // Compatibilita' con i vecchi link / deep link. La nuova spesa non e' piu' una
   // rotta ma una modale (pages/expense-form), aperta dai FAB.
@@ -85,6 +88,8 @@ export const routes: Routes = [
   { path: 'add-expense', redirectTo: 'tabs/activity', pathMatch: 'full' },
   { path: 'groups', redirectTo: 'tabs/groups', pathMatch: 'full' },
   { path: 'groups/:publicId', redirectTo: 'tabs/groups/:publicId', pathMatch: 'full' },
+  // Il Profilo era una tab fino al 2026-10-18.
+  { path: 'tabs/profile', redirectTo: 'profile', pathMatch: 'full' },
   { path: '', redirectTo: 'tabs/activity', pathMatch: 'full' },
   { path: '**', redirectTo: 'tabs/activity' },
 ];

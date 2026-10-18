@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import {
   AlertController,
+  IonBackButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
@@ -23,13 +25,17 @@ import { AuthService } from '../../services/auth.service';
 import { AppLang, LanguageService } from '../../services/language.service';
 import { EditNicknameModal } from './edit-nickname/edit-nickname.modal';
 
-// Tab Profilo: chi sei (nickname modificabile), lingua (it/en, persistita da
+// Profilo: chi sei (nickname modificabile), lingua (it/en, persistita da
 // LanguageService) e logout con conferma. E' l'unico punto dell'app da cui si esce.
+// Pagina fuori dalla shell a tab (/profile), aperta dall'icona in alto a destra
+// delle pagine principali; la freccia torna da dove si e' venuti.
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.page.html',
   standalone: true,
   imports: [
+    IonBackButton,
+    IonButtons,
     IonContent,
     IonHeader,
     IonIcon,

@@ -8,16 +8,12 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import {
-  peopleOutline,
-  personCircleOutline,
-  receiptOutline,
-  swapHorizontalOutline,
-} from 'ionicons/icons';
+import { peopleOutline, receiptOutline, swapHorizontalOutline } from 'ionicons/icons';
 
 // Shell a tab persistente: resta montata su tutti i livelli 1 e 2 della
 // gerarchia (vedi app.routes.ts). Le pagine figlie vengono renderizzate
-// nell'outlet interno di <ion-tabs>.
+// nell'outlet interno di <ion-tabs>. Il Profilo non e' una tab: e' l'icona in
+// alto a destra delle pagine principali (components/profile-button).
 @Component({
   selector: 'app-tabs',
   templateUrl: './tabs.page.html',
@@ -30,7 +26,6 @@ export class TabsPage {
       'receipt-outline': receiptOutline,
       'people-outline': peopleOutline,
       'swap-horizontal-outline': swapHorizontalOutline,
-      'person-circle-outline': personCircleOutline,
     });
   }
 }

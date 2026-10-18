@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonFab,
   IonFabButton,
@@ -22,6 +23,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { add, people } from 'ionicons/icons';
 
+import { ProfileButtonComponent } from '../../../components/profile-button/profile-button.component';
 import { Group } from '../../../models/group.model';
 import { GroupService } from '../../../services/group.service';
 import { NewGroupModal } from '../new-group/new-group.modal';
@@ -35,7 +37,9 @@ import { NewGroupModal } from '../new-group/new-group.modal';
   imports: [
     RouterLink,
     TranslatePipe,
+    ProfileButtonComponent,
     IonButton,
+    IonButtons,
     IonContent,
     IonFab,
     IonFabButton,

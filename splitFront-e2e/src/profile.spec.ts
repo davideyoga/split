@@ -6,7 +6,12 @@ import { loginAs, USERS } from './support/session';
 
 test('cambio nickname dal Profilo: regole, nickname già usato, salvataggio', async ({ page }) => {
   const session = await loginAs(page, USERS.nonnapapera);
-  await page.goto('/tabs/profile');
+
+  // Il Profilo non e' una tab: si apre dall'icona in alto a destra
+  await page.goto('/tabs/groups');
+  await expect(page.locator('ion-tab-button')).toHaveCount(3);
+  await visible(page.getByRole('link', { name: t('profile.title') })).click();
+  await expect(page).toHaveURL(/:\d+\/profile$/);
 
   await visible(page.getByRole('button', { name: /NonnaPapera/ })).click();
   const modal = topModal(page);
@@ -52,6 +57,11 @@ test('cambio nickname dal Profilo: regole, nickname già usato, salvataggio', as
   // (Non con page.reload(): l'init script di loginAs riscriverebbe la sessione vecchia.)
   const stored = await page.evaluate(() => JSON.parse(localStorage.getItem('split_auth') ?? 'null'));
   expect(stored?.user?.nickName).toBe('Nonna.Papera');
+
+  // La freccia torna alla pagina da cui si era aperto
+  await visible(page.locator('ion-back-button')).click();
+  await expect(visible(page.getByRole('heading', { name: t('groups.title') }))).toBeVisible();
+  await expect(page).toHaveURL(/\/tabs\/groups$/);
 
   // Il backend applica le stesse regole anche senza passare dall'app
   const invalid = await page.request.patch(`${API_URL}/user/me`, {

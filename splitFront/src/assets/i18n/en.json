@@ -110,8 +110,7 @@
   "tabs": {
     "activity": "Activity",
     "groups": "Groups",
-    "balances": "Balances",
-    "profile": "Profile"
+    "balances": "Balances"
   },
   "profile": {
     "title": "Profile",

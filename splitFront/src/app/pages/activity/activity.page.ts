@@ -41,6 +41,7 @@ import {
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
 import { MonthlySpendingComponent } from '../../components/monthly-spending/monthly-spending.component';
 import { ExpenseListComponent } from '../../components/expense-list/expense-list.component';
+import { ProfileButtonComponent } from '../../components/profile-button/profile-button.component';
 
 // Tab Attivita': card saldo netto (-> tab Saldi) + spese recenti. Gruppi e
 // saldi per persona hanno ciascuno la propria tab, quindi qui non si ripetono.
@@ -51,6 +52,7 @@ import { ExpenseListComponent } from '../../components/expense-list/expense-list
   standalone: true,
   imports: [
     ExpenseListComponent,
+    ProfileButtonComponent,
     IonButton,
     IonButtons,
     IonCard,

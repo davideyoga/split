@@ -1,13 +1,14 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title> {{ 'tabs.activity' | translate }} </ion-title>
-    @if (expenses.length > 0) {
-      <ion-buttons slot="end">
+    <ion-buttons slot="end">
+      @if (expenses.length > 0) {
         <ion-button [attr.aria-label]="'activity.search' | translate" (click)="toggleSearch()">
           <ion-icon slot="icon-only" name="search-outline"></ion-icon>
         </ion-button>
-      </ion-buttons>
-    }
+      }
+      <app-profile-button></app-profile-button>
+    </ion-buttons>
   </ion-toolbar>
   @if (searchOpen) {
     <ion-toolbar>

@@ -58,7 +58,9 @@ test.describe('login con codice via email', () => {
 
   test('il logout dal Profilo chiude la sessione anche sul server', async ({ page }) => {
     const session = await loginAs(page, USERS.minni);
+    // Il vecchio indirizzo della tab Profilo porta ancora alla pagina
     await page.goto('/tabs/profile');
+    await expect(page).toHaveURL(/:\d+\/profile$/);
     await visible(page.getByText(t('profile.logout'))).click();
     await page.locator('ion-alert').getByRole('button', { name: t('profile.logout') }).click();
     await expect(page).toHaveURL(/\/login$/);

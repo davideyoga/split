@@ -3,6 +3,7 @@ import { DatePipe } from '@angular/common';
 import {
   AlertController,
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
@@ -24,6 +25,7 @@ import { cashOutline, trashOutline } from 'ionicons/icons';
 import { forkJoin } from 'rxjs';
 
 import { ExpenseBalancesComponent } from '../../components/expense-balances/expense-balances.component';
+import { ProfileButtonComponent } from '../../components/profile-button/profile-button.component';
 import { SettleUpModal } from '../../components/settle-up/settle-up.modal';
 import { Settlement } from '../../models/settlement.model';
 import { AmountPipe } from '../../pipes/amount.pipe';
@@ -48,7 +50,9 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
     AmountPipe,
     DatePipe,
     ExpenseBalancesComponent,
+    ProfileButtonComponent,
     IonButton,
+    IonButtons,
     IonContent,
     IonHeader,
     IonIcon,

@@ -23,6 +23,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { chevronBack, chevronForward, helpCircleOutline } from 'ionicons/icons';
 
+import { LoadingSkeletonComponent } from '../../components/loading-skeleton/loading-skeleton.component';
 import { CATEGORY_ICONS } from '../../models/category.model';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
@@ -74,6 +75,7 @@ export interface DonutSlice {
   styleUrls: ['./spending.page.scss'],
   standalone: true,
   imports: [
+    LoadingSkeletonComponent,
     MoneyPipe,
     IonBackButton,
     IonButton,

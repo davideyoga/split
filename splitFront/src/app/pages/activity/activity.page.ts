@@ -31,6 +31,7 @@ import { MoneyPipe } from '../../pipes/money.pipe';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
 import { MonthlySpendingComponent } from '../../components/monthly-spending/monthly-spending.component';
 import { ExpenseListComponent } from '../../components/expense-list/expense-list.component';
+import { LoadingSkeletonComponent } from '../../components/loading-skeleton/loading-skeleton.component';
 import { ProfileButtonComponent } from '../../components/profile-button/profile-button.component';
 
 // Tab Attivita': i due lavori dell'app alla pari, in due riquadri gemelli
@@ -43,6 +44,7 @@ import { ProfileButtonComponent } from '../../components/profile-button/profile-
   standalone: true,
   imports: [
     ExpenseListComponent,
+    LoadingSkeletonComponent,
     ProfileButtonComponent,
     IonButton,
     IonButtons,

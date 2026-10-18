@@ -24,6 +24,7 @@ import { cashOutline, trashOutline } from 'ionicons/icons';
 import { forkJoin } from 'rxjs';
 
 import { ExpenseBalancesComponent } from '../../components/expense-balances/expense-balances.component';
+import { LoadingSkeletonComponent } from '../../components/loading-skeleton/loading-skeleton.component';
 import { ProfileButtonComponent } from '../../components/profile-button/profile-button.component';
 import { SettleUpModal } from '../../components/settle-up/settle-up.modal';
 import { Settlement } from '../../models/settlement.model';
@@ -49,6 +50,7 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
     AmountPipe,
     DatePipe,
     ExpenseBalancesComponent,
+    LoadingSkeletonComponent,
     ProfileButtonComponent,
     IonButton,
     IonButtons,
@@ -77,6 +79,7 @@ export class BalancesPage {
 
   expenses: ExpenseListItem[] = [];
   settlements: Settlement[] = [];
+  loaded = false;
   loadError = false;
 
   constructor() {
@@ -102,6 +105,7 @@ export class BalancesPage {
       next: ({ expenses, settlements }) => {
         this.expenses = expenses;
         this.settlements = settlements;
+        this.loaded = true;
         onDone?.();
       },
       error: () => {

@@ -22,6 +22,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
 import { add, chevronForward, peopleOutline } from 'ionicons/icons';
 
+import { LoadingSkeletonComponent } from '../../../components/loading-skeleton/loading-skeleton.component';
 import { ProfileButtonComponent } from '../../../components/profile-button/profile-button.component';
 import { Group } from '../../../models/group.model';
 import { AuthService } from '../../../services/auth.service';
@@ -37,6 +38,7 @@ import { NewGroupModal } from '../new-group/new-group.modal';
   imports: [
     RouterLink,
     TranslatePipe,
+    LoadingSkeletonComponent,
     ProfileButtonComponent,
     IonButton,
     IonButtons,

@@ -1,0 +1,61 @@
+// Misure prese dalle righe vere (.avatar 38px, .row-amount, riquadri), cosi'
+// all'arrivo dei dati la pagina non salta.
+ion-skeleton-text {
+  border-radius: 6px;
+}
+
+.avatar-dot {
+  width: 38px;
+  height: 38px;
+  margin: 0 14px 0 0;
+  border-radius: 50%;
+}
+
+h2 ion-skeleton-text {
+  height: 15px;
+  margin: 2px 0 6px;
+}
+
+p ion-skeleton-text {
+  height: 12px;
+  margin: 0;
+}
+
+.amount-line {
+  width: 64px;
+  height: 15px;
+  margin-inline-start: 8px;
+}
+
+.header-line {
+  padding: 18px 16px 8px;
+
+  ion-skeleton-text {
+    width: 90px;
+    height: 10px;
+    margin: 0;
+  }
+}
+
+// Sul fondo grigio dei riquadri il grigio di default dello scheletro quasi
+// sparisce: un po' piu' scuro.
+.summary-tile ion-skeleton-text {
+  --background: rgba(var(--ion-text-color-rgb, 0, 0, 0), 0.09);
+  margin: 0;
+}
+
+.tile-label-line {
+  width: 70%;
+  height: 12px;
+}
+
+.summary-tile .tile-value-line {
+  width: 55%;
+  height: 21px;
+  margin: 4px 0;
+}
+
+.tile-sub-line {
+  width: 80%;
+  height: 11px;
+}

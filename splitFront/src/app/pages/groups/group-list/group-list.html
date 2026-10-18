@@ -14,7 +14,9 @@
 
   @if (loadError) {
     <p class="ion-padding-horizontal">{{ 'groups.load-error' | translate }}</p>
-  } @else if (loaded && groups.length === 0) {
+  } @else if (!loaded) {
+    <app-loading-skeleton [rows]="4" [amounts]="false"></app-loading-skeleton>
+  } @else if (groups.length === 0) {
     <!-- Empty state: titolo, frase e bottone verso l'azione. -->
     <div class="ion-padding ion-text-center">
       <h2>{{ 'groups.empty-title' | translate }}</h2>

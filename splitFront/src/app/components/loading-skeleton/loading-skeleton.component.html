@@ -1,0 +1,40 @@
+<div role="status">
+  <span class="sr-only">{{ 'common.loading' | translate }}</span>
+
+  <div aria-hidden="true">
+    @if (tiles()) {
+      <div class="summary-tiles">
+        @for (tile of [0, 1]; track tile) {
+          <ion-card class="summary-tile">
+            <div class="tile-body">
+              <ion-skeleton-text [animated]="true" class="tile-label-line"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" class="tile-value-line"></ion-skeleton-text>
+              <ion-skeleton-text [animated]="true" class="tile-sub-line"></ion-skeleton-text>
+            </div>
+          </ion-card>
+        }
+      </div>
+    }
+
+    @if (header()) {
+      <div class="header-line">
+        <ion-skeleton-text [animated]="true"></ion-skeleton-text>
+      </div>
+    }
+
+    <ion-list lines="none">
+      @for (widths of lines(); track $index) {
+        <ion-item>
+          <ion-skeleton-text slot="start" [animated]="true" class="avatar-dot"></ion-skeleton-text>
+          <ion-label>
+            <h2><ion-skeleton-text [animated]="true" [style.width.%]="widths[0]"></ion-skeleton-text></h2>
+            <p><ion-skeleton-text [animated]="true" [style.width.%]="widths[1]"></ion-skeleton-text></p>
+          </ion-label>
+          @if (amounts()) {
+            <ion-skeleton-text slot="end" [animated]="true" class="amount-line"></ion-skeleton-text>
+          }
+        </ion-item>
+      }
+    </ion-list>
+  </div>
+</div>

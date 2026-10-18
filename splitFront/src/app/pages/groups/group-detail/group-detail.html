@@ -92,5 +92,9 @@
         <ion-icon name="add"></ion-icon>
       </ion-fab-button>
     </ion-fab>
+  } @else {
+    <!-- Primo caricamento del gruppo; poi lo scheletro lo mostra
+         app-group-expenses, finche' non arrivano le spese. -->
+    <app-loading-skeleton [header]="false"></app-loading-skeleton>
   }
 </ion-content>

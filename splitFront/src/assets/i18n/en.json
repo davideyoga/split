@@ -1,4 +1,7 @@
 {
+  "common": {
+    "loading": "Loading…"
+  },
   "expense-form": {
     "title-new": "New expense",
     "cancel": "Cancel",
@@ -262,7 +265,6 @@
     "rename-error": "Couldn't rename the group, please try again",
     "member-error": "Couldn't update members, please try again",
     "balances-title": "Group balances",
-    "expenses-loading": "Loading expenses...",
     "expenses-load-error": "Couldn't load the group expenses, please try again",
     "no-expenses": "No expenses in this group yet",
     "settings": "Group settings",

@@ -1,8 +1,8 @@
 <!-- Niente intestazione: il segmento "Spese" sopra dice gia' cosa c'e'. -->
-@if (loading) {
-  <p class="ion-padding-horizontal">{{ 'groups.expenses-loading' | translate }}</p>
-} @else if (loadError) {
+@if (loadError) {
   <p class="ion-padding-horizontal">{{ 'groups.expenses-load-error' | translate }}</p>
+} @else if (!loaded) {
+  <app-loading-skeleton [header]="false"></app-loading-skeleton>
 } @else if (expenses.length === 0) {
   <p class="ion-padding-horizontal">{{ 'groups.no-expenses' | translate }}</p>
   <div class="ion-padding-horizontal">

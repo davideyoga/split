@@ -14,6 +14,7 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 
+import { LoadingSkeletonComponent } from '../../components/loading-skeleton/loading-skeleton.component';
 import { ExpenseListComponent } from '../../components/expense-list/expense-list.component';
 import { AuthService } from '../../services/auth.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
@@ -34,6 +35,7 @@ import { expensesInCategory, SpendingPeriod, spendingPeriod } from '../../utils/
   styleUrls: ['./spending-category.page.scss'],
   standalone: true,
   imports: [
+    LoadingSkeletonComponent,
     MoneyPipe,
     ExpenseListComponent,
     IonBackButton,

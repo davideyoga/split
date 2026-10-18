@@ -33,6 +33,7 @@ import {
 
 import { ExpenseBalancesComponent } from '../../../components/expense-balances/expense-balances.component';
 import { GroupExpensesComponent } from '../../../components/group-expenses/group-expenses.component';
+import { LoadingSkeletonComponent } from '../../../components/loading-skeleton/loading-skeleton.component';
 import { SmartSplitModal } from '../../../components/smart-split/smart-split.modal';
 import { ExpenseFormModal } from '../../expense-form/expense-form.modal';
 import { Group } from '../../../models/group.model';
@@ -56,6 +57,7 @@ type GroupSegment = 'expenses' | 'balances' | 'members';
     TranslatePipe,
     ExpenseBalancesComponent,
     GroupExpensesComponent,
+    LoadingSkeletonComponent,
     IonBackButton,
     IonButton,
     IonButtons,

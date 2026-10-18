@@ -29,7 +29,10 @@
 
   @if (loadError) {
     <p class="ion-padding-horizontal">{{ 'activity.load-error' | translate }}</p>
-  } @else if (loaded && expenses.length === 0) {
+  } @else if (!loaded) {
+    <!-- Primo caricamento: con poca rete passano secondi. -->
+    <app-loading-skeleton [tiles]="true" [rows]="6"></app-loading-skeleton>
+  } @else if (expenses.length === 0) {
     <!-- Empty state: titolo, frase e bottone verso l'azione. -->
     <div class="ion-padding ion-text-center">
       <h2>{{ 'activity.empty-title' | translate }}</h2>

@@ -24,6 +24,7 @@ export const USERS = {
   amelia: 'amelia@disney.test',
   ciccio: 'ciccio@disney.test',
   clarabella: 'clarabella@disney.test',
+  orazio: 'orazio@disney.test',
 } as const;
 
 export interface Session {

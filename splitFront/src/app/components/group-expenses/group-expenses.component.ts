@@ -12,13 +12,14 @@ import { TranslatePipe } from '@ngx-translate/core';
 
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { ExpenseListComponent } from '../expense-list/expense-list.component';
+import { LoadingSkeletonComponent } from '../loading-skeleton/loading-skeleton.component';
 
 // Lista delle spese di un gruppo, usata dentro la pagina di dettaglio gruppo.
 @Component({
   selector: 'app-group-expenses',
   templateUrl: './group-expenses.component.html',
   standalone: true,
-  imports: [ExpenseListComponent, TranslatePipe, IonButton],
+  imports: [ExpenseListComponent, LoadingSkeletonComponent, TranslatePipe, IonButton],
 })
 export class GroupExpensesComponent implements OnChanges {
   @Input({ required: true }) groupPublicId = '';
@@ -34,7 +35,9 @@ export class GroupExpensesComponent implements OnChanges {
   private expenseService = inject(ExpenseService);
 
   expenses: ExpenseListItem[] = [];
-  loading = false;
+  // Lo scheletro si mostra solo al primo caricamento: ai successivi resta la
+  // lista vecchia finche' non arriva la nuova.
+  loaded = false;
   loadError = false;
 
   ngOnChanges(changes: SimpleChanges) {
@@ -49,18 +52,16 @@ export class GroupExpensesComponent implements OnChanges {
       onDone?.();
       return;
     }
-    this.loading = true;
     this.loadError = false;
     this.expenseService.listByGroup(this.groupPublicId).subscribe({
       next: (expenses) => {
         this.expenses = expenses;
-        this.loading = false;
+        this.loaded = true;
         this.expensesLoaded.emit(expenses);
         onDone?.();
       },
       error: () => {
         this.loadError = true;
-        this.loading = false;
         this.expensesLoaded.emit([]);
         onDone?.();
       },

@@ -20,12 +20,13 @@ const DAY = 60 * 60 * 24;
 const OTP_EXPIRES_IN = 10 * 60;
 
 /**
- * Origini da cui il browser puo' chiamare le rotte di login (controllo CSRF di
- * Better Auth sulle richieste con header Origin/Sec-Fetch-*). Default: dev
+ * Origini del frontend: le uniche da cui il browser puo' chiamare le rotte di
+ * login (controllo CSRF di Better Auth sulle richieste con header
+ * Origin/Sec-Fetch-*) e, via CORS (main.ts), il resto dell'API. Default: dev
  * server (4200), stack e2e (4300) e WebView di Capacitor su Android
  * (https://localhost) e iOS (capacitor://localhost).
  */
-function trustedOrigins(): string[] {
+export function trustedOrigins(): string[] {
   const fromEnv = process.env['AUTH_TRUSTED_ORIGINS'];
   if (fromEnv) {
     return fromEnv.split(',').map((o) => o.trim()).filter(Boolean);

@@ -13,15 +13,16 @@ import { NestFactory } from '@nestjs/core';
 import type { Express } from 'express';
 import { toNodeHandler } from 'better-auth/node';
 import { AppModule } from './app/app.module';
-import { BETTER_AUTH, CLIENT_IP_HEADER, type Auth } from './app/auth/auth.factory';
+import { BETTER_AUTH, CLIENT_IP_HEADER, trustedOrigins, type Auth } from './app/auth/auth.factory';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // AGGIUNGI QUESTA RIGA:
-  app.enableCors();
-  // (Opzionale) Se vuoi configurarlo meglio in futuro:
-  // app.enableCors({ origin: 'http://localhost:4200' }); //TODO
+  // CORS solo per le origini del frontend, le stesse di cui Better Auth si fida
+  // per il login (AUTH_TRUSTED_ORIGINS): un sito qualsiasi non puo' leggere le
+  // risposte dell'API dal browser di un utente. Senza `credentials`: la
+  // sessione viaggia come Bearer, mai come cookie.
+  app.enableCors({ origin: trustedOrigins() });
 
   // Rotte di login di Better Auth (/api/auth/*). Registrate direttamente su
   // Express qui, cioe' dopo CORS ma prima del body parser che Nest aggiunge in

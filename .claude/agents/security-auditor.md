@@ -136,8 +136,10 @@ authorization test.
 - What sits in `localStorage` (`split_auth`) and whether anything else leaks.
 
 **Infrastructure / config**
-- `app.enableCors()` in `splitBack/src/main.ts` is wide open (there is a TODO
-  for it): assess the impact given Bearer-only auth.
+- CORS in `splitBack/src/main.ts` is restricted to `AUTH_TRUSTED_ORIGINS`
+  (since 2026-10-11, same list as Better Auth's `trustedOrigins`): check that
+  a foreign `Origin` gets no `Access-Control-Allow-Origin`, and that no
+  `credentials: true` has crept in.
 - Security headers on the API (helmet or equivalent is absent?).
 - Secrets committed in the working tree (`git grep` for keys/passwords;
   history before `46a7c9f` contains **already rotated** values — don't report

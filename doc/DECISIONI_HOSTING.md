@@ -33,7 +33,7 @@ L'app è quasi pronta per un'alpha con un gruppo ristretto di tester scelti. Per
 ### Consigliati (interventi piccoli)
 
 - **HTTPS**: indispensabile con le password. Con Render (vedi sotto) è incluso.
-- **CORS ristretto** all'URL del frontend invece di `enableCors()` aperto ([main.ts:19](../splitBack/src/main.ts#L19), già in `TODO.md`). Se i tester usano anche l'app Capacitor, vanno aggiunte le sue origin: `https://localhost` (Android) e `capacitor://localhost` (iOS).
+- **CORS ristretto** all'URL del frontend invece di `enableCors()` aperto. **Fatto il 2026-10-11:** [main.ts](../splitBack/src/main.ts) usa la stessa lista del login, `AUTH_TRUSTED_ORIGINS`, che su Render contiene già il sito e le origin dell'app Capacitor (`https://localhost` per Android, `capacitor://localhost` per iOS). Non serve una variabile nuova.
 - **Limite di tentativi sul login** con `@nestjs/throttler`. Senza, chiunque può provare password all'infinito.
 - **Password del DB e `JWT_SECRET` nuovi per la produzione**, diversi da quelli di sviluppo e impostati nel pannello dell'hosting, non in un file `.env`.
 - **Il server non deve partire se manca la configurazione.** Oggi con `JWT_SECRET` vuoto il server parte lo stesso e il login risponde 500. `PrismaService` inoltre ignora un DB irraggiungibile: logga l'errore e ogni richiesta fallisce con 500.

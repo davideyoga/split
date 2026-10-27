@@ -1,0 +1,136 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/activity"></ion-back-button>
+    </ion-buttons>
+    <ion-title>{{ 'notifications.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  @if (loadError) {
+    <p class="ion-padding-horizontal">{{ 'notifications.load-error' | translate }}</p>
+  } @else if (!loaded) {
+    <app-loading-skeleton [rows]="5" [header]="false" [amounts]="false"></app-loading-skeleton>
+  } @else if (rows.length === 0 && !hasRequests) {
+    <div class="ion-padding ion-text-center">
+      <h2>{{ 'notifications.empty-title' | translate }}</h2>
+      <p>{{ 'notifications.empty' | translate }}</p>
+    </div>
+  } @else {
+    <!-- Richieste da decidere: restano qui finche' non si risponde. -->
+    @if (hasRequests) {
+      <ion-list-header>
+        <ion-label>{{ 'notifications.requests' | translate }}</ion-label>
+      </ion-list-header>
+
+      @for (person of requests.people; track person.user.publicId) {
+        <ion-card class="request">
+          <ion-card-header>
+            <ion-card-title>{{ 'notifications.request-title' | translate: { name: person.user.nickName } }}</ion-card-title>
+            <ion-card-subtitle>{{ 'notifications.request-sub' | translate }}</ion-card-subtitle>
+          </ion-card-header>
+          <ion-list lines="none">
+            @for (expense of person.expenses; track expense.publicId) {
+              <ion-item>
+                <ion-label class="ion-text-wrap">
+                  <h3>{{ expense.description || (fallbackKey(expense) | translate) }}</h3>
+                  <p>
+                    {{ 'notifications.request-share' | translate: { share: (expense.share | amount: expense.currency), amount: (expense.amount | amount: expense.currency) } }}
+                  </p>
+                </ion-label>
+                <ion-button
+                  slot="end"
+                  fill="clear"
+                  color="danger"
+                  [disabled]="answering"
+                  [attr.aria-label]="'notifications.reject-expense' | translate: { description: expense.description || (fallbackKey(expense) | translate) }"
+                  (click)="confirmRejectExpense(person.user, expense)"
+                >
+                  <ion-icon slot="icon-only" name="close-circle-outline"></ion-icon>
+                </ion-button>
+              </ion-item>
+            }
+          </ion-list>
+          <ion-card-content>
+            <ion-button expand="block" [disabled]="answering" (click)="acceptPerson(person.user)">
+              {{ 'notifications.accept-person' | translate: { name: person.user.nickName } }}
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      @for (invitation of requests.groups; track invitation.publicId) {
+        <ion-card class="request">
+          <ion-card-header>
+            <ion-card-title>
+              {{ 'notifications.invite-title' | translate: { name: invitation.invitedBy?.nickName ?? ('notifications.someone' | translate), group: invitation.name } }}
+            </ion-card-title>
+            <ion-card-subtitle>
+              {{ (invitation.memberCount === 1 ? 'notifications.invite-sub-one' : 'notifications.invite-sub-many') | translate: { count: invitation.memberCount } }}
+            </ion-card-subtitle>
+          </ion-card-header>
+          <ion-card-content class="request-actions">
+            <ion-button [disabled]="answering" (click)="acceptGroup(invitation.publicId)">
+              {{ 'notifications.accept' | translate }}
+            </ion-button>
+            <ion-button
+              fill="outline"
+              color="danger"
+              [disabled]="answering"
+              (click)="confirmDeclineGroup(invitation.publicId, invitation.name)"
+            >
+              {{ 'notifications.reject' | translate }}
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      }
+
+      @if (rows.length > 0) {
+        <ion-list-header>
+          <ion-label>{{ 'notifications.recent' | translate }}</ion-label>
+        </ion-list-header>
+      }
+    }
+
+    <ion-list lines="none">
+      @for (row of rows; track row.publicId) {
+        <ion-item
+          [button]="!!row.link"
+          [detail]="false"
+          [routerLink]="row.link"
+          [class.unread]="highlighted.has(row.publicId)"
+        >
+          <div slot="start" class="avatar" [class.neutral]="!row.link">
+            <ion-icon [name]="row.icon" aria-hidden="true"></ion-icon>
+          </div>
+          <ion-label class="ion-text-wrap">
+            <h2>
+              @if (highlighted.has(row.publicId)) {
+                <span class="sr-only">{{ 'notifications.unread' | translate }}:</span>
+              }
+              {{
+                row.key
+                  | translate
+                    : {
+                        actor: row.actor ?? ('notifications.someone' | translate),
+                        description: row.description || (row.fallbackKey | translate),
+                        amount: (row.cents | money: row.currency),
+                        group: row.group,
+                      }
+              }}
+            </h2>
+            <p>{{ row.createdDate | date: 'dd/MM/yyyy HH:mm' }}</p>
+          </ion-label>
+          @if (highlighted.has(row.publicId)) {
+            <span slot="end" class="unread-dot" aria-hidden="true"></span>
+          }
+        </ion-item>
+      }
+    </ion-list>
+  }
+</ion-content>

@@ -8,6 +8,8 @@ import { ExpenseModule } from './expense/expense.module';
 import { GroupModule } from './group/group.module';
 import { CategoryModule } from './category/category.module';
 import { SettlementModule } from './settlement/settlement.module';
+import { NotificationModule } from './notification/notification.module';
+import { FriendModule } from './friend/friend.module';
 
 
 @Module({
@@ -19,6 +21,8 @@ import { SettlementModule } from './settlement/settlement.module';
     GroupModule,
     CategoryModule,
     SettlementModule,
+    NotificationModule,
+    FriendModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaModule],

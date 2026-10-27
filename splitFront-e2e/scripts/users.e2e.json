@@ -14,5 +14,13 @@
   { "email": "amelia@disney.test", "nickName": "Amelia" },
   { "email": "ciccio@disney.test", "nickName": "Ciccio" },
   { "email": "clarabella@disney.test", "nickName": "Clarabella" },
-  { "email": "orazio@disney.test", "nickName": "Orazio" }
+  { "email": "orazio@disney.test", "nickName": "Orazio" },
+  { "email": "battista@disney.test", "nickName": "Battista" },
+  { "email": "rockerduck@disney.test", "nickName": "Rockerduck" },
+  { "email": "brigitta@disney.test", "nickName": "Brigitta" },
+  { "email": "paperoga@disney.test", "nickName": "Paperoga" },
+  { "email": "gedeone@disney.test", "nickName": "Gedeone" },
+  { "email": "bassotto@disney.test", "nickName": "Bassotto" },
+  { "email": "nocciola@disney.test", "nickName": "Nocciola" },
+  { "email": "gongolo@disney.test", "nickName": "Gongolo" }
 ]

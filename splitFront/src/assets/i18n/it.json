@@ -29,7 +29,8 @@
     "create-error": "Impossibile creare la spesa, riprova",
     "title-edit": "Modifica spesa",
     "updated": "Spesa aggiornata",
-    "update-error": "Impossibile salvare le modifiche, riprova"
+    "update-error": "Impossibile salvare le modifiche, riprova",
+    "pending-hint": "Non ancora amici: {{names}}. Per loro la spesa conterà solo quando l'avranno accettata."
   },
   "split-shares": {
     "title": "Divisione",
@@ -65,17 +66,32 @@
     "delete-smart-split-message": "Fa parte di una divisione intelligente: eliminarla da sola cambia i saldi netti dei membri del gruppo. Verrà eliminata per tutti i partecipanti. L'operazione non si può annullare.",
     "deleted": "Spesa eliminata",
     "delete-error": "Impossibile eliminare la spesa, riprova",
-    "paid": "Ha pagato {{amount}}"
+    "paid": "Ha pagato {{amount}}",
+    "pending-text": "{{name}} ti ha aggiunto a questa spesa, ma non siete ancora amici: finché non accetti non conta per te. Accettando diventate amici e accetti anche le altre sue spese in attesa.",
+    "pending-accept": "Accetta",
+    "pending-reject": "Rifiuta",
+    "pending-tag": "Deve ancora accettare",
+    "pending-accepted": "Accettata: ora siete amici",
+    "pending-error": "Risposta non salvata, riprova",
+    "reject-confirm": "Rifiutare la spesa?",
+    "reject-confirm-message": "Uscirai dalla spesa e la tua quota passerà a {{name}}.",
+    "rejected": "Spesa rifiutata"
   },
   "select-participant": {
     "title": "Seleziona partecipante",
     "close": "Chiudi",
-    "search-placeholder": "Cerca per nickname",
+    "search-placeholder": "Nickname o email",
+    "search": "Cerca",
+    "search-hint": "Scrivi il nickname esatto o l'email della persona, poi tocca Cerca. Finché non siete amici dovrà accettare la spesa.",
     "searching": "Ricerca in corso...",
-    "no-results": "Nessun utente trovato",
+    "no-results": "Nessun utente con questo nickname o email. Controlla che sia scritto esattamente.",
+    "search-error": "Ricerca non riuscita. Controlla la connessione e riprova.",
     "segment-person": "Persona",
     "segment-group": "Gruppo",
-    "no-groups": "Non fai ancora parte di nessun gruppo"
+    "no-groups": "Non fai ancora parte di nessun gruppo",
+    "search-hint-friends": "Per aggiungere qualcun altro scrivi il nickname esatto o l'email e tocca Cerca: dovrà accettare la spesa.",
+    "friends": "I tuoi amici",
+    "not-friend": "Non siete ancora amici: dovrà accettare"
   },
   "login": {
     "title": "Accedi",
@@ -109,7 +125,10 @@
     "month-sub-one": "1 spesa · pagato {{paid}}",
     "balance": "Saldo",
     "balance-sub": "devi {{owe}} · ti devono {{owed}}",
-    "balance-even": "Sei in pari"
+    "balance-even": "Sei in pari",
+    "pending-one": "1 spesa da accettare",
+    "pending-many": "{{count}} spese da accettare",
+    "pending-sub": "Non contano per te finché non le accetti"
   },
   "tabs": {
     "activity": "Attività",
@@ -280,7 +299,12 @@
     "empty-title": "Nessun gruppo",
     "empty-cta": "Crea il primo gruppo",
     "created": "Gruppo creato",
-    "add-first-expense": "Aggiungi la prima spesa"
+    "add-first-expense": "Aggiungi la prima spesa",
+    "invited": "Invito in attesa di risposta",
+    "member-invited": "Invito inviato: entrerà quando avrà accettato",
+    "invitations-one": "1 invito a un gruppo",
+    "invitations-many": "{{count}} inviti a gruppi",
+    "invitations-sub": "Accettali o rifiutali dalle notifiche"
   },
   "session": {
     "expired": "Sessione scaduta, accedi di nuovo"
@@ -290,5 +314,53 @@
     "unrecoverable": "Split deve ricaricarsi per continuare a funzionare",
     "reload": "Ricarica",
     "later": "Più tardi"
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "bell": "Notifiche",
+    "bell-unread": "Notifiche, {{count}} da leggere",
+    "unread": "Nuova",
+    "someone": "Qualcuno",
+    "empty-title": "Nessuna notifica",
+    "empty": "Quando qualcuno ti aggiunge a una spesa o a un gruppo, o registra un rimborso con te, lo vedrai qui.",
+    "load-error": "Impossibile caricare le notifiche, riprova",
+    "type": {
+      "EXPENSE_ADDED": "{{actor}} ti ha aggiunto a “{{description}}” ({{amount}})",
+      "EXPENSE_UPDATED": "{{actor}} ha modificato “{{description}}” ({{amount}})",
+      "EXPENSE_REMOVED": "{{actor}} ti ha tolto da “{{description}}” ({{amount}})",
+      "EXPENSE_DELETED": "{{actor}} ha eliminato “{{description}}” ({{amount}})",
+      "GROUP_ADDED": "{{actor}} ti ha aggiunto al gruppo “{{group}}”",
+      "SETTLEMENT_ADDED_TO_ME": "{{actor}} ha registrato un rimborso di {{amount}} a tuo favore",
+      "SETTLEMENT_ADDED_FROM_ME": "{{actor}} ha registrato un tuo rimborso di {{amount}}",
+      "unknown": "Hai una nuova notifica",
+      "EXPENSE_PENDING": "{{actor}} ti ha aggiunto a “{{description}}” ({{amount}}): accettala o rifiutala",
+      "EXPENSE_REJECTED": "{{actor}} ha rifiutato “{{description}}”: la sua quota ora è tua",
+      "FRIEND_ACCEPTED": "{{actor}} ha accettato: ora siete amici",
+      "GROUP_INVITED": "{{actor}} ti ha invitato nel gruppo “{{group}}”",
+      "GROUP_JOINED": "{{actor}} ora fa parte del gruppo “{{group}}”",
+      "GROUP_DECLINED": "{{actor}} ha rifiutato l'invito in “{{group}}”"
+    },
+    "requests": "Richieste",
+    "recent": "Recenti",
+    "request-title": "{{name}} vuole dividere spese con te",
+    "request-sub": "Accettando diventate amici e contano tutte queste spese. Puoi rifiutarle una per una.",
+    "request-share": "La tua quota {{share}} di {{amount}}",
+    "reject-expense": "Rifiuta “{{description}}”",
+    "accept-person": "Accetta {{name}}",
+    "invite-title": "{{name}} ti ha invitato nel gruppo “{{group}}”",
+    "accept": "Accetta",
+    "reject": "Rifiuta",
+    "cancel": "Annulla",
+    "accepted": "Accettata: ora siete amici",
+    "rejected": "Spesa rifiutata",
+    "group-accepted": "Ora fai parte del gruppo",
+    "group-declined": "Invito rifiutato",
+    "answer-error": "Risposta non salvata, riprova",
+    "reject-expense-confirm": "Rifiutare “{{description}}”?",
+    "reject-expense-message": "Uscirai dalla spesa e la tua quota passerà a {{name}}.",
+    "decline-group-confirm": "Rifiutare l'invito?",
+    "decline-group-message": "Non entrerai in “{{group}}”. Potranno invitarti di nuovo in futuro.",
+    "invite-sub-one": "Entrando, tu e il suo unico membro diventate amici",
+    "invite-sub-many": "Entrando, tu e i suoi {{count}} membri diventate amici"
   }
 }

@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import { NotificationService } from '../notification/notification.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateSettlementDto } from './dto/create-settlement.dto';
 
@@ -26,7 +27,10 @@ const SETTLEMENT_SELECT = {
 
 @Injectable()
 export class SettlementService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private notificationService: NotificationService,
+  ) {}
 
   // Rimborsi in cui l'utente e' chi da' o chi riceve. Un rimborso coinvolge
   // sempre esattamente due persone, quindi questa lista e' completa per i
@@ -65,15 +69,25 @@ export class SettlementService {
       throw new BadRequestException('Uno dei due utenti non esiste');
     }
 
-    return this.prisma.settlement.create({
-      data: {
-        amount: dto.amount,
-        note: dto.note?.trim() || null,
-        from: { connect: { id: from.id } },
-        to: { connect: { id: to.id } },
-        createdBy: { connect: { id: user.id } },
-      },
-      select: SETTLEMENT_SELECT,
+    return this.prisma.$transaction(async (tx) => {
+      // L'id serve solo alla notifica: nella risposta non esce.
+      const { id, ...settlement } = await tx.settlement.create({
+        data: {
+          amount: dto.amount,
+          note: dto.note?.trim() || null,
+          from: { connect: { id: from.id } },
+          to: { connect: { id: to.id } },
+          createdBy: { connect: { id: user.id } },
+        },
+        select: { ...SETTLEMENT_SELECT, id: true },
+      });
+      // Chi lo registra e' uno dei due: la notifica va all'altro.
+      await this.notificationService.notify(tx, [from.id, to.id], {
+        type: 'SETTLEMENT_ADDED',
+        actorId: user.id,
+        settlementId: id,
+      });
+      return settlement;
     });
   }
 

@@ -30,7 +30,8 @@ test('nuova spesa divisa in parti uguali, dettaglio ed eliminazione', async ({ p
 
   // "Dividi con" → modale di scelta (sopra la form) → Pluto
   await topModal(page).getByRole('button', { name: t('expense-form.split-with') }).click();
-  await topModal(page).getByPlaceholder(t('select-participant.search-placeholder')).fill('Plut');
+  await topModal(page).getByPlaceholder(t('select-participant.search-placeholder')).fill('Pluto');
+  await topModal(page).getByRole('button', { name: t('select-participant.search'), exact: true }).click();
   await topModal(page).getByRole('button', { name: 'Pluto', exact: true }).click();
 
   // Tornati alla form: 30 € in due

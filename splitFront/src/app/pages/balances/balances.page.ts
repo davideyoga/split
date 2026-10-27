@@ -25,11 +25,13 @@ import { forkJoin } from 'rxjs';
 
 import { ExpenseBalancesComponent } from '../../components/expense-balances/expense-balances.component';
 import { LoadingSkeletonComponent } from '../../components/loading-skeleton/loading-skeleton.component';
+import { NotificationBellComponent } from '../../components/notification-bell/notification-bell.component';
 import { ProfileButtonComponent } from '../../components/profile-button/profile-button.component';
 import { SettleUpModal } from '../../components/settle-up/settle-up.modal';
 import { Settlement } from '../../models/settlement.model';
 import { AmountPipe } from '../../pipes/amount.pipe';
 import { AuthService } from '../../services/auth.service';
+import { NotificationService } from '../../services/notification.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { SettlementService } from '../../services/settlement.service';
 import { Balance } from '../../utils/balance';
@@ -51,6 +53,7 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
     DatePipe,
     ExpenseBalancesComponent,
     LoadingSkeletonComponent,
+    NotificationBellComponent,
     ProfileButtonComponent,
     IonButton,
     IonButtons,
@@ -70,6 +73,7 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
 })
 export class BalancesPage {
   private authService = inject(AuthService);
+  private notificationService = inject(NotificationService);
   private expenseService = inject(ExpenseService);
   private settlementService = inject(SettlementService);
   private modalCtrl = inject(ModalController);
@@ -92,6 +96,7 @@ export class BalancesPage {
 
   ionViewWillEnter() {
     this.loadAll();
+    this.notificationService.refreshCount();
   }
 
   // Spese e rimborsi insieme: un saldo calcolato senza i rimborsi sarebbe

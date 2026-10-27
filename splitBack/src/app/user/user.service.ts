@@ -7,26 +7,31 @@ import { nicknameError, normalizeNickname } from './nickname';
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async getUser(nickName: string) {
-    // Una ricerca vuota non elenca gli utenti a caso.
-    if (!nickName.trim()) {
+  /**
+   * Ricerca esatta (2026-10-25): con una `@` e' un'email, altrimenti un
+   * nickname (che non puo' contenere `@`, vedi nickname.ts). Niente ricerca
+   * per parte del nome: una spesa si crea solo con chi si conosce, e "pip"
+   * non deve piu' elencare tutti i Pippo dell'app.
+   *
+   * Restituisce un array di 0 o 1 utenti, mai chi cerca e mai l'email
+   * (anche quando si e' cercato per email: chi cerca la conosce gia').
+   */
+  async getUser(query: string, callerPublicId: string) {
+    const q = query.trim();
+    if (!q) {
       return [];
     }
-    const users = await this.prisma.user.findMany({
-      where: {
-        nickName: {
-          contains: nickName,
-          mode: 'insensitive',
-        },
-      },
+    // nickName e' citext: l'uguaglianza ignora le maiuscole. Le email sono
+    // salvate in minuscolo (add-users.mts, seed.ts).
+    const user = await this.prisma.user.findUnique({
+      where: q.includes('@') ? { email: q.toLowerCase() } : { nickName: q },
       select: {
         publicId: true,
         nickName: true,
       },
-      take: 10,
     });
 
-    return users;
+    return user && user.publicId !== callerPublicId ? [user] : [];
   }
 
   /**

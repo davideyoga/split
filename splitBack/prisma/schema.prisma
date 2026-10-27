@@ -17,10 +17,10 @@ model User {
   // citext: @unique ignora maiuscole/minuscole. Regole del nickname in
   // splitBack/src/app/user/nickname.ts.
   nickName             String             @unique @db.Citext
-  expenseContributions ExpenseContribution[]
+  expenseContributions ExpenseContribution[] @relation("ContributionUser")
   expensesCreatedByMe  Expense[]          @relation("CreatedBy")
   expensesPaidByMe     Expense[]          @relation("PaidBy")
-  userOnGroups         UserOnGroup[]
+  userOnGroups         UserOnGroup[]      @relation("MembershipUser")
   categories           Category[]
   settlementsPaid      Settlement[]       @relation("SettlementFrom")
   settlementsReceived  Settlement[]       @relation("SettlementTo")
@@ -31,6 +31,12 @@ model User {
   image                String?
   sessions             Session[]
   accounts             Account[]
+  notifications        Notification[]     @relation("NotificationRecipient")
+  notificationsCaused  Notification[]     @relation("NotificationActor")
+  friendshipsA         Friendship[]       @relation("FriendshipA")
+  friendshipsB         Friendship[]       @relation("FriendshipB")
+  contributionsInvited ExpenseContribution[] @relation("ContributionInvitedBy")
+  membershipsInvited   UserOnGroup[]      @relation("MembershipInvitedBy")
 }
 
 // Tabelle di Better Auth (login con codice via email). Gli id sono interi
@@ -87,12 +93,18 @@ model Verification {
 model ExpenseContribution {
 
   id          Int      @id @default(autoincrement())
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation("ContributionUser", fields: [userId], references: [id])
   userId      Int
   expense     Expense  @relation(fields: [expenseId], references: [id])
   expenseId   Int
   share       Decimal  // Quanto deve questa persona per questa spesa
   createdDate DateTime @default(now())
+  // In attesa (2026-10-25): l'ha aggiunto `invitedBy`, che non e' (ancora) suo
+  // amico. Finche' non accetta, la spesa non conta per lui (saldi, spese del
+  // mese); per tutti gli altri si'. Diventano amici -> pending = false.
+  pending     Boolean  @default(false)
+  invitedBy   User?    @relation("ContributionInvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
+  invitedById Int?
 }
 
 model Expense {
@@ -118,6 +130,7 @@ model Expense {
   description          String
   paidBy               User                  @relation("PaidBy", fields: [paidById], references: [id])
   paidById             Int
+  notifications        Notification[]
 }
 
 // Rimborso fra due utenti: `from` da' `amount` a `to`. Non appartiene a nessun
@@ -138,6 +151,7 @@ model Settlement {
   createdBy   User     @relation("SettlementCreatedBy", fields: [createdById], references: [id])
   createdById Int
   createdDate DateTime @default(now())
+  notifications Notification[]
 
   @@index([fromId])
   @@index([toId])
@@ -150,6 +164,7 @@ model Group {
   usersOnGroup    UserOnGroup[]
   expenses        Expense[]
   createdDate     DateTime         @default(now())
+  notifications   Notification[]
 }
 
 // Categorie delle spese. ownerId null = categoria preconfigurata di sistema,
@@ -177,8 +192,67 @@ model UserOnGroup {
   groupId     Int
   group       Group    @relation(fields: [groupId], references: [id])
   userId      Int
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation("MembershipUser", fields: [userId], references: [id])
   createdDate DateTime @default(now())
+  // Invito in attesa (2026-10-25): l'ha aggiunto `invitedBy`, che non era suo
+  // amico. Finche' non accetta non e' un membro: non vede il gruppo e non entra
+  // nelle sue spese.
+  pending     Boolean  @default(false)
+  invitedBy   User?    @relation("MembershipInvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
+  invitedById Int?
 
   @@unique([groupId, userId])
+}
+
+// Notifica per un utente (2026-10-25): un messaggio su qualcosa che un altro ha
+// fatto e che lo riguarda, non lo stato di una richiesta (quello, per amicizie
+// e spese in attesa, stara' nelle loro tabelle). Niente testo generato: il
+// frontend traduce `notifications.type.<type>` nella lingua di chi legge, coi
+// dati delle relazioni. Si crea solo da NotificationService.notify(), nella
+// stessa transazione dell'azione: li' si aggancera' anche la push.
+model Notification {
+  id           Int         @id @default(autoincrement())
+  publicId     String      @unique @default(uuid())
+  // Destinatario.
+  user         User        @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: Cascade)
+  userId       Int
+  // EXPENSE_ADDED, GROUP_ADDED, ... (notification.types.ts). Stringa e non
+  // enum Postgres: un tipo nuovo non chiede una migrazione.
+  type         String
+  // Chi ha fatto l'azione.
+  actor        User?       @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  actorId      Int?
+  // Cascade: una notifica non mostra mai una spesa, un gruppo o un rimborso
+  // che non esistono piu'.
+  expense      Expense?    @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  expenseId    Int?
+  group        Group?      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId      Int?
+  settlement   Settlement? @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  settlementId Int?
+  // Istantanea di una spesa eliminata o da cui si e' stati tolti:
+  // { description, amount, currency, categorySlug }. Solo dati e testo scritto
+  // dagli utenti.
+  params       Json?
+  readAt       DateTime?
+  createdDate  DateTime    @default(now())
+
+  @@index([userId, createdDate])
+  @@index([userId, readAt])
+}
+
+// Amicizia (2026-10-25): esiste solo se accettata. Le richieste non hanno una
+// tabella: sono le quote di spesa e gli inviti ai gruppi in attesa
+// (ExpenseContribution.pending, UserOnGroup.pending). Coppia non ordinata
+// salvata una volta sola, con userAId < userBId (CHECK nella migrazione).
+model Friendship {
+  id          Int      @id @default(autoincrement())
+  userA       User     @relation("FriendshipA", fields: [userAId], references: [id], onDelete: Cascade)
+  userAId     Int
+  userB       User     @relation("FriendshipB", fields: [userBId], references: [id], onDelete: Cascade)
+  userBId     Int
+  createdDate DateTime @default(now())
+
+  @@unique([userAId, userBId])
+  @@index([userBId])
 }

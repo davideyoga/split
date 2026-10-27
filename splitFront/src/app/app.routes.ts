@@ -82,6 +82,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/profile/profile.page').then((m) => m.ProfilePage),
     canActivate: [authGuard],
   },
+  // Le notifiche, come il Profilo: fuori dalla shell, dalla campanella in alto
+  // a destra delle pagine principali.
+  {
+    path: 'notifications',
+    loadComponent: () =>
+      import('./pages/notifications/notifications.page').then((m) => m.NotificationsPage),
+    canActivate: [authGuard],
+  },
   // Compatibilita' con i vecchi link / deep link. La nuova spesa non e' piu' una
   // rotta ma una modale (pages/expense-form), aperta dai FAB.
   { path: 'home', redirectTo: 'tabs/activity', pathMatch: 'full' },

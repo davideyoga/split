@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import {
   IonIcon,
   IonLabel,
@@ -21,11 +21,31 @@ import { peopleOutline, receiptOutline, swapHorizontalOutline } from 'ionicons/i
   imports: [IonTabs, IonTabBar, IonTabButton, IonIcon, IonLabel, TranslatePipe],
 })
 export class TabsPage {
+  @ViewChild(IonTabs) private tabs?: IonTabs;
+  private entered = false;
+
   constructor() {
     addIcons({
       'receipt-outline': receiptOutline,
       'people-outline': peopleOutline,
       'swap-horizontal-outline': swapHorizontalOutline,
     });
+  }
+
+  // Profilo e Notifiche sono pagine fuori dalla shell: tornando indietro Ionic
+  // manda ionViewWillEnter alla shell, non alla tab visibile, che quindi non
+  // ricaricava (es. spese appena accettate dalle Notifiche che non comparivano
+  // in Attivita'). Lo si inoltra alla pagina attiva. Alla prima entrata no:
+  // li' ci pensa gia' Ionic.
+  ionViewWillEnter() {
+    if (!this.entered) {
+      this.entered = true;
+      return;
+    }
+    const outlet = this.tabs?.outlet;
+    const page = outlet?.isActivated
+      ? (outlet.component as { ionViewWillEnter?: () => void })
+      : null;
+    page?.ionViewWillEnter?.();
   }
 }

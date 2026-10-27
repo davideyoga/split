@@ -1,7 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import { t } from './support/i18n';
 import { toast, topModal, visible } from './support/ionic';
-import { apiLogin, createExpense, createGroup, loginAs, USERS } from './support/session';
+import { acceptGroup, apiLogin, createExpense, createGroup, loginAs, USERS } from './support/session';
 
 // Lista della modale con quell'intestazione (Ora / Dopo / Spese da creare).
 function modalSection(page: Page, key: string) {
@@ -17,6 +17,9 @@ test('divisione intelligente: "Quo deve a Qua, Qua deve ad Amelia" diventa "Quo 
   const quo = await loginAs(page, USERS.quo);
   const ids = { quo: quo.user.publicId, qua: qua.user.publicId, amelia: amelia.user.publicId };
   const group = await createGroup(page.request, quo, 'Campeggio', [ids.qua, ids.amelia]);
+  // Non sono amici di Quo: sono invitati, e accettando entrano.
+  await acceptGroup(page.request, qua, group.publicId);
+  await acceptGroup(page.request, amelia, group.publicId);
   const shares = (who: keyof typeof ids) =>
     Object.values(ids).map((id) => ({ userPublicId: id, share: id === ids[who] ? 20 : 0 }));
   await createExpense(page.request, quo, {

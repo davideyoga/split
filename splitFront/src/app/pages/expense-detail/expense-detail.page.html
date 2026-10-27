@@ -33,6 +33,25 @@
   } @else if (notFound) {
     <p class="ion-padding">{{ 'expense-detail.not-found' | translate }}</p>
   } @else if (expense) {
+    <!-- Da accettare: chi mi ha aggiunto non e' ancora mio amico. -->
+    @if (myPending) {
+      <ion-card class="pending-banner">
+        <ion-card-content>
+          <p>
+            {{ 'expense-detail.pending-text' | translate: { name: myPending.invitedBy?.nickName ?? expense.createdBy.nickName } }}
+          </p>
+          <div class="pending-actions">
+            <ion-button [disabled]="answering" (click)="accept()">
+              {{ 'expense-detail.pending-accept' | translate }}
+            </ion-button>
+            <ion-button fill="outline" color="danger" [disabled]="answering" (click)="confirmReject()">
+              {{ 'expense-detail.pending-reject' | translate }}
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+
     <!-- Testata: categoria, importo in grande, descrizione. -->
     <div class="hero">
       <div class="avatar large" [class.neutral]="!expense.category">
@@ -94,6 +113,9 @@
             </h2>
             @if (contribution.user.publicId === expense.paidBy.publicId) {
               <p>{{ 'expense-detail.paid' | translate: { amount: (expense.amount | amount: expense.currency) } }}</p>
+            }
+            @if (contribution.pending) {
+              <p>{{ 'expense-detail.pending-tag' | translate }}</p>
             }
           </ion-label>
           <div slot="end" class="row-amount">

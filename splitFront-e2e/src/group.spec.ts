@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test';
 import { t } from './support/i18n';
 import { toast, topModal, visible } from './support/ionic';
-import { loginAs, USERS } from './support/session';
+import { apiLogin, loginAs, makeFriends, USERS } from './support/session';
 
 test('gruppo nuovo, spesa di gruppo e saldo del gruppo', async ({ page }) => {
-  await loginAs(page, USERS.gastone);
+  const gastone = await loginAs(page, USERS.gastone);
+  // Fra amici si entra nel gruppo subito, senza invito da accettare.
+  await makeFriends(page.request, gastone, await apiLogin(page.request, USERS.archimede));
   await page.goto('/tabs/groups');
 
   // FAB → modale "Nuovo gruppo" con Archimede come membro
@@ -12,6 +14,7 @@ test('gruppo nuovo, spesa di gruppo e saldo del gruppo', async ({ page }) => {
   await topModal(page).getByRole('textbox', { name: t('groups.name-label') }).fill('Gita a Paperopoli');
   await topModal(page).getByRole('button', { name: t('groups.add-member') }).click();
   await topModal(page).getByPlaceholder(t('select-participant.search-placeholder')).fill('Archimede');
+  await topModal(page).getByRole('button', { name: t('select-participant.search'), exact: true }).click();
   await topModal(page).getByRole('button', { name: 'Archimede', exact: true }).click();
   await topModal(page).getByRole('button', { name: t('groups.create') }).click();
   await expect(toast(page, t('groups.created'))).toBeVisible();

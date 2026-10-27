@@ -7,6 +7,7 @@
           <ion-icon slot="icon-only" name="search-outline"></ion-icon>
         </ion-button>
       }
+      <app-notification-bell></app-notification-bell>
       <app-profile-button></app-profile-button>
     </ion-buttons>
   </ion-toolbar>
@@ -43,6 +44,18 @@
     <!-- I due lavori dell'app alla pari: quanto ho speso nel mese (-> pagina
          Spese) e il saldo con gli altri (-> tab Saldi). Nascosti durante la ricerca. -->
     @if (!query) {
+      <!-- Spese da accettare: non contano finche' non le accetto. -->
+      @if (pendingCount > 0) {
+        <ion-card button routerLink="/notifications" class="pending-card">
+          <ion-item lines="none" [detail]="true">
+            <div slot="start" class="avatar"><ion-icon name="hourglass-outline" aria-hidden="true"></ion-icon></div>
+            <ion-label class="ion-text-wrap">
+              <h2>{{ (pendingCount === 1 ? 'activity.pending-one' : 'activity.pending-many') | translate: { count: pendingCount } }}</h2>
+              <p>{{ 'activity.pending-sub' | translate }}</p>
+            </ion-label>
+          </ion-item>
+        </ion-card>
+      }
       <div class="summary-tiles">
         <app-monthly-spending [expenses]="expenses"></app-monthly-spending>
 
@@ -70,7 +83,9 @@
     }
 
     <!-- SPESE: in grande la mia quota, che entra nello speso del mese -->
-    @if (filteredExpenses.length === 0) {
+    <!-- Solo con una ricerca: senza, la lista e' vuota quando tutte le spese
+         sono da accettare (il riquadro qui sopra lo dice gia'). -->
+    @if (filteredExpenses.length === 0 && query) {
       <p class="ion-padding-horizontal">{{ 'activity.no-results' | translate }}</p>
     }
     <app-expense-list

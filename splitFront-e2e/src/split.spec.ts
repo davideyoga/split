@@ -14,6 +14,7 @@ test('divisione non uniforme: "io 10, il resto a Paperone" e saldo coerente', as
     .fill('Benzina');
   await topModal(page).getByRole('button', { name: t('expense-form.split-with') }).click();
   await topModal(page).getByPlaceholder(t('select-participant.search-placeholder')).fill('Paperone');
+  await topModal(page).getByRole('button', { name: t('select-participant.search'), exact: true }).click();
   await topModal(page).getByRole('button', { name: 'Paperone', exact: true }).click();
 
   // La riga "Divisione" mostra "Equal · 15.00 each": aprirla apre SplitSharesModal

@@ -2,6 +2,7 @@
   <ion-toolbar>
     <ion-title>{{ 'groups.title' | translate }}</ion-title>
     <ion-buttons slot="end">
+      <app-notification-bell></app-notification-bell>
       <app-profile-button></app-profile-button>
     </ion-buttons>
   </ion-toolbar>
@@ -11,6 +12,19 @@
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
+
+  <!-- Inviti da chi non e' ancora amico: si accettano dalle Notifiche. -->
+  @if (invitationCount > 0) {
+    <ion-card button routerLink="/notifications" class="pending-card">
+      <ion-item lines="none" [detail]="true">
+        <div slot="start" class="avatar"><ion-icon name="mail-unread-outline" aria-hidden="true"></ion-icon></div>
+        <ion-label class="ion-text-wrap">
+          <h2>{{ (invitationCount === 1 ? 'groups.invitations-one' : 'groups.invitations-many') | translate: { count: invitationCount } }}</h2>
+          <p>{{ 'groups.invitations-sub' | translate }}</p>
+        </ion-label>
+      </ion-item>
+    </ion-card>
+  }
 
   @if (loadError) {
     <p class="ion-padding-horizontal">{{ 'groups.load-error' | translate }}</p>

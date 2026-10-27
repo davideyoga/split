@@ -137,14 +137,20 @@ export class GroupSettingsPage implements OnInit {
   }
 
   addMember(member: User) {
-    if (this.group?.members.some((m) => m.publicId === member.publicId)) {
+    if (
+      [...(this.group?.members ?? []), ...(this.group?.invited ?? [])].some(
+        (m) => m.publicId === member.publicId,
+      )
+    ) {
       return;
     }
     this.errorMessage = '';
     this.groupService.addMembers(this.publicId, [member.publicId]).subscribe({
       next: (group) => {
         this.group = group;
-        this.presentToast('groups.member-added');
+        // Chi non e' mio amico non entra subito: e' invitato e deve accettare.
+        const invited = group.invited?.some((m) => m.publicId === member.publicId);
+        this.presentToast(invited ? 'groups.member-invited' : 'groups.member-added');
       },
       error: () => (this.errorMessage = 'groups.member-error'),
     });

@@ -7,6 +7,8 @@ import {
   IonBackButton,
   IonButton,
   IonButtons,
+  IonCard,
+  IonCardContent,
   IonContent,
   IonHeader,
   IonIcon,
@@ -27,7 +29,8 @@ import { createOutline, receiptOutline, trashOutline } from 'ionicons/icons';
 
 import { CATEGORY_ICONS, isSmartSplit } from '../../models/category.model';
 import { AuthService } from '../../services/auth.service';
-import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
+import { ExpenseContribution, ExpenseListItem, ExpenseService } from '../../services/expense.service';
+import { FriendService } from '../../services/friend.service';
 import { AmountPipe } from '../../pipes/amount.pipe';
 import { initialOf } from '../../utils/initial';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
@@ -51,6 +54,8 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
     IonBackButton,
     IonButton,
     IonButtons,
+    IonCard,
+    IonCardContent,
     IonContent,
     IonHeader,
     IonIcon,
@@ -72,6 +77,7 @@ export class ExpenseDetailPage implements OnInit {
   private translate = inject(TranslateService);
   private expenseService = inject(ExpenseService);
   private authService = inject(AuthService);
+  private friendService = inject(FriendService);
 
   expense: ExpenseListItem | null = null;
   loadError = false;
@@ -83,6 +89,13 @@ export class ExpenseDetailPage implements OnInit {
   initial = initialOf;
   canEdit = false;
   deleting = false;
+  // La mia quota, se e' ancora da accettare: chi mi ha aggiunto non e' mio
+  // amico. Finche' non accetto posso solo accettare o rifiutare.
+  myPending: ExpenseContribution | null = null;
+  // Chi si prende la mia quota se rifiuto: chi mi ha aggiunto, se e' ancora
+  // nella spesa, altrimenti il creatore (stessa regola del backend).
+  rejectBearer = '';
+  answering = false;
   isSmartSplit = isSmartSplit;
 
   constructor() {
@@ -121,9 +134,75 @@ export class ExpenseDetailPage implements OnInit {
 
   private setExpense(expense: ExpenseListItem) {
     this.expense = expense;
-    this.canEdit = expense.expenseContributions.some(
-      (c) => c.user.publicId === this.mePublicId,
-    );
+    const mine = expense.expenseContributions.find((c) => c.user.publicId === this.mePublicId);
+    this.myPending = mine?.pending ? mine : null;
+    this.canEdit = !!mine && !mine.pending;
+    this.rejectBearer =
+      expense.expenseContributions.find(
+        (c) => !c.pending && c.user.publicId === mine?.invitedBy?.publicId,
+      )?.user.nickName ?? expense.createdBy.nickName;
+  }
+
+  // Accettare la spesa vuol dire accettare chi mi ci ha messo: si diventa
+  // amici e contano anche le altre sue spese in attesa.
+  accept() {
+    const inviter = this.myPending?.invitedBy;
+    if (!this.expense || !inviter || this.answering) {
+      return;
+    }
+    this.answering = true;
+    const publicId = this.expense.publicId;
+    this.friendService.accept(inviter.publicId).subscribe({
+      next: async () => {
+        this.answering = false;
+        await this.presentToast('expense-detail.pending-accepted', 'success');
+        this.loadExpense(publicId);
+      },
+      error: async () => {
+        this.answering = false;
+        await this.presentToast('expense-detail.pending-error', 'danger');
+      },
+    });
+  }
+
+  async confirmReject() {
+    if (!this.expense || !this.myPending) {
+      return;
+    }
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('expense-detail.reject-confirm'),
+      message: this.translate.instant('expense-detail.reject-confirm-message', {
+        name: this.rejectBearer,
+      }),
+      buttons: [
+        { text: this.translate.instant('expense-detail.cancel'), role: 'cancel' },
+        { text: this.translate.instant('expense-detail.pending-reject'), role: 'destructive' },
+      ],
+    });
+    await alert.present();
+    // Come per l'eliminazione: niente `handler`, si legge il ruolo.
+    const { role } = await alert.onWillDismiss();
+    if (role === 'destructive') {
+      this.reject();
+    }
+  }
+
+  private reject() {
+    if (!this.expense || this.answering) {
+      return;
+    }
+    this.answering = true;
+    this.expenseService.reject(this.expense.publicId).subscribe({
+      next: async () => {
+        await this.presentToast('expense-detail.rejected', 'success');
+        // Non sono piu' nella spesa: non la posso piu' vedere.
+        this.navCtrl.navigateBack(this.backHref);
+      },
+      error: async () => {
+        this.answering = false;
+        await this.presentToast('expense-detail.pending-error', 'danger');
+      },
+    });
   }
 
   async edit() {

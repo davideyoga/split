@@ -16,13 +16,15 @@ type AuthRequest = Request & { user: AuthUser };
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // Ricerca per nickname: GET /api/user?q=pip. Era GET /api/user/:nickname, ma
-  // un testo libero nel path si rompe con `/`, `?`, `#`, e `..` viene
-  // normalizzato dal browser (chiamava /api invece della ricerca).
+  // Ricerca esatta per nickname o email: GET /api/user?q=Pippo. Era
+  // GET /api/user/:nickname, ma un testo libero nel path si rompe con `/`,
+  // `?`, `#`, e `..` viene normalizzato dal browser (chiamava /api invece
+  // della ricerca).
   @Get()
   @UseGuards(SessionAuthGuard)
-  findUsers(@Query('q') q?: string) {
-    return this.userService.getUser(q ?? '');
+  findUsers(@Req() request: AuthRequest, @Query('q') q?: unknown) {
+    // `?q=a&q=b` arriva come array: lo si tratta come una ricerca vuota.
+    return this.userService.getUser(typeof q === 'string' ? q : '', request.user.publicId);
   }
 
   // Unico modo di cambiare il nickname: /update-user di Better Auth e'

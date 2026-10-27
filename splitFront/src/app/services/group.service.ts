@@ -48,4 +48,13 @@ export class GroupService {
       `${this.baseUrl}/group/${publicId}/members/${userPublicId}`,
     );
   }
+
+  // Invito in attesa: accettando si entra e si diventa amici di tutti i membri.
+  acceptInvitation(publicId: string): Observable<Group> {
+    return this.http.post<Group>(`${this.baseUrl}/group/${publicId}/accept`, {});
+  }
+
+  declineInvitation(publicId: string): Observable<unknown> {
+    return this.http.post(`${this.baseUrl}/group/${publicId}/decline`, {});
+  }
 }

@@ -102,8 +102,16 @@ authorization test.
 - No response may contain a full `User` (email, internal `id`, auth fields):
   expense responses go through `USER_SELECT` = `{ publicId, nickName }`.
   Check every endpoint, including error bodies and Better Auth's own routes.
-- `GET /api/user?q=` : what does it return, to whom, and can it enumerate all
-  users (e.g. `q=a`, `q=%`, `q=_`)?
+- `GET /api/user?q=` : exact match only since 2026-10-25 (nickname without
+  case, or email). Check that partial and wildcard queries (`q=a`, `q=%`,
+  `q=_`, `q=%@%`) return nothing, and that the response never contains the
+  caller or an email. Probing emails one at a time is an accepted alpha risk.
+- Friends (2026-10-25): `POST /api/friend/:publicId/accept` must `404` unless
+  the caller has a pending share from that person (otherwise anyone could
+  befriend anyone and then add them to expenses without asking); a pending
+  contributor must get `403` on `PATCH`/`DELETE` of the expense; a pending group
+  invitee must get `403` on the group and its expenses and must not be folded
+  into group expenses; `reject` only for one's own pending share.
 
 **Better Auth / login**
 - OTP brute force: 5 wrong attempts must burn the code; check whether

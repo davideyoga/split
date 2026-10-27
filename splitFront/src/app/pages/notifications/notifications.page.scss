@@ -1,0 +1,27 @@
+// Le non lette: titolo in grassetto e un pallino del primario a destra.
+ion-item.unread h2 {
+  font-weight: 600;
+}
+
+.unread-dot {
+  width: 8px;
+  height: 8px;
+  margin-inline-start: 8px;
+  border-radius: 50%;
+  background: var(--ion-color-primary);
+}
+
+// Richieste (amici e inviti ai gruppi).
+ion-card.request {
+  margin: 8px 16px 12px;
+
+  ion-card-title {
+    font-size: 17px;
+  }
+}
+
+.request-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
   Patch,
   Post,
@@ -77,5 +78,26 @@ export class GroupController {
   ) {
     const user = request['user'] as AuthUser;
     return this.groupService.removeMember(user.publicId, publicId, userPublicId);
+  }
+
+  // Invito in attesa (2026-10-25): chi non era amico di chi l'ha aggiunto
+  // accetta (diventa membro e amico di tutti i membri) o rifiuta.
+  @Post('/:publicId/accept')
+  @UseGuards(SessionAuthGuard)
+  accept(
+    @Req() request: Request & { user: AuthUser },
+    @Param('publicId') publicId: string,
+  ) {
+    return this.groupService.accept(request.user.publicId, publicId);
+  }
+
+  @Post('/:publicId/decline')
+  @HttpCode(204)
+  @UseGuards(SessionAuthGuard)
+  decline(
+    @Req() request: Request & { user: AuthUser },
+    @Param('publicId') publicId: string,
+  ) {
+    return this.groupService.decline(request.user.publicId, publicId);
   }
 }

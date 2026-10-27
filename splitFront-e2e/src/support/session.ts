@@ -25,6 +25,14 @@ export const USERS = {
   ciccio: 'ciccio@disney.test',
   clarabella: 'clarabella@disney.test',
   orazio: 'orazio@disney.test',
+  battista: 'battista@disney.test',
+  rockerduck: 'rockerduck@disney.test',
+  brigitta: 'brigitta@disney.test',
+  paperoga: 'paperoga@disney.test',
+  gedeone: 'gedeone@disney.test',
+  bassotto: 'bassotto@disney.test',
+  nocciola: 'nocciola@disney.test',
+  gongolo: 'gongolo@disney.test',
 } as const;
 
 export interface Session {
@@ -67,7 +75,7 @@ export async function loginAs(page: Page, email: string): Promise<Session> {
   return session;
 }
 
-/** Crea una spesa via API, per i test che partono da dati già presenti. */
+/** Crea una spesa via API, per i test che partono da dati già presenti. Ne restituisce il publicId. */
 export async function createExpense(
   request: APIRequestContext,
   session: Session,
@@ -82,12 +90,13 @@ export async function createExpense(
     date?: string;
     categoryPublicId?: string;
   },
-): Promise<void> {
+): Promise<{ publicId: string }> {
   const response = await request.post(`${API_URL}/expense`, {
     headers: { Authorization: `Bearer ${session.accessToken}` },
     data: body,
   });
   expect(response.ok(), `creazione spesa ${JSON.stringify(body)}`).toBeTruthy();
+  return response.json();
 }
 
 /** Crea un gruppo via API (il creatore ne fa sempre parte). */
@@ -119,4 +128,40 @@ export async function presetCategoryId(
   const category = categories.find((c) => c.slug === slug);
   expect(category, `categoria preconfigurata ${slug}`).toBeTruthy();
   return (category as { publicId: string }).publicId;
+}
+
+/**
+ * Rende amici `a` e `b` come farebbe l'app (2026-10-25): `a` mette `b` in una
+ * spesa, `b` accetta `a`, la spesa si elimina. Se sono gia' amici non fa
+ * niente. Lascia a `b` una notifica EXPENSE_DELETED e ad `a` una
+ * FRIEND_ACCEPTED.
+ */
+export async function makeFriends(request: APIRequestContext, a: Session, b: Session): Promise<void> {
+  const headers = (s: Session) => ({ Authorization: `Bearer ${s.accessToken}` });
+  const friends = await request.get(`${API_URL}/friend`, { headers: headers(a) });
+  expect(friends.ok(), 'elenco amici').toBeTruthy();
+  if (((await friends.json()) as { publicId: string }[]).some((f) => f.publicId === b.user.publicId)) {
+    return;
+  }
+  const expense = await createExpense(request, a, {
+    amount: 1,
+    description: 'Amicizia',
+    participantPublicIds: [b.user.publicId],
+  });
+  const accepted = await request.post(`${API_URL}/friend/${a.user.publicId}/accept`, { headers: headers(b) });
+  expect(accepted.status(), `${b.user.nickName} accetta ${a.user.nickName}`).toBe(204);
+  const deleted = await request.delete(`${API_URL}/expense/${expense.publicId}`, { headers: headers(a) });
+  expect(deleted.status(), 'eliminazione della spesa di appoggio').toBe(204);
+}
+
+/** Accetta l'invito in un gruppo: chi non era amico di chi l'ha aggiunto deve farlo per entrarci. */
+export async function acceptGroup(
+  request: APIRequestContext,
+  session: Session,
+  groupPublicId: string,
+): Promise<void> {
+  const response = await request.post(`${API_URL}/group/${groupPublicId}/accept`, {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+  });
+  expect(response.ok(), `${session.user.nickName} accetta il gruppo`).toBeTruthy();
 }

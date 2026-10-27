@@ -29,7 +29,8 @@
     "create-error": "Couldn't create the expense, please try again",
     "title-edit": "Edit expense",
     "updated": "Expense updated",
-    "update-error": "Couldn't save the changes, please try again"
+    "update-error": "Couldn't save the changes, please try again",
+    "pending-hint": "Not friends yet: {{names}}. The expense will count for them only once they accept it."
   },
   "split-shares": {
     "title": "Split",
@@ -65,17 +66,32 @@
     "delete-smart-split-message": "It's part of a smart split: deleting it on its own changes the group members' net balances. It will be removed for all participants. This cannot be undone.",
     "deleted": "Expense deleted",
     "delete-error": "Couldn't delete the expense, please try again",
-    "paid": "Paid {{amount}}"
+    "paid": "Paid {{amount}}",
+    "pending-text": "{{name}} added you to this expense, but you are not friends yet: it doesn't count for you until you accept. Accepting makes you friends and also accepts their other pending expenses.",
+    "pending-accept": "Accept",
+    "pending-reject": "Reject",
+    "pending-tag": "Waiting for them to accept",
+    "pending-accepted": "Accepted: you are now friends",
+    "pending-error": "Couldn't save your answer, please try again",
+    "reject-confirm": "Reject this expense?",
+    "reject-confirm-message": "You will be removed from it and your share will go to {{name}}.",
+    "rejected": "Expense rejected"
   },
   "select-participant": {
     "title": "Select participant",
     "close": "Close",
-    "search-placeholder": "Search by nickname",
+    "search-placeholder": "Nickname or email",
+    "search": "Search",
+    "search-hint": "Type the exact nickname or email of the person, then tap Search. Until you are friends, they will have to accept the expense.",
     "searching": "Searching...",
-    "no-results": "No users found",
+    "no-results": "No user with this nickname or email. Check that it is spelled exactly right.",
+    "search-error": "Search failed. Check your connection and try again.",
     "segment-person": "Person",
     "segment-group": "Group",
-    "no-groups": "You don't belong to any group yet"
+    "no-groups": "You don't belong to any group yet",
+    "search-hint-friends": "To add someone else, type their exact nickname or email and tap Search: they will have to accept the expense.",
+    "friends": "Your friends",
+    "not-friend": "Not your friend yet: they will have to accept"
   },
   "login": {
     "title": "Log in",
@@ -109,7 +125,10 @@
     "month-sub-one": "1 expense · paid {{paid}}",
     "balance": "Balance",
     "balance-sub": "you owe {{owe}} · owed {{owed}}",
-    "balance-even": "All settled up"
+    "balance-even": "All settled up",
+    "pending-one": "1 expense to accept",
+    "pending-many": "{{count}} expenses to accept",
+    "pending-sub": "They don't count for you until you accept them"
   },
   "tabs": {
     "activity": "Activity",
@@ -280,7 +299,12 @@
     "empty-title": "No groups yet",
     "empty-cta": "Create your first group",
     "created": "Group created",
-    "add-first-expense": "Add the first expense"
+    "add-first-expense": "Add the first expense",
+    "invited": "Invitation pending",
+    "member-invited": "Invitation sent: they will join once they accept",
+    "invitations-one": "1 group invitation",
+    "invitations-many": "{{count}} group invitations",
+    "invitations-sub": "Accept or decline them from your notifications"
   },
   "session": {
     "expired": "Session expired, please log in again"
@@ -290,5 +314,53 @@
     "unrecoverable": "Split needs to reload to keep working",
     "reload": "Reload",
     "later": "Later"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "bell": "Notifications",
+    "bell-unread": "Notifications, {{count}} unread",
+    "unread": "New",
+    "someone": "Someone",
+    "empty-title": "No notifications",
+    "empty": "When someone adds you to an expense or a group, or records a repayment with you, you'll see it here.",
+    "load-error": "Couldn't load notifications, please try again",
+    "type": {
+      "EXPENSE_ADDED": "{{actor}} added you to “{{description}}” ({{amount}})",
+      "EXPENSE_UPDATED": "{{actor}} changed “{{description}}” ({{amount}})",
+      "EXPENSE_REMOVED": "{{actor}} removed you from “{{description}}” ({{amount}})",
+      "EXPENSE_DELETED": "{{actor}} deleted “{{description}}” ({{amount}})",
+      "GROUP_ADDED": "{{actor}} added you to the group “{{group}}”",
+      "SETTLEMENT_ADDED_TO_ME": "{{actor}} recorded that they paid you {{amount}}",
+      "SETTLEMENT_ADDED_FROM_ME": "{{actor}} recorded that you paid them {{amount}}",
+      "unknown": "You have a new notification",
+      "EXPENSE_PENDING": "{{actor}} added you to “{{description}}” ({{amount}}): accept or reject it",
+      "EXPENSE_REJECTED": "{{actor}} rejected “{{description}}”: their share is now yours",
+      "FRIEND_ACCEPTED": "{{actor}} accepted: you are now friends",
+      "GROUP_INVITED": "{{actor}} invited you to the group “{{group}}”",
+      "GROUP_JOINED": "{{actor}} joined the group “{{group}}”",
+      "GROUP_DECLINED": "{{actor}} declined the invitation to “{{group}}”"
+    },
+    "requests": "Requests",
+    "recent": "Recent",
+    "request-title": "{{name}} wants to split expenses with you",
+    "request-sub": "Accepting makes you friends and counts all these expenses. You can reject them one by one.",
+    "request-share": "Your share {{share}} of {{amount}}",
+    "reject-expense": "Reject “{{description}}”",
+    "accept-person": "Accept {{name}}",
+    "invite-title": "{{name}} invited you to the group “{{group}}”",
+    "accept": "Accept",
+    "reject": "Reject",
+    "cancel": "Cancel",
+    "accepted": "Accepted: you are now friends",
+    "rejected": "Expense rejected",
+    "group-accepted": "You joined the group",
+    "group-declined": "Invitation declined",
+    "answer-error": "Couldn't save your answer, please try again",
+    "reject-expense-confirm": "Reject “{{description}}”?",
+    "reject-expense-message": "You will be removed from it and your share will go to {{name}}.",
+    "decline-group-confirm": "Decline the invitation?",
+    "decline-group-message": "You won't join “{{group}}”. Someone can invite you again later.",
+    "invite-sub-one": "Joining makes you friends with its only member",
+    "invite-sub-many": "Joining makes you friends with its {{count}} members"
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, inject, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   IonButton,
@@ -8,6 +8,8 @@ import {
   IonItem,
   IonLabel,
   IonList,
+  IonListHeader,
+  IonNote,
   IonSearchbar,
   IonSegment,
   IonSegmentButton,
@@ -20,6 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
+import { FriendService } from '../../services/friend.service';
 import { GroupService } from '../../services/group.service';
 import { UserService } from '../../services/user.service';
 
@@ -50,6 +53,8 @@ export interface ParticipantSelection {
     IonItem,
     IonLabel,
     IonList,
+    IonListHeader,
+    IonNote,
     IonSearchbar,
     IonSegment,
     IonSegmentButton,
@@ -58,24 +63,61 @@ export interface ParticipantSelection {
     IonToolbar,
   ],
 })
-export class SelectParticipantComponent {
+export class SelectParticipantComponent implements OnInit {
   // false = solo persone (es. aggiunta membri a un gruppo): il segmento
   // "Gruppo" non viene mostrato.
   @Input() allowGroups = true;
 
   private userService = inject(UserService);
+  private friendService = inject(FriendService);
   private groupService = inject(GroupService);
   private modalCtrl = inject(ModalController);
 
   mode: SelectMode = 'person';
 
+  // Gli amici si aggiungono senza conferma (2026-10-25); gli altri si trovano
+  // solo con la ricerca esatta, e la spesa restera' in attesa finche' non
+  // accettano.
+  friends: User[] = [];
   searchResults: User[] = [];
   searchQuery = '';
   isLoading = false;
+  // Testo a cui si riferiscono searchResults/searchFailed: "nessun utente" si
+  // mostra solo dopo aver premuto Cerca, e sparisce appena si cambia il testo.
+  private searchedQuery: string | null = null;
+  searchFailed = false;
 
   groups: Group[] = [];
   groupsLoading = false;
   private groupsLoaded = false;
+
+  ngOnInit() {
+    // Senza amici (o se la chiamata fallisce) resta la sola ricerca esatta.
+    this.friendService.list().subscribe({
+      next: (friends) => (this.friends = friends),
+      error: () => undefined,
+    });
+  }
+
+  // Gli amici il cui nickname contiene il testo scritto (tutti, se e' vuoto),
+  // tranne chi e' gia' nel risultato della ricerca qui sopra.
+  get filteredFriends(): User[] {
+    const q = this.searchQuery.trim().toLowerCase();
+    const shown = this.hasSearched ? this.searchResults : [];
+    return this.friends.filter(
+      (f) =>
+        (!q || f.nickName.toLowerCase().includes(q)) &&
+        !shown.some((user) => user.publicId === f.publicId),
+    );
+  }
+
+  // Risultati della ricerca esatta che non sono amici: la spesa restera' in
+  // attesa finche' non accettano.
+  get strangers(): User[] {
+    return this.searchResults.filter(
+      (user) => !this.friends.some((f) => f.publicId === user.publicId),
+    );
+  }
 
   onModeChange(event: Event) {
     const value = (event as CustomEvent<{ value?: SelectMode }>).detail.value;
@@ -91,18 +133,35 @@ export class SelectParticipantComponent {
     }
   }
 
+  // Ricerca esatta per nickname o email, solo col bottone Cerca (o Invio):
+  // niente ricerca mentre si scrive, che con un match esatto darebbe
+  // "nessun utente" a ogni lettera.
   searchUsers() {
-    if (this.searchQuery.trim().length < 3) {
-      this.searchResults = [];
+    const query = this.searchQuery.trim();
+    if (!query || this.isLoading) {
       return;
     }
 
     this.isLoading = true;
     this.searchResults = [];
-    this.userService.getUsers(this.searchQuery).subscribe((users) => {
-      this.searchResults = users;
-      this.isLoading = false;
+    this.searchFailed = false;
+    this.userService.getUsers(query).subscribe({
+      next: (users) => {
+        this.searchResults = users;
+        this.searchedQuery = query;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.searchFailed = true;
+        this.searchedQuery = query;
+        this.isLoading = false;
+      },
     });
+  }
+
+  // true se il risultato mostrato e' quello del testo scritto ora.
+  get hasSearched(): boolean {
+    return this.searchedQuery !== null && this.searchedQuery === this.searchQuery.trim();
   }
 
   selectParticipant(selectedParticipant: User) {

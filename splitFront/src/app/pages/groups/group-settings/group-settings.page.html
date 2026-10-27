@@ -65,6 +65,25 @@
           </ion-button>
         </ion-item>
       }
+      <!-- Invitati in attesa: toglierli annulla l'invito. -->
+      @for (member of group.invited ?? []; track member.publicId) {
+        <ion-item>
+          <div slot="start" class="avatar initial neutral" aria-hidden="true">{{ initial(member.nickName) }}</div>
+          <ion-label>
+            <h2>{{ member.nickName }}</h2>
+            <p>{{ 'groups.invited' | translate }}</p>
+          </ion-label>
+          <ion-button
+            slot="end"
+            fill="clear"
+            color="medium"
+            [attr.aria-label]="'groups.remove' | translate"
+            (click)="confirmRemoveMember(member)"
+          >
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-button>
+        </ion-item>
+      }
     </ion-list>
 
     <div class="ion-padding ion-text-center">

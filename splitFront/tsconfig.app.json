@@ -3,18 +3,16 @@
   "compilerOptions": {
     "outDir": "../../dist/out-tsc",
     "types": [],
-    "emitDeclarationOnly": false, 
+    "emitDeclarationOnly": false,
     "declaration": false,
-    "lib": [
-      "es2018",
-      "dom" 
-    ]
+    "lib": ["es2018", "dom"]
   },
   "include": ["src/**/*.ts"],
   "exclude": [
     "jest.config.ts",
     "src/test-setup.ts",
     "src/**/*.test.ts",
-    "src/**/*.spec.ts"
+    "src/**/*.spec.ts",
+    "jest.config.cts"
   ]
 }

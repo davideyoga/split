@@ -51,6 +51,10 @@ Thumbs.db
 # Utenti veri da aggiungere con splitBack/prisma/add-users.mts (email personali)
 splitBack/prisma/users.local.json
 
+# Snapshot del database di produzione (npm run db:snapshot): dati veri.
+# Senza "/" iniziale: ignorata anche se lo script parte da un'altra cartella.
+db-snapshots/
+
 /generated/prisma
 
 test-output

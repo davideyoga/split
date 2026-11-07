@@ -2,7 +2,11 @@
   "name": "@split/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "db:snapshot": "node tools/db-snapshot/snapshot.mts",
+    "db:restore": "node tools/db-snapshot/restore.mts",
+    "db:csv": "node tools/db-snapshot/csv.mts"
+  },
   "private": true,
   "devDependencies": {
     "@angular-devkit/core": "~20.3.0",

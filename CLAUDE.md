@@ -70,6 +70,23 @@ npx prisma migrate reset --schema=splitBack/prisma/schema.prisma                
 ./node_modules/.bin/prisma studio --schema=./splitBack/prisma/schema.prisma                # open Prisma Studio
 ```
 
+Database snapshots of production (Neon), on demand (2026-11-07) — details in [`tools/db-snapshot/README.md`](tools/db-snapshot/README.md) (scripts in the same folder):
+```
+npm run db:snapshot [-- <label>]                              # db-snapshots/<name>/: <name>.dump + csv/<Table>.csv
+npm run db:restore -- db-snapshots/<name> <local-db>          # drop + recreate <local-db> on the local Postgres from it
+npm run db:csv -- db-snapshots/<name>                         # (re)build csv/ from the .dump, no DB involved
+```
+- The CSVs are derived from the `.dump` (`dumpToCsv` parses `pg_restore --data-only` output), not read from Neon a second time, so they match the dump exactly.
+  - Byte-identical to Postgres's `COPY … CSV HEADER`, except that text starting with `= + - @` (and not a number) gets a `'` prefix, against spreadsheet formula injection.
+- `SNAPSHOT_DATABASE_URL` (Neon's direct string, in `.env`) is a separate variable on purpose: the backend only reads `DATABASE_URL`, so dev can never end up wired to production.
+- `pg_dump`/`pg_restore` are not installed here. They run in Docker `postgres:<server major>-alpine` (`tools/db-snapshot/pg-tools.mts`), because `pg_dump` refuses a newer server.
+- Session and Verification **data** are left out: session tokens are stored in plain text, so a copy on the PC must not hold them.
+  - Nothing else in the scripts names a table, so schema changes need no update there.
+  - **A new table holding secrets (tokens, OAuth credentials) must be added to `SKIP_DATA` in `tools/db-snapshot/snapshot.mts`.** Renaming `Session`/`Verification` means updating it too: `pg_dump` ignores an exclude pattern that matches nothing.
+- `db-snapshots/` is gitignored (dir `700`, files `600`): it holds real users' data.
+- `db:restore` refuses any non-localhost target and asks to retype the DB name.
+- It goes through `pg_restore -f - | psql`, stripping `SET transaction_timeout`: `pg_restore` ≥ 17 always writes it, and the local Postgres 15 rejects it.
+
 Seed test users (alpha):
 ```
 set -a && . ./.env && set +a && node splitBack/prisma/seed.ts

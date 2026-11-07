@@ -1,20 +1,17 @@
-# Test book — gruppi via link, niente amici, blocco, registrazione aperta
+# Test book — gruppi via link, niente amici, blocco, registrazione
 
-Data: 2026-11-07. Sostituisce il test book del 2026-10-25 (amici e richieste da accettare, funzionalità tolte). Copre le quattro fasi di [InvitiGruppo.md](InvitiGruppo.md):
+Data: 2026-11-07, dopo il merge di `registration` in `dev`. Sostituisce il test book del 2026-10-25 (amici e richieste da accettare, funzionalità tolte). Copre le quattro fasi di [InvitiGruppo.md](InvitiGruppo.md):
 
 - **A**: spese senza amici, cioè senza niente da accettare;
 - **B**: link d'invito ai gruppi;
 - **C**: "Blocca" ed "Esci dal gruppo";
-- **D**: registrazione aperta.
+- **D**: registrazione aperta, con il codice via email e con **Google**.
 
-Le regole sono in `CLAUDE.md` (sezioni **Friends removed**, **Group invite links**, **Block and leave group**, **Auth**). I test automatici equivalenti stanno in `splitFront-e2e/src/` (`participant-search`, `invite`, `group`, `block`, `login`, `notifications`).
+Il login con **Apple** non è coperto: per ora non si può provare, e il suo pulsante non compare se `appleClientId` è vuoto.
+
+Le regole sono in `CLAUDE.md` (sezioni **Friends removed**, **Group invite links**, **Block and leave group**, **Registration**, **Google and Apple**) e in [Auth.md](Auth.md). I test automatici equivalenti stanno in `splitFront-e2e/src/` (`participant-search`, `invite`, `group`, `block`, `registration`, `login`, `notifications`). Google non è nei test automatici: servono token firmati da Google, quindi qui è il solo modo di provarlo.
 
 **I casi vanno eseguiti in ordine:** ognuno parte dallo stato lasciato dai precedenti. Gli importi attesi valgono solo partendo da utenti senza dati, come quelli creati qui sotto.
-
-> **Branch `registration`.** Il branch `registration` (commit `7c0e251`) implementa la registrazione aperta in un altro modo. Se lo si unisce al posto della fase D di questo lavoro, la sezione 4 cambia così:
-> - in `.env` serve `AUTH_SIGN_UP=open`: senza, la registrazione resta chiusa;
-> - il limite della ricerca diventa 30 all'ora;
-> - si aggiunge il login con Google e Apple.
 
 ## 0. Preparazione
 
@@ -22,14 +19,25 @@ Le regole sono in `CLAUDE.md` (sezioni **Friends removed**, **Group invite links
    ```
    cd splitBack && set -a && . ../.env && set +a && npx prisma migrate status
    ```
-   Deve dire che il database è aggiornato. Le ultime sono `20261107120000_remove_friends`, `20261107130000_add_group_invite`, `20261107140000_add_user_block` e `20261107150000_add_user_needs_name`. Se ne manca qualcuna, lancia `npx prisma migrate deploy && npx prisma generate` dalla stessa cartella.
-2. In `.env`: `MAIL_TRANSPORT=console`. Il codice di login compare nel log di `nx serve splitBack`.
-3. Avvia (o **riavvia**: non è un watch server) le due app:
+   Deve dire che il database è aggiornato. Le ultime sono `20261107120000_remove_friends`, `20261107130000_add_group_invite`, `20261107140000_add_user_block` e `20261107180000_add_user_needs_name`. Se ne manca qualcuna, lancia `npx prisma migrate deploy && npx prisma generate` dalla stessa cartella.
+2. In `.env`:
+   ```
+   MAIL_TRANSPORT=console          # il codice di login compare nel log di nx serve splitBack
+   AUTH_SIGN_UP=open               # senza, la registrazione resta chiusa (default)
+   GOOGLE_CLIENT_ID=<client ID>    # vedi il punto 3
+   ```
+3. **Google** (gratuito, istruzioni complete in [Auth.md](Auth.md), "Configurare Google"):
+   - in Google Cloud Console serve un client OAuth di tipo *Web application*;
+   - fra le *Authorized JavaScript origins* devono esserci `http://localhost` e `http://localhost:4200`;
+   - nella schermata di consenso, in modalità *Testing*, aggiungi come utenti di test i **due account Google** che userai, chiamati qui **G1** e **G2**. Devono essere due account mai usati in Split;
+   - copia lo stesso Client ID in `googleClientId` di `splitFront/src/environments/environment.ts`. È un dato pubblico, ma è tuo: non serve committarlo;
+   - lascia vuoti `appleClientId` e `appleRedirectUri`.
+4. Avvia (o **riavvia**: non è un watch server, e `.env` si legge all'avvio) le due app:
    ```
    npx nx serve splitBack
    npx nx serve splitFront      # http://localhost:4200
    ```
-4. Crea quattro utenti nuovi, senza dati, così i saldi partono da zero. I nomi sono diversi da quelli del test book precedente, che potrebbero avere già delle spese.
+5. Crea quattro utenti nuovi, senza dati, così i saldi partono da zero. I nomi sono diversi da quelli del test book precedente, che potrebbero avere già delle spese.
    ```
    cat > /tmp/users.testbook.json <<'EOF'
    [
@@ -42,17 +50,17 @@ Le regole sono in `CLAUDE.md` (sezioni **Friends removed**, **Group invite links
    set -a && . ./.env && set +a && node splitBack/prisma/add-users.mts /tmp/users.testbook.json
    ```
    Lo script è idempotente: rilanciarlo non crea doppioni. Le email `elena2@testbook.test` e `fabio2@testbook.test` invece **non** vanno create: servono alla registrazione (sezione 4).
-5. **Un contesto browser per utente.** La sessione sta nel `localStorage`, quindi servono contesti separati, per esempio:
+6. **Un contesto browser per utente.** La sessione sta nel `localStorage`, quindi servono contesti separati, per esempio:
    - Chrome normale per Anna;
    - Chrome in incognito per Bruno;
    - Firefox normale per Carla;
    - Firefox privato per Dario.
 
-   Due finestre in incognito dello stesso Chrome condividono la sessione: non bastano.
+   Due finestre in incognito dello stesso Chrome condividono la sessione: non bastano. Per Google (sezione 5) va bene il contesto di Dario dopo il logout, o un profilo Chrome a parte.
    - **All'inizio fanno login solo Anna e Bruno.**
    - Carla entra in G-03, passando dal link d'invito.
    - Dario entra prima della sezione 3.
-6. Facoltativo: DevTools → modalità dispositivo (es. Pixel 7), perché l'app è pensata per il telefono. Lingua: italiano (Profilo → Lingua).
+7. Facoltativo: DevTools → modalità dispositivo (es. Pixel 7), perché l'app è pensata per il telefono. Lingua: italiano (Profilo → Lingua).
 
 Abbreviazioni: **A** = Anna.T2, **B** = Bruno.T2, **C** = Carla.T2, **D** = Dario.T2. "Notifiche" = la campanella in alto a destra di Attività, Gruppi e Saldi. Dopo un'azione di un altro utente, per vedere il cambiamento tira giù la pagina per aggiornarla, oppure cambia tab e torna.
 
@@ -237,15 +245,19 @@ Prima di iniziare **D** fa login dalla pagina di login (`dario2@testbook.test`) 
 
 ---
 
-## 4. Registrazione aperta (R)
+## 4. Registrazione con il codice via email (R)
 
 Si usa il contesto di **D**: Profilo → Esci.
 
 ### R-01 · Un'email nuova riceve il codice e crea l'account
-- Login: `elena2@testbook.test` → **Invia codice**.
-- **Atteso:** "Abbiamo inviato a elena2@testbook.test un codice di 6 cifre. … Non hai ancora un account? Si crea entrando."; nel log del backend c'è il codice.
+- **Atteso, sulla pagina di login:** "Accedi o crea il tuo account: ti mandiamo un codice via email.". Non c'è il pulsante di Apple; quello di Google c'è se hai configurato `googleClientId`.
+- Scrivi `elena2@testbook.test` → **Invia codice**.
+- **Atteso:** "Abbiamo inviato un codice di 6 cifre a elena2@testbook.test. …"; nel log del backend c'è il codice.
 - Inserisci il codice → Accedi.
-- **Atteso:** pagina "Ti diamo il benvenuto" con "Come ti chiami?" e il campo Nickname.
+- **Atteso:**
+  - pagina "Il tuo nome" con "Come ti chiami?";
+  - il campo Nickname è **vuoto**: il nome provvisorio `user` + 8 cifre non viene proposto;
+  - **Continua** è disattivato finché il nome non è valido.
 - [ ] OK
 
 ### R-02 · Senza nickname non si va altrove
@@ -258,16 +270,23 @@ Si usa il contesto di **D**: Profilo → Esci.
 2. Scrivi `Anna.T2` → **Continua**.
 3. Scrivi `Elena.T2` → **Continua**.
 - **Atteso:**
-  1. "Troppo corto: almeno 5 caratteri (ora 3)";
+  1. "Troppo corto: almeno 5 caratteri (ora 3)", e Continua resta disattivato;
   2. "Questo nickname è già usato";
   3. si arriva sul tab **Gruppi** (il returnUrl di R-02), vuoto.
-- Nel Profilo c'è Elena.T2.
+- Nel Profilo c'è Elena.T2. Ricaricando la pagina non si torna su "Come ti chiami?".
 - [ ] OK
 
-### R-04 · Registrarsi passando da un link d'invito
-- **A**: Lisbona → Membri → **Crea link** (7 giorni) → copia il link (link 3).
-- Contesto di Elena: Profilo → Esci → apri il link 3 → **Accedi per entrare** → `fabio2@testbook.test` → codice → Accedi.
+### R-04 · "Usa un altro account"
+- Profilo → Esci → login con `fabio2@testbook.test` → codice → Accedi.
 - **Atteso:** "Come ti chiami?".
+- Tocca **Usa un altro account**.
+- **Atteso:** si torna al login, e la sessione è chiusa: riaprendo `localhost:4200/tabs/activity` si resta sul login.
+- [ ] OK
+
+### R-05 · Registrarsi passando da un link d'invito
+- **A**: Lisbona → Membri → **Crea link** (7 giorni) → copia il link (link 3).
+- Stesso contesto di R-04 (nessuna sessione): apri il link 3 → **Accedi per entrare** → `fabio2@testbook.test` → codice nuovo → Accedi.
+- **Atteso:** "Come ti chiami?". Fabio ha già l'account, creato in R-04, ma non ha ancora scelto il nome.
 - Scrivi `Fabio.T2` → **Continua**.
 - **Atteso:**
   - si torna sull'anteprima di Lisbona, con **Unisciti al gruppo**;
@@ -277,7 +296,52 @@ Si usa il contesto di **D**: Profilo → Esci.
 
 ---
 
-## 5. Regressione (X)
+## 5. Login e registrazione con Google (O)
+
+Servono la preparazione del punto 3 e i due account Google **G1** e **G2**, mai usati in Split. Si usa un contesto senza sessione (Profilo → Esci). Il pulsante di Google lo disegna Google stesso, e il testo dipende dalla lingua dell'account ("Accedi con Google", "Continua con Google"…).
+
+### O-01 · Registrazione con Google
+- Login → pulsante di Google → scegli **G1**.
+- **Atteso:**
+  - nessun codice da inserire: si arriva su "Come ti chiami?";
+  - il campo è già compilato con il nome del profilo Google ripulito (per esempio "Mario Rossi" → `Mario.Rossi`, "José Pérez" → `Jose.Perez`). Se il nome è troppo corto, ha caratteri di altri alfabeti o è già preso, il campo è vuoto.
+- Tieni il nome proposto, o scrivine uno valido → **Continua**.
+- **Atteso:** si arriva su Attività, vuota. Nel Profilo c'è il nickname scelto e l'email di G1.
+- [ ] OK
+
+### O-02 · Lo stesso account con il codice
+- Profilo → Esci → login con il **codice**, scrivendo l'email di G1 → codice dal log → Accedi.
+- **Atteso:** si entra direttamente su Attività, senza "Come ti chiami?", con lo stesso nickname di O-01. È lo stesso account, non un secondo.
+- [ ] OK
+
+### O-03 · Collegare Google a un account creato con il codice
+- Profilo → Esci → login con il **codice**, scrivendo l'email di **G2** → codice → "Come ti chiami?" → `Gmail.T2` → Continua.
+- Profilo → Esci → login → pulsante di Google → scegli **G2**.
+- **Atteso:**
+  - si entra direttamente, senza "Come ti chiami?";
+  - nel Profilo il nickname resta **Gmail.T2**: il nome del profilo Google non lo sovrascrive. È lo stesso account creato col codice, a cui si è aggiunto Google.
+- [ ] OK
+
+### O-04 · Google passando da un link d'invito
+- **A**: Lisbona → Membri → **Nuovo link** → copia il link (link 4).
+- Contesto senza sessione: apri il link 4 → **Accedi per entrare** → pulsante di Google → **G1**.
+- **Atteso:**
+  - si torna sull'anteprima di Lisbona, perché G1 ha già scelto il nome in O-01;
+  - "Unisciti al gruppo" porta in Lisbona, e A riceve "<nickname di G1> ora fa parte del gruppo “Lisbona”".
+- [ ] OK
+
+### O-05 · Registrazione chiusa (facoltativo)
+- In `.env` togli `AUTH_SIGN_UP=open` (o mettici `closed`) e riavvia il backend.
+- Login con il codice e un'email mai vista, per esempio `chiuso2@testbook.test`.
+- **Atteso:** la stessa schermata "Abbiamo inviato un codice…", ma nel log non arriva nessun codice, e qualsiasi codice dà "Codice errato".
+- Se hai un terzo account Google mai usato in Split: pulsante di Google con quell'account.
+- **Atteso:** "Non esiste un account Split con questa email.". Chi ha già un account (G1, G2, Anna…) entra lo stesso.
+- **Rimetti `AUTH_SIGN_UP=open` e riavvia il backend.**
+- [ ] OK
+
+---
+
+## 6. Regressione (X)
 
 ### X-01 · Data della spesa dal calendario
 - **A**: **+** → `5`, `Caffè` → riga "Data" → scegli un altro giorno del mese **dal calendario** → Fatto → Salva → apri la spesa.
@@ -297,6 +361,8 @@ Si usa il contesto di **D**: Profilo → Esci.
 ### X-04 · Inglese e tema scuro
 - Profilo → Lingua → English, e il sistema in tema scuro.
 - **Atteso:** sono tradotte e leggibili tutte le pagine nuove:
+  - il login con il pulsante di Google;
+  - "Your name" / "What should we call you?";
   - l'anteprima del link (apri un link qualsiasi, anche revocato);
   - "Invite with a link" nel segmento Members;
   - "Blocked people" nel Profilo;
@@ -306,7 +372,7 @@ Si usa il contesto di **D**: Profilo → Esci.
 
 ---
 
-## 6. Controlli via API (facoltativi, S)
+## 7. Controlli via API (facoltativi, S)
 
 Il token di sessione si legge in DevTools → Application → Local Storage → `split_auth` → `accessToken`. Nei comandi `$T` è quel token, e `$TOKEN` è il token di un link, cioè la parte dopo `#`.
 
@@ -325,20 +391,20 @@ curl -s -o /dev/null -w '%{http_code}\n' -X POST localhost:3000/api/group/<publi
 - **Atteso:** `401`, poi `404`.
 - [ ] OK
 
-### S-03 · Il nome mandato al primo login non conta
+### S-03 · Il nome mandato al primo login non aggira le regole
 ```
 curl -s -X POST localhost:3000/api/auth/email-otp/send-verification-otp -H 'Content-Type: application/json' -d '{"email":"gino2@testbook.test","type":"sign-in"}'
 # codice dal log del backend
-curl -s -X POST localhost:3000/api/auth/sign-in/email-otp -H 'Content-Type: application/json' -d '{"email":"gino2@testbook.test","otp":"<codice>","name":"..admin"}'
+curl -s -X POST localhost:3000/api/auth/sign-in/email-otp -H 'Content-Type: application/json' -d '{"email":"gino2@testbook.test","otp":"<codice>","name":"..ad"}'
 ```
-- **Atteso:** nella risposta `user.name` è `user` seguito da 8 cifre (non `..admin`) e `user.needsName` è `true`.
+- **Atteso:** `user.name` è `user` seguito da 8 cifre e `user.needsName` è `true`. Rifacendolo con un'altra email nuova e `"name":"Zio Paperone!!"`, `user.name` è `Zio.Paperone`: un nome valido, ripulito, diventa solo la proposta di "Come ti chiami?".
 - [ ] OK
 
 ### S-04 · Troppe ricerche
 ```
 for i in $(seq 1 31); do curl -s -o /dev/null -w '%{http_code} ' "localhost:3000/api/user?q=nessuno$i@testbook.test" -H "Authorization: Bearer $T"; done; echo
 ```
-- **Atteso:** 30 volte `200`, l'ultima `429`. Nell'app la ricerca di quell'utente mostra "Troppe ricerche: aspetta qualche minuto e riprova." per 10 minuti (30 ricerche all'ora con il branch `registration`). Il contatore è in memoria: un riavvio del backend lo azzera.
+- **Atteso:** 30 volte `200`, l'ultima `429`. Nell'app la ricerca di quell'utente mostra "Troppe ricerche: aspetta qualche minuto e riprova." fino allo scadere dell'ora. Il contatore è in memoria: un riavvio del backend lo azzera.
 - [ ] OK
 
 ---
@@ -350,10 +416,11 @@ for i in $(seq 1 31); do curl -s -o /dev/null -w '%{http_code} ' "localhost:3000
 | P-01 … P-05 | | |
 | G-01 … G-12 | | |
 | B-01 … B-05 | | |
-| R-01 … R-04 | | |
+| R-01 … R-05 | | |
+| O-01 … O-05 | | |
 | X-01 … X-04 | | |
 | S-01 … S-04 | | |
 
 ## Pulizia
 
-Gli utenti di questo test book, compresi Elena.T2, Fabio.T2 e l'utente provvisorio di S-03, e i loro dati restano nel database di sviluppo. Non c'è uno script per eliminarli. Per ripartire da zero, `npx prisma migrate reset --schema=splitBack/prisma/schema.prisma` svuota **tutto** il DB di sviluppo; dopo vanno rilanciati `seed.ts` e `add-users.mts` (vedi `CLAUDE.md`).
+Gli utenti di questo test book e i loro dati restano nel database di sviluppo: Elena.T2, Fabio.T2, gli account Google e quelli provvisori di S-03 compresi. Non c'è uno script per eliminarli. Per ripartire da zero, `npx prisma migrate reset --schema=splitBack/prisma/schema.prisma` svuota **tutto** il DB di sviluppo; dopo vanno rilanciati `seed.ts` e `add-users.mts` (vedi `CLAUDE.md`). Se hai messo il Client ID in `environment.ts`, toglilo prima di committare.

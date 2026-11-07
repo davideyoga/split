@@ -98,7 +98,7 @@
     "email-label": "La tua email",
     "email-placeholder": "mario.rossi@email.com",
     "send-code": "Invia codice",
-    "code-sent": "Se {{email}} ha un account, gli abbiamo inviato un codice di 6 cifre. Può volerci un minuto: controlla anche lo spam.",
+    "code-sent": "Abbiamo inviato un codice di 6 cifre a {{email}}. Può volerci un minuto: controlla anche lo spam.",
     "code-label": "Codice",
     "submit": "Accedi",
     "resend-code": "Invia un nuovo codice",
@@ -108,7 +108,20 @@
     "code-expired": "Il codice è scaduto: richiedine uno nuovo",
     "too-many-attempts": "Troppi tentativi errati: richiedi un nuovo codice",
     "rate-limited": "Troppe richieste: attendi un minuto e riprova",
-    "generic-error": "Qualcosa è andato storto, riprova"
+    "generic-error": "Qualcosa è andato storto, riprova",
+    "intro": "Accedi o crea il tuo account: ti mandiamo un codice via email.",
+    "or": "oppure",
+    "continue-with-apple": "Continua con Apple",
+    "social-no-account": "Non esiste un account Split con questa email.",
+    "social-not-linked": "Questa email ha già un account: accedi una volta con il codice via email, poi potrai usare anche questo pulsante.",
+    "social-unavailable": "Il servizio di accesso non risponde, riprova"
+  },
+  "welcome": {
+    "title": "Il tuo nome",
+    "heading": "Come ti chiami?",
+    "text": "È il nome che vedono, e con cui ti cercano, le persone con cui dividi le spese. Puoi cambiarlo quando vuoi dal Profilo.",
+    "continue": "Continua",
+    "other-account": "Usa un altro account"
   },
   "activity": {
     "load-error": "Impossibile caricare le spese, riprova",

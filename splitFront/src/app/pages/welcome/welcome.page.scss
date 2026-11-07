@@ -1,0 +1,22 @@
+// Logo in cima, come sul login.
+.brand {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 16px;
+
+  img {
+    border-radius: 18px;
+  }
+}
+
+.heading {
+  margin: 0 0 8px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.intro {
+  margin: 0 0 16px;
+  text-align: center;
+}

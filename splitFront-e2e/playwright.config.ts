@@ -60,13 +60,15 @@ export default defineConfig({
       url: API_URL,
       cwd: workspaceRoot,
       // Email scritte in MAIL_OUTBOX_DIR invece che inviate (i test ci leggono
-      // il codice di login), e niente rate limit: tanti login dallo stesso IP.
+      // il codice di login), niente rate limit (tanti login dallo stesso IP) e
+      // registrazione aperta (registration.spec.ts).
       env: {
         ...(databaseUrl && { DATABASE_URL: databaseUrl }),
         PORT: String(API_PORT),
         MAIL_TRANSPORT: 'outbox',
         MAIL_OUTBOX_DIR,
         AUTH_RATE_LIMIT: 'off',
+        AUTH_SIGN_UP: 'open',
       },
       reuseExistingServer: false,
       timeout: 180_000,

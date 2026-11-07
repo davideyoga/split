@@ -1,10 +1,17 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './services/auth.guard';
+import { authGuard, welcomeGuard } from './services/auth.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () => import('./pages/login/login').then((m) => m.Login),
+  },
+  // Scelta del nickname dopo la registrazione: l'authGuard ci manda chi ha
+  // ancora quello provvisorio, conservando il returnUrl.
+  {
+    path: 'welcome',
+    loadComponent: () => import('./pages/welcome/welcome.page').then((m) => m.WelcomePage),
+    canActivate: [welcomeGuard],
   },
   {
     path: 'tabs',

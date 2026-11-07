@@ -9,11 +9,16 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 ## Backend (`splitBack`)
 
 - [group.service.ts:28](splitBack/src/app/group/group.service.ts#L28) — permessi gruppo: oggi qualsiasi membro puo' rinominare il gruppo e aggiungere/rimuovere membri. Prima della beta aggiungere `Group.createdById` (owner) e limitare le mutazioni all'owner.
-- [auth.factory.ts:13](splitBack/src/app/auth/auth.factory.ts#L13) — prima della beta: dietro un reverse proxy il rate limit del login vede solo l'IP del proxy (un contatore per tutti); leggere `X-Forwarded-For` con `advanced.ipAddress.trustedProxies`.
+- [auth.factory.ts:15](splitBack/src/app/auth/auth.factory.ts#L15) — prima della beta: dietro un reverse proxy il rate limit del login vede solo l'IP del proxy (un contatore per tutti); leggere `X-Forwarded-For` con `advanced.ipAddress.trustedProxies`.
 
 
 ## Funzionalita' da aggiungere Priorita' alta
-- Registrazione
+- Registrazione (iniziata il 2026-11-07 nel branch `registration`: codice via email, Google, Apple, collegamento per email, `/welcome`; vedi CLAUDE.md, "Registration"). Manca, **prima di impostare `AUTH_SIGN_UP=open` in produzione**:
+  - "Blocca" (fase C del piano gruppi): con la registrazione aperta chiunque trova un utente con la ricerca esatta e lo aggiunge a una spesa;
+  - eliminazione dell'account e informativa privacy (GDPR). L'informativa serve anche a Google per pubblicare la schermata di consenso OAuth fuori dalla modalita' "Testing";
+  - captcha (plugin `captcha` di Better Auth) se arrivano abusi: chiunque puo' far mandare codici a indirizzi a caso, e Brevo gratuito si ferma a ~300 email al giorno.
+- Login con Google e Apple nell'app nativa (Capacitor): oggi solo web/PWA. Nella WebView Google rifiuta il login (`disallowed_useragent`) e il JS di Apple non e' pensato per le app: servono plugin nativi open source che restituiscano l'ID token, e i loro client ID (Android/iOS) aggiunti a `GOOGLE_CLIENT_ID` / `APPLE_APP_BUNDLE_IDENTIFIER`. Vedi [doc/Auth.md](doc/Auth.md).
+- Login con Apple e "Nascondi la mia email": Apple da' un indirizzo `@privaterelay.appleid.com`, diverso da quello usato col codice, quindi nasce un secondo account invece di collegarsi al primo. Rimedio possibile: collegare Apple dal Profilo, a sessione aperta (`/link-social` con ID token e `allowDifferentEmails`).
 - Passkey (accesso con impronta/FaceID dopo il primo login via codice): plugin `@better-auth/passkey` (MIT), aggiunge una tabella. Su Capacitor serve un plugin nativo open source e la configurazione del dominio (`assetlinks.json` / `apple-app-site-association`). Vedi [doc/Auth.md](doc/Auth.md).
 - Dominio per le email: con Brevo e mittente Gmail i codici di login possono finire in spam; con un dominio autenticato in Brevo (SPF/DKIM) no.
 - Amici, limiti dell'alpha (fatti il 2026-10-25: ricerca esatta, notifiche, amici con spese e inviti in attesa; vedi CLAUDE.md, "Friends"):
@@ -26,7 +31,7 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
   - nessuna notifica si cancella mai (se ne mostrano le ultime 50): serve una pulizia di quelle vecchie;
   - il numero sulla campanella non si aggiorna da solo mentre l'app resta aperta sulla stessa pagina (con le push non servira');
   - mancano le notifiche per la rinomina di un gruppo e per un rimborso eliminato.
-- Rate limit su `GET /api/user` (prima della beta): oggi un utente loggato puo' provare un'email alla volta per sapere se ha un account (e il suo nickname). Nest non ha ancora un throttler. Vedi CLAUDE.md, "User search".
+- Rate limit su `GET /api/user`: fatto il 2026-11-07 (30 ricerche all'ora per utente, `search-rate-limit.guard.ts`), ma in memoria come quello del login: si azzera a ogni riavvio e vale per un solo processo. Se l'API gira su piu' istanze, spostarlo su storage condiviso. Il frontend (`select-participant`) mostra il 429 come un errore di ricerca generico.
 
 
 - Nickname liberati da un rename (priorita' media, prima della beta): oggi un nickname appena lasciato puo' essere preso subito da un altro utente, e chi cerca il vecchio nome aggiunge alla spesa la persona sbagliata. Possibili rimedi: riservare per qualche settimana i nickname liberati, o un limite di cambi. Vedi CLAUDE.md, "Nickname".

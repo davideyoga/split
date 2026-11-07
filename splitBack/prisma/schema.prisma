@@ -28,6 +28,10 @@ model User {
   createdDate          DateTime           @default(now())
   updatedAt            DateTime           @default(now()) @updatedAt
   confirmed            Boolean            @default(false)
+  // Registrato da solo (codice via email, Google o Apple) e non ha ancora
+  // scelto il nickname: ne ha uno provvisorio e l'app lo manda su /welcome.
+  // Torna false con PATCH /api/user/me. Chi viene da seed/add-users ha gia' il suo.
+  needsName            Boolean            @default(false)
   image                String?
   sessions             Session[]
   accounts             Account[]

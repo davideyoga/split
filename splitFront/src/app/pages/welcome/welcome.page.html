@@ -1,0 +1,49 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ 'welcome.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Il logo dell'app, come sul login: decorativo. -->
+  <div class="brand">
+    <img src="icons/icon-192.png" alt="" width="72" height="72" />
+  </div>
+
+  <h1 class="heading">{{ 'welcome.heading' | translate }}</h1>
+  <ion-text color="medium">
+    <p class="intro">{{ 'welcome.text' | translate }}</p>
+  </ion-text>
+
+  <form [formGroup]="form" (ngSubmit)="save()">
+    <ion-list>
+      <ion-item>
+        <!-- Niente maxlength, come nel Profilo: si vede "troppo lungo". -->
+        <ion-input
+          label="{{ 'profile.nickname' | translate }}"
+          labelPlacement="floating"
+          type="text"
+          autocapitalize="off"
+          autocomplete="nickname"
+          [spellcheck]="false"
+          formControlName="nickName"
+          helperText="{{ 'profile.nickname-helper' | translate: { min: field.min, max: field.max } }}"
+          [errorText]="field.errorText"
+          (ionBlur)="field.onBlur()"
+        ></ion-input>
+      </ion-item>
+    </ion-list>
+
+    <div class="ion-padding-top">
+      <ion-button type="submit" expand="block" [disabled]="!canSave">
+        {{ 'welcome.continue' | translate }}
+      </ion-button>
+    </div>
+  </form>
+
+  <div class="ion-text-center">
+    <ion-button fill="clear" size="small" [disabled]="saving" (click)="useAnotherAccount()">
+      {{ 'welcome.other-account' | translate }}
+    </ion-button>
+  </div>
+</ion-content>

@@ -25,10 +25,10 @@
         autocapitalize="off"
         autocomplete="off"
         [spellcheck]="false"
-        [formControl]="control"
-        helperText="{{ 'profile.nickname-helper' | translate: { min: min, max: max } }}"
-        [errorText]="errorText"
-        (ionBlur)="onBlur()"
+        [formControl]="field.control"
+        helperText="{{ 'profile.nickname-helper' | translate: { min: field.min, max: field.max } }}"
+        [errorText]="field.errorText"
+        (ionBlur)="field.onBlur()"
         (keyup.enter)="save()"
       ></ion-input>
     </ion-item>

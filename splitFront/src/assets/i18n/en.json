@@ -88,7 +88,7 @@
     "email-label": "Your email",
     "email-placeholder": "mario.rossi@email.com",
     "send-code": "Send code",
-    "code-sent": "If {{email}} has an account, we've emailed it a 6-digit code. It can take a minute: check your spam folder too.",
+    "code-sent": "We've emailed a 6-digit code to {{email}}. It can take a minute: check your spam folder too.",
     "code-label": "Code",
     "submit": "Log in",
     "resend-code": "Send a new code",
@@ -98,7 +98,20 @@
     "code-expired": "The code has expired: request a new one",
     "too-many-attempts": "Too many wrong attempts: request a new code",
     "rate-limited": "Too many requests: wait a minute and try again",
-    "generic-error": "Something went wrong, please try again"
+    "generic-error": "Something went wrong, please try again",
+    "intro": "Log in or create your account: we'll email you a code.",
+    "or": "or",
+    "continue-with-apple": "Continue with Apple",
+    "social-no-account": "There's no Split account with this email.",
+    "social-not-linked": "This email already has an account: log in once with the emailed code, then you can use this button too.",
+    "social-unavailable": "Couldn't reach the login service, please try again"
+  },
+  "welcome": {
+    "title": "Your name",
+    "heading": "What should we call you?",
+    "text": "It's the name the people you split expenses with will see and search for. You can change it any time from Profile.",
+    "continue": "Continue",
+    "other-account": "Use a different account"
   },
   "activity": {
     "load-error": "Couldn't load expenses, please try again",
@@ -356,7 +369,7 @@
     "already-member": "You're already in this group.",
     "open-group": "Open the group",
     "login": "Log in to join",
-    "login-hint": "Use the email of your Split account. You'll come back here right after.",
+    "login-hint": "With your email: if you don't have an account yet, it's created now. You'll come back here right after.",
     "error-title": "This invite doesn't work",
     "error-not-found": "The link is incomplete or was never valid. Ask whoever sent it for a new one.",
     "error-expired": "The link has expired. Ask whoever sent it for a new one.",

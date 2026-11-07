@@ -10,6 +10,9 @@
     <img src="icons/icon-192.png" alt="" width="72" height="72" />
   </div>
   @if (step === 'email') {
+    <ion-text color="medium">
+      <p class="intro">{{ 'login.intro' | translate }}</p>
+    </ion-text>
     <form [formGroup]="emailForm" (ngSubmit)="sendCode()">
       <ion-list>
         <ion-item>
@@ -36,6 +39,24 @@
         </ion-button>
       </div>
     </form>
+
+    <!-- Solo i provider configurati in environment. Il pulsante di Google lo
+         disegna Google (regole del marchio); quello di Apple segue le loro
+         linee guida: nero, bianco in tema scuro. -->
+    @if (social.googleEnabled || social.appleEnabled) {
+      <div class="social">
+        <div class="divider"><span>{{ 'login.or' | translate }}</span></div>
+        @if (social.googleEnabled) {
+          <div class="google-button" #googleButton></div>
+        }
+        @if (social.appleEnabled) {
+          <ion-button class="apple-button" expand="block" [disabled]="busy" (click)="signInWithApple()">
+            <ion-icon slot="start" name="logo-apple" aria-hidden="true"></ion-icon>
+            {{ 'login.continue-with-apple' | translate }}
+          </ion-button>
+        }
+      </div>
+    }
   } @else {
     <form [formGroup]="codeForm" (ngSubmit)="submitCode()">
       <ion-text color="medium">

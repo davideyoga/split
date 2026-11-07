@@ -9,14 +9,16 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 ## Backend (`splitBack`)
 
 - [group.service.ts:26](splitBack/src/app/group/group.service.ts#L26) — permessi gruppo: oggi qualsiasi membro puo' rinominare il gruppo, creare o revocare il link d'invito e rimuovere membri. Prima della beta aggiungere `Group.createdById` (owner) e limitare le mutazioni all'owner.
-- [auth.factory.ts:14](splitBack/src/app/auth/auth.factory.ts#L14) — prima della beta: dietro un reverse proxy il rate limit del login vede solo l'IP del proxy (un contatore per tutti); leggere `X-Forwarded-For` con `advanced.ipAddress.trustedProxies`.
+- [auth.factory.ts:15](splitBack/src/app/auth/auth.factory.ts#L15) — prima della beta: dietro un reverse proxy il rate limit del login vede solo l'IP del proxy (un contatore per tutti); leggere `X-Forwarded-For` con `advanced.ipAddress.trustedProxies`.
 
 
 ## Funzionalita' da aggiungere Priorita' alta
-- Piano in [doc/InvitiGruppo.md](doc/InvitiGruppo.md) (2026-11-07). Fatte le fasi A (via gli amici), B (link d'invito) e C ("Blocca" ed "Esci dal gruppo"). La fase D (registrazione aperta) e' nel branch `registration`.
-
-  Ospiti senza account: estensione futura.
-- Captcha alla registrazione (rimandato, 2026-10-25): da riconsiderare se, con la registrazione aperta, arrivano abusi sull'invio dei codici (quota Brevo). Vedi [doc/InvitiGruppo.md](doc/InvitiGruppo.md).
+- Piano in [doc/InvitiGruppo.md](doc/InvitiGruppo.md) (2026-11-07): fatte tutte e quattro le fasi (A via gli amici, B link d'invito, C "Blocca" ed "Esci dal gruppo", D registrazione aperta dal branch `registration`). Ospiti senza account: estensione futura.
+- Registrazione (2026-11-07, branch `registration`: codice via email, Google, Apple, collegamento per email, `/welcome`; vedi CLAUDE.md, "Registration"). Manca, **prima di impostare `AUTH_SIGN_UP=open` in produzione**:
+  - eliminazione dell'account e informativa privacy (GDPR). L'informativa serve anche a Google per pubblicare la schermata di consenso OAuth fuori dalla modalita' "Testing";
+  - captcha (plugin `captcha` di Better Auth) se arrivano abusi: chiunque puo' far mandare codici a indirizzi a caso, e Brevo gratuito si ferma a ~300 email al giorno.
+- Login con Google e Apple nell'app nativa (Capacitor): oggi solo web/PWA. Nella WebView Google rifiuta il login (`disallowed_useragent`) e il JS di Apple non e' pensato per le app: servono plugin nativi open source che restituiscano l'ID token, e i loro client ID (Android/iOS) aggiunti a `GOOGLE_CLIENT_ID` / `APPLE_APP_BUNDLE_IDENTIFIER`. Vedi [doc/Auth.md](doc/Auth.md).
+- Login con Apple: per ora non si puo' provare (2026-11-07), quindi resta fuori dal test book. Con "Nascondi la mia email" Apple da' un indirizzo `@privaterelay.appleid.com`, diverso da quello usato col codice, quindi nasce un secondo account invece di collegarsi al primo. Rimedio possibile: collegare Apple dal Profilo, a sessione aperta (`/link-social` con ID token e `allowDifferentEmails`).
 - Passkey (accesso con impronta/FaceID dopo il primo login via codice): plugin `@better-auth/passkey` (MIT), aggiunge una tabella. Su Capacitor serve un plugin nativo open source e la configurazione del dominio (`assetlinks.json` / `apple-app-site-association`). Vedi [doc/Auth.md](doc/Auth.md).
 - Dominio per le email: con Brevo e mittente Gmail i codici di login possono finire in spam; con un dominio autenticato in Brevo (SPF/DKIM) no.
 - Notifiche push: agganciarle all'unico punto di creazione, `NotificationService.notify()`, dopo il commit della transazione. Il testo della push lo genera il server, quindi serve la lingua dell'utente salvata sul server (`User.locale`; oggi e' solo in localStorage). Vedi CLAUDE.md, "Notifications".
@@ -24,7 +26,7 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
   - nessuna notifica si cancella mai (se ne mostrano le ultime 50): serve una pulizia di quelle vecchie;
   - il numero sulla campanella non si aggiorna da solo mentre l'app resta aperta sulla stessa pagina (con le push non servira');
   - mancano le notifiche per la rinomina di un gruppo e per un rimborso eliminato.
-- Rate limit su `GET /api/user` (prima della registrazione aperta): oggi un utente loggato puo' provare un'email alla volta per sapere se ha un account (e il suo nickname). Nest non ha ancora un throttler. Vedi CLAUDE.md, "User search".
+- Rate limit su `GET /api/user`: fatto il 2026-11-07 (30 ricerche all'ora per utente, `search-rate-limit.guard.ts`), ma in memoria come quello del login: si azzera a ogni riavvio e vale per un solo processo. Se l'API gira su piu' istanze, spostarlo su storage condiviso. Il frontend (`select-participant`) mostra il 429 come "Troppe ricerche".
 - Link d'invito nell'app nativa (Capacitor): il link usa `window.location.origin`, che li' e' `https://localhost`. Serve l'URL pubblico del sito (es. in `environment`) e il deep link `/join` configurato in Android/iOS.
 
 

@@ -117,6 +117,9 @@ export class UserService {
    * L'unicita' senza maiuscole la garantisce il DB (colonna citext con
    * @unique): un controllo con findFirst prima dell'update lascerebbe passare
    * due richieste quasi simultanee per "Pippo" e "PIPPO".
+   *
+   * E' anche il passo /welcome di chi si e' appena registrato: un nickname
+   * scelto (anche uguale a quello provvisorio) chiude `needsName`.
    */
   async updateMe(userPublicId: string, rawNickName: string) {
     const nickName = normalizeNickname(rawNickName);
@@ -128,8 +131,8 @@ export class UserService {
     try {
       return await this.prisma.user.update({
         where: { publicId: userPublicId },
-        data: { nickName },
-        select: { publicId: true, nickName: true, email: true },
+        data: { nickName, needsName: false },
+        select: { publicId: true, nickName: true, email: true, needsName: true },
       });
     } catch (e) {
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {

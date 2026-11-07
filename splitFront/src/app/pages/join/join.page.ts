@@ -72,6 +72,13 @@ export class JoinPage {
     this.errorKey = '';
     this.loggedIn = !!this.authService.getToken();
     this.token = this.takeToken();
+    // Appena registrato: prima il nickname, poi di nuovo qui. Le altre pagine
+    // lo fanno con l'authGuard; questa non ce l'ha, il token e' gia' salvato in
+    // sessionStorage.
+    if (this.loggedIn && this.authService.currentUser()?.needsName) {
+      this.navCtrl.navigateRoot(['/welcome'], { queryParams: { returnUrl: '/join' } });
+      return;
+    }
     if (!this.token) {
       this.errorKey = 'join.error-not-found';
       return;

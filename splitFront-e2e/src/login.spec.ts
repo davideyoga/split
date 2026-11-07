@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { API_URL } from './support/env';
 import { t } from './support/i18n';
 import { visible } from './support/ionic';
-import { clearMail, hasMail, readOtp } from './support/outbox';
+import { clearMail, readOtp } from './support/outbox';
 import { loginAs, USERS } from './support/session';
 
 /** Primo passaggio del login: email -> "Invia codice". */
@@ -34,17 +34,8 @@ test.describe('login con codice via email', () => {
     await expect(visible(page.getByText(t('activity.empty-title')))).toBeVisible();
   });
 
-  test('un\'email sconosciuta non riceve nulla e nessun codice la fa entrare', async ({ page }) => {
-    const unknown = 'nessuno@disney.test';
-    await page.goto('/login');
-    // Stessa schermata di un utente esistente: non si scopre chi e' registrato.
-    await requestCode(page, unknown);
-    expect(hasMail(unknown)).toBe(false);
-
-    await enterCode(page, '123456');
-    await expect(page.getByText(t('login.invalid-code'))).toBeVisible();
-    await expect(page).toHaveURL(/\/login/);
-  });
+  // Un'email sconosciuta, con la registrazione aperta (come nello stack e2e),
+  // crea l'account: vedi registration.spec.ts.
 
   test('un deep link senza sessione torna alla pagina chiesta dopo il login', async ({ page }) => {
     await page.goto('/tabs/balances');

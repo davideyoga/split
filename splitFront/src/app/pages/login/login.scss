@@ -8,3 +8,60 @@
     border-radius: 18px;
   }
 }
+
+.intro {
+  margin: 0 0 8px;
+  text-align: center;
+}
+
+// Google e Apple, larghi uguali: Google accetta al massimo 400px.
+.social {
+  max-width: 400px;
+  margin: 24px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+// "oppure" fra due righe sottili.
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ion-color-medium);
+  font-size: 13px;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-top: 1px solid var(--split-line);
+  }
+}
+
+// Alto 40px, come il pulsante "large" di Google.
+.google-button {
+  display: flex;
+  justify-content: center;
+  min-height: 40px;
+}
+
+.apple-button {
+  --background: #000;
+  --background-activated: #333;
+  --background-focused: #333;
+  --background-hover: #222;
+  --color: #fff;
+  height: 40px;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .apple-button {
+    --background: #fff;
+    --background-activated: #ddd;
+    --background-focused: #ddd;
+    --background-hover: #eee;
+    --color: #000;
+  }
+}

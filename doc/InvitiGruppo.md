@@ -1,6 +1,6 @@
 # Gruppi via link, niente amici, blocco
 
-Data: 2026-10-25, rivisto il 2026-11-07. Stato: fasi A, B e C **fatte** (2026-11-07); la fase D e' nel branch `registration`. Restano gli ospiti, estensione futura. Le decisioni dell'utente sono indicate come tali. Il resto è una proposta, adottata salvo diversa indicazione.
+Data: 2026-10-25, rivisto il 2026-11-07. Stato: **implementato** (2026-11-07): fasi A, B, C e D fatte; la D viene dal branch `registration`. Restano gli ospiti, estensione futura. Le decisioni dell'utente sono indicate come tali. Il resto è una proposta, adottata salvo diversa indicazione.
 
 ## Perché
 
@@ -101,9 +101,17 @@ API: `GET /api/user/blocks`, `POST /api/user/blocks` `{ publicId }`, `DELETE /ap
 
 **Esci dal gruppo:** un pulsante esplicito nelle impostazioni del gruppo, con conferma. L'API c'è già: è la rimozione di sé stessi.
 
-### Fase D: registrazione aperta (nel branch `registration`)
+### Fase D: registrazione aperta (fatta, 2026-11-07, dal branch `registration`)
 
-Come nella versione precedente di questo documento (vedi [Registrazione aperta](#registrazione-aperta)). Ci va anche il **rate limit su `GET /api/user`**: con la registrazione aperta chiunque può controllare, un'email alla volta, chi ha un account.
+La fase D e' stata scritta due volte lo stesso giorno: una su `dev`, insieme alle fasi A-C, e una in un'altra sessione nel branch `registration`. Si e' tenuta la seconda, piu' completa, e la prima e' stata tolta prima del merge (merge di `registration` in `dev`, 2026-11-07). Rispetto al progetto qui sotto, la versione di `registration`:
+
+- la apre l'interruttore **`AUTH_SIGN_UP=open`**, chiuso di default (va impostato su Render per aprirla davvero);
+- ha anche il login con **Google** e **Apple** (solo ID token, niente redirect OAuth) e collega gli account con la stessa email verificata;
+- usa come nickname proposto il nome di Google/Apple ripulito, oppure `user` + 8 cifre;
+- limita la ricerca utenti a 30 ricerche **all'ora** per utente;
+- ha `/welcome` con un campo nickname condiviso con il Profilo (`NicknameField`), e manda li' chi ha `needsName` dall'`authGuard`.
+
+Dal lavoro su `dev` sono rimasti: il rimando a `/welcome` della pagina `/join` (che non ha `authGuard`), il controllo `/\host` in `safeReturnUrl`, il messaggio "Troppe ricerche" e i test: e2e "registrazione dal link d'invito" (`invite.spec.ts`) e "il nome mandato al primo login" (`registration.spec.ts`), Jest su `safeReturnUrl` e `nicknameFromName`. Dettagli in CLAUDE.md, **Registration**, e in [Auth.md](Auth.md). Il login con Apple non e' ancora stato provato.
 
 ## Il link
 

@@ -164,3 +164,27 @@ test('un link revocato dice di chiederne uno nuovo', async ({ page }) => {
   await expect(page.getByText(t('join.error-revoked'))).toBeVisible();
   await expect(page.getByRole('button', { name: t('join.join') })).toHaveCount(0);
 });
+
+test('chi non ha un account entra dal link: registrazione, nome, gruppo', async ({ page }) => {
+  const ezechiele = await apiLogin(page.request, USERS.ezechiele);
+  const group = await createGroup(page.request, ezechiele, 'Radura');
+  const token = await createInvite(page.request, ezechiele, group.publicId);
+
+  await page.goto(`/join#${token}`);
+  await page.getByRole('button', { name: t('join.login') }).click();
+  await loginFromUi(page, 'nuova.amica@disney.test');
+
+  // Account appena creato: prima il nome, poi di nuovo il link.
+  await expect(page).toHaveURL(/\/welcome\?returnUrl=%2Fjoin$/);
+  await page.getByRole('textbox', { name: t('profile.nickname') }).fill('Nuova.Amica');
+  await page.getByRole('button', { name: t('welcome.continue') }).click();
+  await expect(page).toHaveURL(/\/join$/);
+  await expect(page.getByRole('heading', { name: 'Radura' })).toBeVisible();
+
+  await page.getByRole('button', { name: t('join.join') }).click();
+  await expect(page).toHaveURL(new RegExp(`/tabs/groups/${group.publicId}$`));
+  const members = await page.request.get(`${API_URL}/group/${group.publicId}`, auth(ezechiele));
+  expect(((await members.json()) as { members: { nickName: string }[] }).members.map((m) => m.nickName)).toEqual(
+    expect.arrayContaining(['Ezechiele', 'Nuova.Amica']),
+  );
+});

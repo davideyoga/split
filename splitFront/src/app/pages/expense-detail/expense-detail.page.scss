@@ -51,18 +51,3 @@
 .created {
   margin-top: 16px;
 }
-
-// Spesa da accettare: testo e i due bottoni.
-ion-card.pending-banner {
-  margin: 12px 16px 0;
-
-  p {
-    margin: 0 0 8px;
-  }
-}
-
-.pending-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}

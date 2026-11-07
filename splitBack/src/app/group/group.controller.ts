@@ -3,7 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpCode,
   Param,
   Patch,
   Post,
@@ -15,7 +14,6 @@ import { Request } from 'express';
 import type { AuthUser } from '../auth/auth-user';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
 import { CreateGroupDto } from './dto/create-group.dto';
-import { GroupMembersDto } from './dto/group-members.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { GroupService } from './group.service';
 
@@ -58,17 +56,6 @@ export class GroupController {
     return this.groupService.rename(user.publicId, publicId, dto);
   }
 
-  @Post('/:publicId/members')
-  @UseGuards(SessionAuthGuard)
-  addMembers(
-    @Req() request: Request,
-    @Param('publicId') publicId: string,
-    @Body(new ValidationPipe()) dto: GroupMembersDto,
-  ) {
-    const user = request['user'] as AuthUser;
-    return this.groupService.addMembers(user.publicId, publicId, dto);
-  }
-
   @Delete('/:publicId/members/:userPublicId')
   @UseGuards(SessionAuthGuard)
   removeMember(
@@ -78,26 +65,5 @@ export class GroupController {
   ) {
     const user = request['user'] as AuthUser;
     return this.groupService.removeMember(user.publicId, publicId, userPublicId);
-  }
-
-  // Invito in attesa (2026-10-25): chi non era amico di chi l'ha aggiunto
-  // accetta (diventa membro e amico di tutti i membri) o rifiuta.
-  @Post('/:publicId/accept')
-  @UseGuards(SessionAuthGuard)
-  accept(
-    @Req() request: Request & { user: AuthUser },
-    @Param('publicId') publicId: string,
-  ) {
-    return this.groupService.accept(request.user.publicId, publicId);
-  }
-
-  @Post('/:publicId/decline')
-  @HttpCode(204)
-  @UseGuards(SessionAuthGuard)
-  decline(
-    @Req() request: Request & { user: AuthUser },
-    @Param('publicId') publicId: string,
-  ) {
-    return this.groupService.decline(request.user.publicId, publicId);
   }
 }

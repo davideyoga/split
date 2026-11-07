@@ -14,23 +14,13 @@ export type NotificationType =
   | 'EXPENSE_REMOVED'
   // Qualcuno ha eliminato una spesa in cui eri: istantanea in `params`.
   | 'EXPENSE_DELETED'
-  // Qualcuno ti ha messo in un gruppo.
+  // Qualcuno ti ha messo in un gruppo. Non si crea piu' (dal 2026-11-07 nei
+  // gruppi si entra solo col link), ma le righe vecchie restano.
   | 'GROUP_ADDED'
-  // L'altra persona ha registrato un rimborso fra voi due.
-  | 'SETTLEMENT_ADDED'
-  // Amici e richieste (2026-10-25):
-  // chi non e' ancora tuo amico ti ha messo in una spesa: accetta o rifiuta.
-  | 'EXPENSE_PENDING'
-  // chi avevi messo in una spesa l'ha rifiutata: la sua quota e' passata a te.
-  | 'EXPENSE_REJECTED'
-  // ha accettato la tua richiesta: ora siete amici.
-  | 'FRIEND_ACCEPTED'
-  // chi non e' ancora tuo amico ti ha invitato in un gruppo.
-  | 'GROUP_INVITED'
-  // ha accettato il tuo invito nel gruppo.
+  // Qualcuno e' entrato col link in un gruppo di cui fai parte.
   | 'GROUP_JOINED'
-  // ha rifiutato il tuo invito nel gruppo.
-  | 'GROUP_DECLINED';
+  // L'altra persona ha registrato un rimborso fra voi due.
+  | 'SETTLEMENT_ADDED';
 
 /** `params` di EXPENSE_REMOVED / EXPENSE_DELETED: la spesa com'era. */
 // `type` e non `interface`: solo cosi' TypeScript lo accetta come JSON di Prisma.

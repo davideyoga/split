@@ -159,11 +159,6 @@ ion-content.has-fab {
 // stessa forma, stessa struttura (etichetta, cifra, riga sotto), su uno
 // sfondo appena diverso dalla pagina invece dell'ombra. Globali perche' stanno
 // in componenti diversi.
-// "Hai N spese da confermare" (Attivita'), sopra i riquadri.
-ion-card.pending-card {
-  margin: 8px 16px 4px;
-}
-
 .summary-tiles {
   display: grid;
   grid-template-columns: 1fr 1fr;

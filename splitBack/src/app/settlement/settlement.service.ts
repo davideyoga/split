@@ -7,6 +7,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { NotificationService } from '../notification/notification.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { blockersOf } from '../user/blocks';
 import { CreateSettlementDto } from './dto/create-settlement.dto';
 
 // Come per le spese, degli utenti si espongono solo publicId e nickName.
@@ -66,6 +67,12 @@ export class SettlementService {
     const from = users.find((u) => u.publicId === dto.fromPublicId);
     const to = users.find((u) => u.publicId === dto.toPublicId);
     if (!from || !to) {
+      throw new BadRequestException('Uno dei due utenti non esiste');
+    }
+    // Con chi ti ha bloccato non si registrano rimborsi: stesso errore di un
+    // utente che non esiste (vedi user/blocks.ts).
+    const other = from.id === user.id ? to : from;
+    if ((await blockersOf(this.prisma, user.id, [other.id])).size > 0) {
       throw new BadRequestException('Uno dei due utenti non esiste');
     }
 

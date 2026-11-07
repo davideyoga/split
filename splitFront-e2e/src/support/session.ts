@@ -33,6 +33,12 @@ export const USERS = {
   bassotto: 'bassotto@disney.test',
   nocciola: 'nocciola@disney.test',
   gongolo: 'gongolo@disney.test',
+  ezechiele: 'ezechiele@disney.test',
+  trudy: 'trudy@disney.test',
+  gambadilegno: 'gambadilegno@disney.test',
+  filo: 'filo@disney.test',
+  macchianera: 'macchianera@disney.test',
+  paperetta: 'paperetta@disney.test',
 } as const;
 
 export interface Session {
@@ -99,19 +105,54 @@ export async function createExpense(
   return response.json();
 }
 
-/** Crea un gruppo via API (il creatore ne fa sempre parte). */
+/**
+ * Crea un gruppo via API e ci fa entrare `members` come nell'app (2026-11-07):
+ * un link d'invito del creatore, poi `join` di ognuno. Il gruppo nasce col
+ * solo creatore; ai membri gia' dentro arriva GROUP_JOINED per ogni ingresso.
+ */
 export async function createGroup(
   request: APIRequestContext,
   session: Session,
   name: string,
-  memberPublicIds: string[],
+  members: Session[] = [],
 ): Promise<{ publicId: string }> {
   const response = await request.post(`${API_URL}/group`, {
     headers: { Authorization: `Bearer ${session.accessToken}` },
-    data: { name, memberPublicIds },
+    data: { name },
   });
   expect(response.ok(), `creazione gruppo ${name}`).toBeTruthy();
-  return response.json();
+  const group = (await response.json()) as { publicId: string };
+  if (members.length > 0) {
+    const token = await createInvite(request, session, group.publicId);
+    for (const member of members) {
+      await joinGroup(request, member, token);
+    }
+  }
+  return group;
+}
+
+/** Link d'invito di un gruppo (revoca il precedente): ne restituisce il token. */
+export async function createInvite(
+  request: APIRequestContext,
+  session: Session,
+  groupPublicId: string,
+  expiresInDays: 1 | 7 | 30 = 7,
+): Promise<string> {
+  const response = await request.post(`${API_URL}/group/${groupPublicId}/invite`, {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    data: { expiresInDays },
+  });
+  expect(response.ok(), 'creazione link d\'invito').toBeTruthy();
+  return ((await response.json()) as { token: string }).token;
+}
+
+/** Entra in un gruppo con il token del link. */
+export async function joinGroup(request: APIRequestContext, session: Session, token: string): Promise<void> {
+  const response = await request.post(`${API_URL}/invite/join`, {
+    headers: { Authorization: `Bearer ${session.accessToken}` },
+    data: { token },
+  });
+  expect(response.ok(), `${session.user.nickName} entra nel gruppo`).toBeTruthy();
 }
 
 /** publicId di una categoria preconfigurata (per slug: 'food', 'transport', ...). */
@@ -128,40 +169,4 @@ export async function presetCategoryId(
   const category = categories.find((c) => c.slug === slug);
   expect(category, `categoria preconfigurata ${slug}`).toBeTruthy();
   return (category as { publicId: string }).publicId;
-}
-
-/**
- * Rende amici `a` e `b` come farebbe l'app (2026-10-25): `a` mette `b` in una
- * spesa, `b` accetta `a`, la spesa si elimina. Se sono gia' amici non fa
- * niente. Lascia a `b` una notifica EXPENSE_DELETED e ad `a` una
- * FRIEND_ACCEPTED.
- */
-export async function makeFriends(request: APIRequestContext, a: Session, b: Session): Promise<void> {
-  const headers = (s: Session) => ({ Authorization: `Bearer ${s.accessToken}` });
-  const friends = await request.get(`${API_URL}/friend`, { headers: headers(a) });
-  expect(friends.ok(), 'elenco amici').toBeTruthy();
-  if (((await friends.json()) as { publicId: string }[]).some((f) => f.publicId === b.user.publicId)) {
-    return;
-  }
-  const expense = await createExpense(request, a, {
-    amount: 1,
-    description: 'Amicizia',
-    participantPublicIds: [b.user.publicId],
-  });
-  const accepted = await request.post(`${API_URL}/friend/${a.user.publicId}/accept`, { headers: headers(b) });
-  expect(accepted.status(), `${b.user.nickName} accetta ${a.user.nickName}`).toBe(204);
-  const deleted = await request.delete(`${API_URL}/expense/${expense.publicId}`, { headers: headers(a) });
-  expect(deleted.status(), 'eliminazione della spesa di appoggio').toBe(204);
-}
-
-/** Accetta l'invito in un gruppo: chi non era amico di chi l'ha aggiunto deve farlo per entrarci. */
-export async function acceptGroup(
-  request: APIRequestContext,
-  session: Session,
-  groupPublicId: string,
-): Promise<void> {
-  const response = await request.post(`${API_URL}/group/${groupPublicId}/accept`, {
-    headers: { Authorization: `Bearer ${session.accessToken}` },
-  });
-  expect(response.ok(), `${session.user.nickName} accetta il gruppo`).toBeTruthy();
 }

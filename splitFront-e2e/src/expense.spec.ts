@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { API_URL } from './support/env';
 import { t } from './support/i18n';
-import { toast, topModal, visible } from './support/ionic';
+import { fillInput, toast, topModal, visible } from './support/ionic';
 import { loginAs, USERS } from './support/session';
 
 // Stesso formato dei template (`date: 'dd/MM/yyyy'`).
@@ -24,9 +24,7 @@ test('nuova spesa divisa in parti uguali, dettaglio ed eliminazione', async ({ p
   // FAB → modale "Nuova spesa"
   await page.getByRole('button', { name: t('expense-form.title-new') }).click();
   await topModal(page).getByRole('textbox', { name: t('expense-form.amount') }).fill('30');
-  await topModal(page)
-    .getByRole('textbox', { name: t('expense-form.description-label') })
-    .fill('Cena al lago');
+  await fillInput(topModal(page).getByRole('textbox', { name: t('expense-form.description-label') }), 'Cena al lago');
 
   // "Dividi con" → modale di scelta (sopra la form) → Pluto
   await topModal(page).getByRole('button', { name: t('expense-form.split-with') }).click();
@@ -78,9 +76,7 @@ test('data della spesa: oggi di default, modificabile; la data di inserimento la
   // Nuova spesa senza toccare la data: vale oggi
   await page.getByRole('button', { name: t('expense-form.title-new') }).click();
   await topModal(page).getByRole('textbox', { name: t('expense-form.amount') }).fill('12');
-  await topModal(page)
-    .getByRole('textbox', { name: t('expense-form.description-label') })
-    .fill('Gelato');
+  await fillInput(topModal(page).getByRole('textbox', { name: t('expense-form.description-label') }), 'Gelato');
   await topModal(page).getByRole('button', { name: t('expense-form.save') }).click();
   await expect(toast(page, t('expense-form.created'))).toBeVisible();
 
@@ -101,11 +97,14 @@ test('data della spesa: oggi di default, modificabile; la data di inserimento la
   await topModal(page).locator('ion-datetime-button').click();
 
   const target = otherDayThisMonth(today);
+  // dispatchEvent e non click(): portando in vista la cella il calendario
+  // puo' scorrere al mese dopo, e il clic per coordinate finiva sul giorno
+  // del mese successivo nella stessa posizione (1/11 -> 6/12).
   await topModal(page)
     .locator(
       `.calendar-day[data-day="${target.getDate()}"][data-month="${target.getMonth() + 1}"][data-year="${target.getFullYear()}"]`,
     )
-    .click();
+    .dispatchEvent('click');
   await topModal(page).getByRole('button', { name: t('expense-form.date-done') }).click();
   await topModal(page).getByRole('button', { name: t('expense-form.save') }).click();
   await expect(toast(page, t('expense-form.updated'))).toBeVisible();

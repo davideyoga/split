@@ -1,0 +1,37 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">{{ 'block.close' | translate }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'block.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <p class="ion-padding-horizontal"><ion-note>{{ 'block.hint' | translate }}</ion-note></p>
+
+  @if (!loaded) {
+    <app-loading-skeleton [rows]="2" [header]="false" [amounts]="false"></app-loading-skeleton>
+  } @else if (loadError) {
+    <p class="ion-padding-horizontal">{{ 'block.error' | translate }}</p>
+  } @else if (blocked.length === 0) {
+    <p class="ion-padding-horizontal">{{ 'block.empty' | translate }}</p>
+  } @else {
+    <ion-list lines="none">
+      @for (person of blocked; track person.publicId) {
+        <ion-item>
+          <div slot="start" class="avatar initial" aria-hidden="true">{{ initial(person.nickName) }}</div>
+          <ion-label><h2>{{ person.nickName }}</h2></ion-label>
+          <ion-button
+            slot="end"
+            fill="outline"
+            [attr.aria-label]="'block.unblock-name' | translate: { name: person.nickName }"
+            (click)="unblock(person)"
+          >
+            {{ 'block.unblock' | translate }}
+          </ion-button>
+        </ion-item>
+      }
+    </ion-list>
+  }
+</ion-content>

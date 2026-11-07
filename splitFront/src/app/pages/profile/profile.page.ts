@@ -19,10 +19,11 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { languageOutline, logOutOutline, pencilOutline, personOutline } from 'ionicons/icons';
+import { banOutline, languageOutline, logOutOutline, pencilOutline, personOutline } from 'ionicons/icons';
 
 import { AuthService } from '../../services/auth.service';
 import { AppLang, LanguageService } from '../../services/language.service';
+import { BlockedUsersModal } from './blocked-users/blocked-users.modal';
 import { EditNicknameModal } from './edit-nickname/edit-nickname.modal';
 import { initialOf } from '../../utils/initial';
 
@@ -67,6 +68,7 @@ export class ProfilePage {
 
   constructor() {
     addIcons({
+      'ban-outline': banOutline,
       'language-outline': languageOutline,
       'log-out-outline': logOutOutline,
       'pencil-outline': pencilOutline,
@@ -80,6 +82,11 @@ export class ProfilePage {
       component: EditNicknameModal,
       componentProps: { current: this.user()?.nickName ?? '' },
     });
+    await modal.present();
+  }
+
+  async openBlocked() {
+    const modal = await this.modalCtrl.create({ component: BlockedUsersModal });
     await modal.present();
   }
 

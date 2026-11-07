@@ -106,12 +106,10 @@ authorization test.
   case, or email). Check that partial and wildcard queries (`q=a`, `q=%`,
   `q=_`, `q=%@%`) return nothing, and that the response never contains the
   caller or an email. Probing emails one at a time is an accepted alpha risk.
-- Friends (2026-10-25): `POST /api/friend/:publicId/accept` must `404` unless
-  the caller has a pending share from that person (otherwise anyone could
-  befriend anyone and then add them to expenses without asking); a pending
-  contributor must get `403` on `PATCH`/`DELETE` of the expense; a pending group
-  invitee must get `403` on the group and its expenses and must not be folded
-  into group expenses; `reject` only for one's own pending share.
+- `GET /api/user/contacts` (2026-11-07): only people who share an expense or a
+  group with the caller, never the caller, never an email. Being added to an
+  expense needs no consent (Splitwise model, friends removed 2026-11-07):
+  that is a product decision, not a finding.
 
 **Better Auth / login**
 - OTP brute force: 5 wrong attempts must burn the code; check whether

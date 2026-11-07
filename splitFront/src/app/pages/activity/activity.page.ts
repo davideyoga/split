@@ -9,8 +9,6 @@ import {
   IonFabButton,
   IonHeader,
   IonIcon,
-  IonItem,
-  IonLabel,
   IonRefresher,
   IonRefresherContent,
   IonSearchbar,
@@ -22,14 +20,14 @@ import {
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { addIcons } from 'ionicons';
-import { add, chevronForward, hourglassOutline, searchOutline } from 'ionicons/icons';
+import { add, chevronForward, searchOutline } from 'ionicons/icons';
 import { forkJoin } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { SettlementService } from '../../services/settlement.service';
 import { isSmartSplit } from '../../models/category.model';
-import { BalanceSummary, computeBalances, isPendingFor } from '../../utils/balance';
+import { BalanceSummary, computeBalances } from '../../utils/balance';
 import { MoneyPipe } from '../../pipes/money.pipe';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
 import { MonthlySpendingComponent } from '../../components/monthly-spending/monthly-spending.component';
@@ -59,8 +57,6 @@ import { ProfileButtonComponent } from '../../components/profile-button/profile-
     IonFabButton,
     IonHeader,
     IonIcon,
-    IonItem,
-    IonLabel,
     IonRefresher,
     IonRefresherContent,
     IonSearchbar,
@@ -89,19 +85,11 @@ export class ActivityPage {
 
   @ViewChild(IonSearchbar) private searchbar?: IonSearchbar;
   summary: BalanceSummary = computeBalances([], null);
-  // Spese in cui chi mi ha aggiunto non e' ancora mio amico: non contano finche'
-  // non le accetto (dalle Notifiche), e non stanno nella lista.
-  pendingCount = 0;
   loaded = false;
   loadError = false;
 
   constructor() {
-    addIcons({
-      add,
-      'chevron-forward': chevronForward,
-      'hourglass-outline': hourglassOutline,
-      'search-outline': searchOutline,
-    });
+    addIcons({ add, 'chevron-forward': chevronForward, 'search-outline': searchOutline });
   }
 
   // Non ngOnInit: la pagina resta montata nella tab, e una spesa creata da
@@ -121,8 +109,6 @@ export class ActivityPage {
     }).subscribe({
       next: ({ expenses, settlements }) => {
         this.expenses = expenses;
-        const me = this.authService.currentUser()?.publicId;
-        this.pendingCount = expenses.filter((expense) => isPendingFor(expense, me)).length;
         this.applyFilter();
         this.summary = computeBalances(
           expenses,
@@ -166,10 +152,7 @@ export class ActivityPage {
   // sono spese fatte (restano visibili nella lista del loro gruppo). Restano
   // invece in `expenses`, che alimenta la card del saldo: cambiano a chi devi.
   private applyFilter() {
-    const me = this.authService.currentUser()?.publicId;
-    const listed = this.expenses.filter(
-      (expense) => !isSmartSplit(expense) && !isPendingFor(expense, me),
-    );
+    const listed = this.expenses.filter((expense) => !isSmartSplit(expense));
     const q = normalize(this.query);
     if (!q) {
       this.filteredExpenses = listed;

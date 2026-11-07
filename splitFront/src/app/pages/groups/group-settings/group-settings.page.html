@@ -65,31 +65,13 @@
           </ion-button>
         </ion-item>
       }
-      <!-- Invitati in attesa: toglierli annulla l'invito. -->
-      @for (member of group.invited ?? []; track member.publicId) {
-        <ion-item>
-          <div slot="start" class="avatar initial neutral" aria-hidden="true">{{ initial(member.nickName) }}</div>
-          <ion-label>
-            <h2>{{ member.nickName }}</h2>
-            <p>{{ 'groups.invited' | translate }}</p>
-          </ion-label>
-          <ion-button
-            slot="end"
-            fill="clear"
-            color="medium"
-            [attr.aria-label]="'groups.remove' | translate"
-            (click)="confirmRemoveMember(member)"
-          >
-            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
-          </ion-button>
-        </ion-item>
-      }
     </ion-list>
 
-    <div class="ion-padding ion-text-center">
-      <ion-button fill="outline" (click)="openMemberModal()">
-        <ion-icon slot="start" name="person-add-outline"></ion-icon>
-        {{ 'groups.add-member' | translate }}
+    <!-- Esci dal gruppo (2026-11-07): le spese in cui sei restano tue. -->
+    <div class="ion-padding">
+      <ion-button expand="block" fill="outline" color="danger" (click)="confirmLeave()">
+        <ion-icon slot="start" name="exit-outline"></ion-icon>
+        {{ 'groups.leave' | translate }}
       </ion-button>
     </div>
   }

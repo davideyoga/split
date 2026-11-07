@@ -18,11 +18,30 @@ export class UserService {
   /**
    * Ricerca esatta per nickname o email: 0 o 1 utenti, mai chi cerca.
    * Niente `catchError → of([])`: con una ricerca esatta un errore di rete
-   * mostrato come "nessun utente" farebbe credere che l'amico non esista.
+   * mostrato come "nessun utente" farebbe credere che la persona non esista.
    */
   getUsers(searchQuery: string): Observable<User[]> {
     // Query param e non path: HttpClient codifica `/`, `?`, `#` e `..` resta testo.
     return this.http.get<User[]>(`${this.baseUrl}/user`, { params: { q: searchQuery } });
+  }
+
+  // Chi condivide gia' con me una spesa o un gruppo, per nickname.
+  getContacts(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/user/contacts`);
+  }
+
+  // "Blocca" (2026-11-07): chi ho bloccato non mi aggiunge a spese, non mi
+  // trova e non mi manda notifiche. Effetti in splitBack/src/app/user/blocks.ts.
+  getBlocked(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/user/blocks`);
+  }
+
+  block(userPublicId: string): Observable<unknown> {
+    return this.http.post(`${this.baseUrl}/user/blocks`, { publicId: userPublicId });
+  }
+
+  unblock(userPublicId: string): Observable<unknown> {
+    return this.http.delete(`${this.baseUrl}/user/blocks/${userPublicId}`);
   }
 
   /**

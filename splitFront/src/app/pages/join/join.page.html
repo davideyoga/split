@@ -1,0 +1,39 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>{{ 'join.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <div class="hero ion-text-center">
+    <div class="avatar large" aria-hidden="true"><ion-icon name="people-outline"></ion-icon></div>
+
+    @if (errorKey) {
+      <h1>{{ 'join.error-title' | translate }}</h1>
+      <p>{{ errorKey | translate }}</p>
+      <ion-button fill="outline" (click)="goHome()">{{ 'join.go-home' | translate }}</ion-button>
+    } @else if (!preview) {
+      <ion-spinner name="crescent" color="primary"></ion-spinner>
+      <p class="sr-only" role="status">{{ 'common.loading' | translate }}</p>
+    } @else {
+      <p>{{ 'join.invited-by' | translate: { name: preview.invitedBy } }}</p>
+      <h1>{{ preview.groupName }}</h1>
+      <p>
+        <ion-note>
+          {{ (preview.memberCount === 1 ? 'join.members-one' : 'join.members-many') | translate: { count: preview.memberCount } }}
+          · {{ 'join.expires' | translate: { date: (preview.expiresAt | date: 'dd/MM/yyyy') } }}
+        </ion-note>
+      </p>
+
+      @if (preview.alreadyMember) {
+        <p>{{ 'join.already-member' | translate }}</p>
+        <ion-button expand="block" (click)="openGroup()">{{ 'join.open-group' | translate }}</ion-button>
+      } @else if (loggedIn) {
+        <ion-button expand="block" [disabled]="joining" (click)="join()">{{ 'join.join' | translate }}</ion-button>
+      } @else {
+        <ion-button expand="block" (click)="login()">{{ 'join.login' | translate }}</ion-button>
+        <p><ion-note>{{ 'join.login-hint' | translate }}</ion-note></p>
+      }
+    }
+  </div>
+</ion-content>

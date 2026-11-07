@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { t } from './support/i18n';
-import { toast, topModal, visible } from './support/ionic';
+import { fillInput, toast, topModal, visible } from './support/ionic';
 import { loginAs, USERS } from './support/session';
 
 test('divisione non uniforme: "io 10, il resto a Paperone" e saldo coerente', async ({ page }) => {
@@ -9,9 +9,7 @@ test('divisione non uniforme: "io 10, il resto a Paperone" e saldo coerente', as
 
   await page.getByRole('button', { name: t('expense-form.title-new') }).click();
   await topModal(page).getByRole('textbox', { name: t('expense-form.amount') }).fill('30');
-  await topModal(page)
-    .getByRole('textbox', { name: t('expense-form.description-label') })
-    .fill('Benzina');
+  await fillInput(topModal(page).getByRole('textbox', { name: t('expense-form.description-label') }), 'Benzina');
   await topModal(page).getByRole('button', { name: t('expense-form.split-with') }).click();
   await topModal(page).getByPlaceholder(t('select-participant.search-placeholder')).fill('Paperone');
   await topModal(page).getByRole('button', { name: t('select-participant.search'), exact: true }).click();

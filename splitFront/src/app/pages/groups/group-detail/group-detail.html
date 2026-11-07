@@ -79,22 +79,13 @@
             </ion-label>
           </ion-item>
         }
-        <!-- Invitati che non hanno ancora accettato: non entrano nelle spese. -->
-        @for (member of group.invited ?? []; track member.publicId) {
-          <ion-item>
-            <div slot="start" class="avatar initial neutral" aria-hidden="true">{{ initial(member.nickName) }}</div>
-            <ion-label>
-              <h2>{{ member.nickName }}</h2>
-              <p>{{ 'groups.invited' | translate }}</p>
-            </ion-label>
-          </ion-item>
-        }
         <ion-item button="true" [detail]="false" [routerLink]="['/tabs/groups', publicId, 'settings']">
           <div slot="start" class="avatar neutral"><ion-icon name="settings-outline" aria-hidden="true"></ion-icon></div>
           <ion-label><h2>{{ 'groups.settings' | translate }}</h2></ion-label>
           <ion-icon slot="end" name="chevron-forward" color="medium" aria-hidden="true"></ion-icon>
         </ion-item>
       </ion-list>
+      <app-group-invite [groupPublicId]="publicId" [groupName]="group.name"></app-group-invite>
     </div>
 
     <ion-fab slot="fixed" vertical="bottom" horizontal="end">

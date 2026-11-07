@@ -29,8 +29,7 @@
     "create-error": "Impossibile creare la spesa, riprova",
     "title-edit": "Modifica spesa",
     "updated": "Spesa aggiornata",
-    "update-error": "Impossibile salvare le modifiche, riprova",
-    "pending-hint": "Non ancora amici: {{names}}. Per loro la spesa conterà solo quando l'avranno accettata."
+    "update-error": "Impossibile salvare le modifiche, riprova"
   },
   "split-shares": {
     "title": "Divisione",
@@ -66,32 +65,23 @@
     "delete-smart-split-message": "Fa parte di una divisione intelligente: eliminarla da sola cambia i saldi netti dei membri del gruppo. Verrà eliminata per tutti i partecipanti. L'operazione non si può annullare.",
     "deleted": "Spesa eliminata",
     "delete-error": "Impossibile eliminare la spesa, riprova",
-    "paid": "Ha pagato {{amount}}",
-    "pending-text": "{{name}} ti ha aggiunto a questa spesa, ma non siete ancora amici: finché non accetti non conta per te. Accettando diventate amici e accetti anche le altre sue spese in attesa.",
-    "pending-accept": "Accetta",
-    "pending-reject": "Rifiuta",
-    "pending-tag": "Deve ancora accettare",
-    "pending-accepted": "Accettata: ora siete amici",
-    "pending-error": "Risposta non salvata, riprova",
-    "reject-confirm": "Rifiutare la spesa?",
-    "reject-confirm-message": "Uscirai dalla spesa e la tua quota passerà a {{name}}.",
-    "rejected": "Spesa rifiutata"
+    "paid": "Ha pagato {{amount}}"
   },
   "select-participant": {
     "title": "Seleziona partecipante",
     "close": "Chiudi",
     "search-placeholder": "Nickname o email",
     "search": "Cerca",
-    "search-hint": "Scrivi il nickname esatto o l'email della persona, poi tocca Cerca. Finché non siete amici dovrà accettare la spesa.",
+    "search-hint": "Scrivi il nickname esatto o l'email della persona, poi tocca Cerca.",
     "searching": "Ricerca in corso...",
     "no-results": "Nessun utente con questo nickname o email. Controlla che sia scritto esattamente.",
     "search-error": "Ricerca non riuscita. Controlla la connessione e riprova.",
     "segment-person": "Persona",
     "segment-group": "Gruppo",
     "no-groups": "Non fai ancora parte di nessun gruppo",
-    "search-hint-friends": "Per aggiungere qualcun altro scrivi il nickname esatto o l'email e tocca Cerca: dovrà accettare la spesa.",
-    "friends": "I tuoi amici",
-    "not-friend": "Non siete ancora amici: dovrà accettare"
+    "search-hint-contacts": "Per aggiungere qualcun altro scrivi il nickname esatto o l'email e tocca Cerca.",
+    "contacts": "Persone con cui dividi le spese",
+    "rate-limited": "Troppe ricerche: aspetta qualche minuto e riprova."
   },
   "login": {
     "title": "Accedi",
@@ -125,10 +115,7 @@
     "month-sub-one": "1 spesa · pagato {{paid}}",
     "balance": "Saldo",
     "balance-sub": "devi {{owe}} · ti devono {{owed}}",
-    "balance-even": "Sei in pari",
-    "pending-one": "1 spesa da accettare",
-    "pending-many": "{{count}} spese da accettare",
-    "pending-sub": "Non contano per te finché non le accetti"
+    "balance-even": "Sei in pari"
   },
   "tabs": {
     "activity": "Attività",
@@ -156,7 +143,8 @@
       "NICKNAME_DOUBLE_SEPARATOR": ". e - non possono stare uno accanto all'altro",
       "NICKNAME_TAKEN": "Questo nickname è già usato",
       "SAVE_ERROR": "Non è stato possibile salvare il nickname, riprova"
-    }
+    },
+    "blocked": "Persone bloccate"
   },
   "balances": {
     "title": "Saldi",
@@ -273,7 +261,6 @@
     "create": "Crea gruppo",
     "name-label": "Nome del gruppo",
     "name-placeholder": "es. Viaggio del weekend",
-    "add-member": "Aggiungi membro",
     "rename": "Rinomina",
     "rename-success": "Nome del gruppo aggiornato",
     "members-count": "{{count}} membri",
@@ -294,17 +281,16 @@
     "remove": "Rimuovi",
     "cancel": "Annulla",
     "remove-member-confirm": "Rimuovere {{name}} dal gruppo?",
-    "member-added": "Membro aggiunto",
     "member-removed": "Membro rimosso",
     "empty-title": "Nessun gruppo",
     "empty-cta": "Crea il primo gruppo",
     "created": "Gruppo creato",
     "add-first-expense": "Aggiungi la prima spesa",
-    "invited": "Invito in attesa di risposta",
-    "member-invited": "Invito inviato: entrerà quando avrà accettato",
-    "invitations-one": "1 invito a un gruppo",
-    "invitations-many": "{{count}} inviti a gruppi",
-    "invitations-sub": "Accettali o rifiutali dalle notifiche"
+    "invite-after-create": "Creato il gruppo avrai un link per invitare gli altri.",
+    "leave": "Esci dal gruppo",
+    "leave-confirm": "Uscire da “{{group}}”?",
+    "leave-message": "Non ne vedrai più le spese. Le spese in cui sei restano, e con loro i saldi.",
+    "left": "Non fai più parte del gruppo"
   },
   "session": {
     "expired": "Sessione scaduta, accedi di nuovo"
@@ -333,34 +319,62 @@
       "SETTLEMENT_ADDED_TO_ME": "{{actor}} ha registrato un rimborso di {{amount}} a tuo favore",
       "SETTLEMENT_ADDED_FROM_ME": "{{actor}} ha registrato un tuo rimborso di {{amount}}",
       "unknown": "Hai una nuova notifica",
-      "EXPENSE_PENDING": "{{actor}} ti ha aggiunto a “{{description}}” ({{amount}}): accettala o rifiutala",
-      "EXPENSE_REJECTED": "{{actor}} ha rifiutato “{{description}}”: la sua quota ora è tua",
-      "FRIEND_ACCEPTED": "{{actor}} ha accettato: ora siete amici",
-      "GROUP_INVITED": "{{actor}} ti ha invitato nel gruppo “{{group}}”",
-      "GROUP_JOINED": "{{actor}} ora fa parte del gruppo “{{group}}”",
-      "GROUP_DECLINED": "{{actor}} ha rifiutato l'invito in “{{group}}”"
-    },
-    "requests": "Richieste",
-    "recent": "Recenti",
-    "request-title": "{{name}} vuole dividere spese con te",
-    "request-sub": "Accettando diventate amici e contano tutte queste spese. Puoi rifiutarle una per una.",
-    "request-share": "La tua quota {{share}} di {{amount}}",
-    "reject-expense": "Rifiuta “{{description}}”",
-    "accept-person": "Accetta {{name}}",
-    "invite-title": "{{name}} ti ha invitato nel gruppo “{{group}}”",
-    "accept": "Accetta",
-    "reject": "Rifiuta",
-    "cancel": "Annulla",
-    "accepted": "Accettata: ora siete amici",
-    "rejected": "Spesa rifiutata",
-    "group-accepted": "Ora fai parte del gruppo",
-    "group-declined": "Invito rifiutato",
-    "answer-error": "Risposta non salvata, riprova",
-    "reject-expense-confirm": "Rifiutare “{{description}}”?",
-    "reject-expense-message": "Uscirai dalla spesa e la tua quota passerà a {{name}}.",
-    "decline-group-confirm": "Rifiutare l'invito?",
-    "decline-group-message": "Non entrerai in “{{group}}”. Potranno invitarti di nuovo in futuro.",
-    "invite-sub-one": "Entrando, tu e il suo unico membro diventate amici",
-    "invite-sub-many": "Entrando, tu e i suoi {{count}} membri diventate amici"
+      "GROUP_JOINED": "{{actor}} ora fa parte del gruppo “{{group}}”"
+    }
+  },
+  "invite": {
+    "section": "Invita con un link",
+    "hint": "Chi ha il link può entrare nel gruppo e vederne tutte le spese. Mandalo solo alle persone che vuoi dentro.",
+    "expiry-label": "Scade dopo",
+    "expiry-1": "1 giorno",
+    "expiry-7": "7 giorni",
+    "expiry-30": "30 giorni",
+    "create": "Crea link",
+    "create-new": "Nuovo link",
+    "link-label": "Link d'invito",
+    "link-ready": "Manda questo link alle persone che vuoi nel gruppo. Funziona fino al {{date}}.",
+    "share": "Condividi",
+    "share-title": "Entra in “{{group}}” su Split",
+    "copy": "Copia link",
+    "copied": "Link copiato",
+    "copy-error": "Non è stato possibile copiare il link: selezionalo e copialo a mano",
+    "active": "C'è un link attivo fino al {{date}}. Per mandarlo di nuovo creane uno nuovo: il vecchio smette di funzionare.",
+    "revoke": "Revoca link",
+    "revoke-confirm": "Revocare il link?",
+    "revoke-message": "Chi ce l'ha non potrà più entrare. Chi è già nel gruppo resta.",
+    "revoked": "Link revocato",
+    "error": "Non è stato possibile aggiornare il link d'invito, riprova"
+  },
+  "join": {
+    "title": "Invito a un gruppo",
+    "invited-by": "{{name}} ti invita in",
+    "members-one": "1 membro",
+    "members-many": "{{count}} membri",
+    "expires": "link valido fino al {{date}}",
+    "join": "Unisciti al gruppo",
+    "joined": "Ora fai parte di “{{group}}”",
+    "already-member": "Sei già in questo gruppo.",
+    "open-group": "Apri il gruppo",
+    "login": "Accedi per entrare",
+    "login-hint": "Usa l'email del tuo account Split. Subito dopo tornerai qui.",
+    "error-title": "Questo invito non funziona",
+    "error-not-found": "Il link è incompleto o non è mai stato valido. Chiedine uno nuovo a chi te l'ha mandato.",
+    "error-expired": "Il link è scaduto. Chiedine uno nuovo a chi te l'ha mandato.",
+    "error-revoked": "Il link è stato revocato. Chiedine uno nuovo a chi te l'ha mandato.",
+    "error-generic": "Non è stato possibile aprire l'invito, riprova",
+    "go-home": "Vai a Split"
+  },
+  "block": {
+    "block-name": "Blocca {{name}}",
+    "explain": "Non potrà più aggiungerti a spese né trovarti con la ricerca. Le spese che avete già in comune restano.",
+    "blocked": "Hai bloccato {{name}}",
+    "error": "Non è stato possibile aggiornare le persone bloccate, riprova",
+    "title": "Persone bloccate",
+    "hint": "Chi è bloccato non può aggiungerti a spese, trovarti con la ricerca o mandarti notifiche.",
+    "empty": "Non hai bloccato nessuno",
+    "unblock": "Sblocca",
+    "unblock-name": "Sblocca {{name}}",
+    "unblocked": "Hai sbloccato {{name}}",
+    "close": "Chiudi"
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { blockersOf, withoutBlockers } from '../user/blocks';
 import { ExpenseSnapshot, NotificationType } from './notification.types';
 
 // Come per spese e rimborsi, degli utenti si espongono solo publicId e nickName.
@@ -68,8 +69,13 @@ export class NotificationService {
     recipientIds: number[],
     notification: NewNotification,
   ) {
-    const userIds = [...new Set(recipientIds)].filter(
+    const recipients = [...new Set(recipientIds)].filter(
       (id) => id !== notification.actorId,
+    );
+    // Chi ha bloccato chi agisce non riceve niente delle sue azioni.
+    const userIds = withoutBlockers(
+      recipients,
+      await blockersOf(tx, notification.actorId, recipients),
     );
     if (userIds.length === 0) {
       return;

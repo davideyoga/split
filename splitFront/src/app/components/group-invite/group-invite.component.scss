@@ -1,0 +1,29 @@
+.invite {
+  padding: 0 16px 16px;
+}
+
+.hint {
+  margin: 0 0 12px;
+}
+
+// Il link appena creato, su una superficie come le schede di dettaglio.
+.link-box {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: var(--split-surface);
+
+  p {
+    margin: 8px 0;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.active {
+  margin: 0 0 12px;
+}

@@ -1,10 +1,7 @@
-import { IsArray, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
+// Solo il nome: gli altri membri entrano col link d'invito (2026-11-07).
 export class CreateGroupDto {
   @IsString()
   name: string;
-
-  @IsArray()
-  @IsString({ each: true })
-  memberPublicIds: string[];
 }

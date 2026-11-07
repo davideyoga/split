@@ -6,10 +6,10 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { CategoryService } from '../category/category.service';
-import { FriendService } from '../friend/friend.service';
 import { NotificationService } from '../notification/notification.service';
 import { ExpenseSnapshot } from '../notification/notification.types';
 import { PrismaService } from '../prisma/prisma.service';
+import { blockersOf, newcomers } from '../user/blocks';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { ExpenseShareDto } from './dto/expense-share.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -33,16 +33,8 @@ const EXPENSE_INCLUDE = {
       color: true,
     },
   },
-  // `pending` = quella persona non ha ancora accettato (non e' amica di
-  // `invitedBy`): la spesa conta per tutti tranne che per lei.
   expenseContributions: {
-    select: {
-      id: true,
-      share: true,
-      pending: true,
-      invitedBy: { select: USER_SELECT },
-      user: { select: USER_SELECT },
-    },
+    select: { id: true, share: true, user: { select: USER_SELECT } },
   },
 } satisfies Prisma.ExpenseInclude;
 
@@ -72,18 +64,9 @@ type ExpenseWithResponse = Prisma.ExpenseGetPayload<{
 const EDITABLE_INCLUDE = {
   paidBy: { select: USER_SELECT },
   category: { select: { publicId: true, slug: true } },
-  // Solo i membri veri: un invito in attesa non porta nella spesa.
-  group: {
-    select: { publicId: true, usersOnGroup: { where: { pending: false } } },
-  },
+  group: { select: { publicId: true, usersOnGroup: true } },
   expenseContributions: {
-    select: {
-      userId: true,
-      share: true,
-      pending: true,
-      invitedById: true,
-      user: { select: { publicId: true } },
-    },
+    select: { userId: true, share: true, user: { select: { publicId: true } } },
   },
 } satisfies Prisma.ExpenseInclude;
 
@@ -94,16 +77,11 @@ type EditableExpense = Prisma.ExpenseGetPayload<{
 // Una quota prima di diventare riga: chi e quanto.
 type ShareRow = { userId: number; share: Prisma.Decimal | number };
 
-// In attesa o no, e chi ha aggiunto la persona (vedi ExpenseContribution).
-type ContributorStatus = { pending: boolean; invitedById: number | null };
-const ACCEPTED: ContributorStatus = { pending: false, invitedById: null };
-
 @Injectable()
 export class ExpenseService {
   constructor(
     private prisma: PrismaService,
     private categoryService: CategoryService,
-    private friendService: FriendService,
     private notificationService: NotificationService,
   ) {}
 
@@ -123,7 +101,7 @@ export class ExpenseService {
 
     const group = await this.prisma.group.findUnique({
       where: { publicId: groupPublicId },
-      include: { usersOnGroup: { where: { pending: false } } },
+      include: { usersOnGroup: true },
     });
     if (!group) {
       throw new NotFoundException('Gruppo non trovato');
@@ -152,7 +130,7 @@ export class ExpenseService {
           select: {
             publicId: true,
             name: true,
-            usersOnGroup: { where: { userId: user.id, pending: false } },
+            usersOnGroup: { where: { userId: user.id } },
           },
         },
       },
@@ -179,11 +157,11 @@ export class ExpenseService {
 
   async create(creatorPublicId: string, dto: CreateExpenseDto) {
     const creator = await this.findUser(creatorPublicId, 'Creatore non trovato');
-    const { data, contributorIds, status } = await this.buildCreateData(creator, dto);
+    const { data, contributorIds } = await this.buildCreateData(creator, dto);
 
     return this.prisma.$transaction(async (tx) => {
       const expense = await tx.expense.create({ data, include: EXPENSE_INCLUDE });
-      await this.notifyCreated(tx, creator.id, expense, contributorIds, status);
+      await this.notifyCreated(tx, creator.id, expense, contributorIds);
       return expense;
     });
   }
@@ -203,9 +181,9 @@ export class ExpenseService {
     return this.prisma.$transaction(
       async (tx) => {
         const created: ExpenseWithResponse[] = [];
-        for (const { data, contributorIds, status } of prepared) {
+        for (const { data, contributorIds } of prepared) {
           const expense = await tx.expense.create({ data, include: EXPENSE_INCLUDE });
-          await this.notifyCreated(tx, creator.id, expense, contributorIds, status);
+          await this.notifyCreated(tx, creator.id, expense, contributorIds);
           created.push(expense);
         }
         return created;
@@ -220,14 +198,11 @@ export class ExpenseService {
   private async buildCreateData(
     creator: { id: number; publicId: string },
     dto: CreateExpenseDto,
-  ): Promise<{
-    data: Prisma.ExpenseCreateInput;
-    contributorIds: number[];
-    status: Map<number, ContributorStatus>;
-  }> {
+  ): Promise<{ data: Prisma.ExpenseCreateInput; contributorIds: number[] }> {
     const participantIds = await this.resolveParticipants(
       dto.participantPublicIds ?? [],
     );
+    await this.assertNotBlocked(creator.id, newcomers(creator.id, participantIds, []));
 
     // Se la spesa è legata a un gruppo, i suoi membri diventano contributori.
     let groupId: number | null = null;
@@ -262,12 +237,6 @@ export class ExpenseService {
     const rows = dto.shares
       ? await this.customContributions(dto.amount, contributorIds, dto.shares)
       : this.equalContributions(dto.amount, contributorIds);
-    // Il creatore e i membri del gruppo ci sono gia' per consenso; gli altri
-    // solo se amici del creatore, se no restano in attesa.
-    const status = await this.contributorStatus(creator.id, contributorIds, [
-      creator.id,
-      ...groupMemberIds,
-    ]);
 
     const data: Prisma.ExpenseCreateInput = {
       description: dto.description?.trim() ?? '',
@@ -279,9 +248,9 @@ export class ExpenseService {
       paidBy: { connect: { id: payerId } },
       ...(groupId ? { group: { connect: { id: groupId } } } : {}),
       ...(categoryId ? { category: { connect: { id: categoryId } } } : {}),
-      expenseContributions: { create: this.contributionInputs(rows, status) },
+      expenseContributions: { create: this.contributionInputs(rows) },
     };
-    return { data, contributorIds, status };
+    return { data, contributorIds };
   }
 
   private async notifyCreated(
@@ -289,33 +258,14 @@ export class ExpenseService {
     actorId: number,
     expense: ExpenseWithResponse,
     contributorIds: number[],
-    status: Map<number, ContributorStatus>,
   ) {
     if (expense.category?.slug === SMART_SPLIT_SLUG) {
       return;
     }
-    await this.notifyEntered(tx, actorId, expense.id, contributorIds, status);
-  }
-
-  // Chi entra in una spesa: EXPENSE_ADDED se c'e' gia' per consenso (amico,
-  // membro del gruppo), EXPENSE_PENDING se la deve accettare.
-  private async notifyEntered(
-    tx: Prisma.TransactionClient,
-    actorId: number,
-    expenseId: number,
-    userIds: number[],
-    status: Map<number, ContributorStatus>,
-  ) {
-    const pending = userIds.filter((id) => status.get(id)?.pending);
-    await this.notificationService.notify(
-      tx,
-      userIds.filter((id) => !pending.includes(id)),
-      { type: 'EXPENSE_ADDED', actorId, expenseId },
-    );
-    await this.notificationService.notify(tx, pending, {
-      type: 'EXPENSE_PENDING',
+    await this.notificationService.notify(tx, contributorIds, {
+      type: 'EXPENSE_ADDED',
       actorId,
-      expenseId,
+      expenseId: expense.id,
     });
   }
 
@@ -364,6 +314,12 @@ export class ExpenseService {
                 id !== expense.createdById &&
                 !currentGroupMemberIds.includes(id),
             );
+    // Solo chi entra adesso: una spesa in comune da prima di un blocco si
+    // modifica ancora.
+    await this.assertNotBlocked(
+      user.id,
+      newcomers(user.id, participantIds, expense.expenseContributions.map((c) => c.userId)),
+    );
 
     const contributorIds = this.contributorIds(
       expense.createdById,
@@ -419,21 +375,6 @@ export class ExpenseService {
       rows = this.equalContributions(amount, contributorIds);
     }
 
-    // Chi c'era resta com'era (in attesa o no); chi entra ora e' accettato se
-    // e' il creatore, chi modifica, un membro del gruppo o un amico di chi
-    // modifica, altrimenti resta in attesa.
-    const status = await this.contributorStatus(
-      user.id,
-      contributorIds,
-      [expense.createdById, user.id, ...groupMemberIds],
-      new Map(
-        expense.expenseContributions.map((c) => [
-          c.userId,
-          { pending: c.pending, invitedById: c.invitedById },
-        ]),
-      ),
-    );
-
     return this.prisma.$transaction(async (tx) => {
       const updated = await tx.expense.update({
         where: { id: expense.id },
@@ -451,12 +392,12 @@ export class ExpenseService {
             : { disconnect: true },
           expenseContributions: {
             deleteMany: {},
-            create: this.contributionInputs(rows, status),
+            create: this.contributionInputs(rows),
           },
         },
         include: EXPENSE_INCLUDE,
       });
-      await this.notifyUpdated(tx, user.id, expense, updated, contributorIds, status);
+      await this.notifyUpdated(tx, user.id, expense, updated, contributorIds);
       return updated;
     });
   }
@@ -478,18 +419,17 @@ export class ExpenseService {
     before: EditableExpense,
     after: ExpenseWithResponse,
     contributorIds: number[],
-    status: Map<number, ContributorStatus>,
   ) {
     const beforeIds = before.expenseContributions.map((c) => c.userId);
     const added = contributorIds.filter((id) => !beforeIds.includes(id));
-    // Chi deve ancora accettare non riceve gli aggiornamenti: apre la spesa
-    // dalla sua EXPENSE_PENDING e la vede com'e' ora.
-    const kept = contributorIds.filter(
-      (id) => beforeIds.includes(id) && !status.get(id)?.pending,
-    );
+    const kept = contributorIds.filter((id) => beforeIds.includes(id));
     const removed = beforeIds.filter((id) => !contributorIds.includes(id));
 
-    await this.notifyEntered(tx, actorId, after.id, added, status);
+    await this.notificationService.notify(tx, added, {
+      type: 'EXPENSE_ADDED',
+      actorId,
+      expenseId: after.id,
+    });
 
     if (this.visiblyChanged(before, after)) {
       await this.notificationService.notify(tx, kept, {
@@ -555,65 +495,6 @@ export class ExpenseService {
     });
   }
 
-  /**
-   * Rifiuta una spesa in attesa (decisione dell'utente, 2026-10-25): la mia
-   * quota passa a chi mi ci ha messo (o al creatore, se quella persona non e'
-   * piu' nella spesa), che diventa anche il pagante se avevo pagato io. Le
-   * altre spese in attesa della stessa persona restano da decidere.
-   */
-  async reject(userPublicId: string, expensePublicId: string) {
-    const user = await this.findUser(userPublicId);
-    const expense = await this.prisma.expense.findUnique({
-      where: { publicId: expensePublicId },
-      select: {
-        id: true,
-        createdById: true,
-        paidById: true,
-        expenseContributions: {
-          select: { id: true, userId: true, share: true, pending: true, invitedById: true },
-        },
-      },
-    });
-    if (!expense) {
-      throw new NotFoundException('Spesa non trovata');
-    }
-    const mine = expense.expenseContributions.find((c) => c.userId === user.id);
-    if (!mine) {
-      throw new ForbiddenException('Non partecipi a questa spesa');
-    }
-    if (!mine.pending) {
-      throw new BadRequestException('Questa spesa non e\' in attesa: l\'hai gia\' accettata');
-    }
-    const bearer =
-      expense.expenseContributions.find(
-        (c) => c.userId === mine.invitedById && !c.pending,
-      ) ?? expense.expenseContributions.find((c) => c.userId === expense.createdById);
-    if (!bearer) {
-      // Il creatore e' sempre fra i contributori: qui non si arriva.
-      throw new BadRequestException('Spesa senza creatore');
-    }
-
-    await this.prisma.$transaction(async (tx) => {
-      await tx.expenseContribution.delete({ where: { id: mine.id } });
-      await tx.expenseContribution.update({
-        where: { id: bearer.id },
-        data: { share: { increment: mine.share } },
-      });
-      if (expense.paidById === user.id) {
-        await tx.expense.update({
-          where: { id: expense.id },
-          data: { paidBy: { connect: { id: bearer.userId } } },
-        });
-      }
-      await this.notificationService.forgetExpense(tx, [user.id], expense.id);
-      await this.notificationService.notify(tx, [bearer.userId], {
-        type: 'EXPENSE_REJECTED',
-        actorId: user.id,
-        expenseId: expense.id,
-      });
-    });
-  }
-
   private async findUser(publicId: string, notFoundMessage = 'Utente non trovato') {
     const user = await this.prisma.user.findUnique({ where: { publicId } });
     if (!user) {
@@ -641,13 +522,15 @@ export class ExpenseService {
         'Solo chi partecipa alla spesa puo\' modificarla o eliminarla',
       );
     }
-    // Chi deve ancora accettare puo' solo accettare o rifiutare.
-    if (expense.expenseContributions.some((c) => c.userId === userId && c.pending)) {
-      throw new ForbiddenException(
-        'Prima accetta o rifiuta la spesa',
-      );
-    }
     return expense;
+  }
+
+  // Chi ha bloccato chi agisce non si puo' mettere in una spesa: stesso
+  // errore di un utente che non esiste, cosi' chi e' bloccato non lo sa.
+  private async assertNotBlocked(actorId: number, participantIds: number[]) {
+    if ((await blockersOf(this.prisma, actorId, participantIds)).size > 0) {
+      throw new BadRequestException('Uno o più partecipanti non esistono');
+    }
   }
 
   private async resolveParticipants(publicIds: string[]) {
@@ -661,11 +544,9 @@ export class ExpenseService {
   }
 
   private async resolveGroup(groupPublicId: string, actorId: number) {
-    // Solo i membri veri: chi e' invitato e non ha accettato non entra nelle
-    // spese del gruppo, e non ci puo' aggiungere spese.
     const group = await this.prisma.group.findUnique({
       where: { publicId: groupPublicId },
-      include: { usersOnGroup: { where: { pending: false } } },
+      include: { usersOnGroup: true },
     });
     if (!group) {
       throw new NotFoundException('Gruppo non trovato');
@@ -763,56 +644,13 @@ export class ExpenseService {
     }));
   }
 
-  /**
-   * In attesa o no, per ognuno dei contributori:
-   * - `acceptedIds` (creatore, chi agisce, membri del gruppo) ci sono per
-   *   consenso;
-   * - chi era gia' nella spesa (`previous`) resta com'era;
-   * - gli altri sono accettati se amici di chi agisce, altrimenti restano in
-   *   attesa finche' non accettano (e diventano amici).
-   */
-  private async contributorStatus(
-    actorId: number,
-    contributorIds: number[],
-    acceptedIds: number[],
-    previous = new Map<number, ContributorStatus>(),
-  ) {
-    const accepted = new Set(acceptedIds);
-    const friends = await this.friendService.friendIdsAmong(
-      this.prisma,
-      actorId,
-      contributorIds.filter((id) => !accepted.has(id) && !previous.has(id)),
-    );
-    return new Map(
-      contributorIds.map((id): [number, ContributorStatus] => {
-        if (accepted.has(id)) {
-          return [id, ACCEPTED];
-        }
-        const before = previous.get(id);
-        if (before) {
-          return [id, before];
-        }
-        return [
-          id,
-          friends.has(id) ? ACCEPTED : { pending: true, invitedById: actorId },
-        ];
-      }),
-    );
-  }
-
   private contributionInputs(
     rows: ShareRow[],
-    status: Map<number, ContributorStatus>,
   ): Prisma.ExpenseContributionCreateWithoutExpenseInput[] {
-    return rows.map(({ userId, share }) => {
-      const { pending, invitedById } = status.get(userId) ?? ACCEPTED;
-      return {
-        share,
-        pending,
-        ...(invitedById ? { invitedBy: { connect: { id: invitedById } } } : {}),
-        user: { connect: { id: userId } },
-      };
-    });
+    return rows.map(({ userId, share }) => ({
+      share,
+      user: { connect: { id: userId } },
+    }));
   }
 
   private sameIds(a: number[], b: number[]) {

@@ -1,0 +1,57 @@
+<ion-list-header>
+  <ion-label>{{ 'invite.section' | translate }}</ion-label>
+</ion-list-header>
+
+<div class="invite">
+  <p class="hint"><ion-note>{{ 'invite.hint' | translate }}</ion-note></p>
+
+  @if (createdUrl) {
+    <div class="link-box">
+      <ion-input
+        fill="outline"
+        label="{{ 'invite.link-label' | translate }}"
+        labelPlacement="stacked"
+        [readonly]="true"
+        [value]="createdUrl"
+      ></ion-input>
+      <p>
+        <ion-note>{{ 'invite.link-ready' | translate: { date: (createdExpiresAt | date: 'dd/MM/yyyy HH:mm') } }}</ion-note>
+      </p>
+      <div class="actions">
+        @if (canShare) {
+          <ion-button (click)="share()">
+            <ion-icon slot="start" name="share-social-outline"></ion-icon>
+            {{ 'invite.share' | translate }}
+          </ion-button>
+        }
+        <ion-button fill="outline" (click)="copy()">
+          <ion-icon slot="start" name="copy-outline"></ion-icon>
+          {{ 'invite.copy' | translate }}
+        </ion-button>
+      </div>
+    </div>
+  } @else if (active) {
+    <p class="active">{{ 'invite.active' | translate: { date: (active.expiresAt | date: 'dd/MM/yyyy HH:mm') } }}</p>
+  }
+
+  <ion-select
+    label="{{ 'invite.expiry-label' | translate }}"
+    interface="popover"
+    [value]="expiresInDays"
+    (ionChange)="onExpiryChange($event)"
+  >
+    @for (days of expiryChoices; track days) {
+      <ion-select-option [value]="days">{{ 'invite.expiry-' + days | translate }}</ion-select-option>
+    }
+  </ion-select>
+
+  <ion-button expand="block" [disabled]="busy" (click)="create()">
+    <ion-icon slot="start" name="link-outline"></ion-icon>
+    {{ (hasLink ? 'invite.create-new' : 'invite.create') | translate }}
+  </ion-button>
+  @if (hasLink) {
+    <ion-button expand="block" fill="clear" color="danger" [disabled]="busy" (click)="confirmRevoke()">
+      {{ 'invite.revoke' | translate }}
+    </ion-button>
+  }
+</div>

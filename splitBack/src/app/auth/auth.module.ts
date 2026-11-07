@@ -3,6 +3,7 @@ import { MailModule } from '../mail/mail.module';
 import { MailService } from '../mail/mail.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { BETTER_AUTH, createAuth } from './auth.factory';
+import { OptionalSessionAuthGuard } from './optional-session-auth.guard';
 import { SessionAuthGuard } from './session-auth.guard';
 
 /**
@@ -20,7 +21,8 @@ import { SessionAuthGuard } from './session-auth.guard';
       inject: [PrismaService, MailService],
     },
     SessionAuthGuard,
+    OptionalSessionAuthGuard,
   ],
-  exports: [BETTER_AUTH, SessionAuthGuard],
+  exports: [BETTER_AUTH, SessionAuthGuard, OptionalSessionAuthGuard],
 })
 export class AuthModule {}

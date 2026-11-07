@@ -37,6 +37,10 @@
         }
       </ion-select>
     </ion-item>
+    <ion-item button="true" [detail]="false" (click)="openBlocked()">
+      <div slot="start" class="avatar neutral"><ion-icon name="ban-outline" aria-hidden="true"></ion-icon></div>
+      <ion-label>{{ 'profile.blocked' | translate }}</ion-label>
+    </ion-item>
     <ion-item button="true" [detail]="false" (click)="confirmLogout()">
       <div slot="start" class="avatar neutral"><ion-icon name="log-out-outline" color="danger" aria-hidden="true"></ion-icon></div>
       <ion-label color="danger">{{ 'profile.logout' | translate }}</ion-label>

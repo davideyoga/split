@@ -10,18 +10,3 @@ ion-item.unread h2 {
   border-radius: 50%;
   background: var(--ion-color-primary);
 }
-
-// Richieste (amici e inviti ai gruppi).
-ion-card.request {
-  margin: 8px 16px 12px;
-
-  ion-card-title {
-    font-size: 17px;
-  }
-}
-
-.request-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}

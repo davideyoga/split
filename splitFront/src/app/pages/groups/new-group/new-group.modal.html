@@ -28,22 +28,11 @@
           placeholder="{{ 'groups.name-placeholder' | translate }}"
         ></ion-input>
       </ion-item>
-      <ion-item button="true" [detail]="true" (click)="openMemberModal()">
-        <ion-icon slot="start" name="person-add-outline"></ion-icon>
-        <ion-label>{{ 'groups.add-member' | translate }}</ion-label>
+      <ion-item lines="none">
+        <ion-label class="ion-text-wrap">
+          <p>{{ 'groups.invite-after-create' | translate }}</p>
+        </ion-label>
       </ion-item>
-      @if (selectedMembers.length > 0) {
-        <ion-item lines="full">
-          <div class="members-chips">
-            @for (member of selectedMembers; track member.publicId) {
-              <ion-chip color="medium">
-                <ion-label>{{ member.nickName }}</ion-label>
-                <ion-icon name="close" (click)="removeMember(member)"></ion-icon>
-              </ion-chip>
-            }
-          </div>
-        </ion-item>
-      }
     </ion-list>
 
     @if (errorMessage) {

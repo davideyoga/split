@@ -9,7 +9,7 @@ import { GroupModule } from './group/group.module';
 import { CategoryModule } from './category/category.module';
 import { SettlementModule } from './settlement/settlement.module';
 import { NotificationModule } from './notification/notification.module';
-import { FriendModule } from './friend/friend.module';
+import { InviteModule } from './invite/invite.module';
 
 
 @Module({
@@ -22,7 +22,7 @@ import { FriendModule } from './friend/friend.module';
     CategoryModule,
     SettlementModule,
     NotificationModule,
-    FriendModule,
+    InviteModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaModule],

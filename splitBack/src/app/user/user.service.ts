@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { nicknameError, normalizeNickname } from './nickname';
@@ -28,10 +28,86 @@ export class UserService {
       select: {
         publicId: true,
         nickName: true,
+        // Chi mi ha bloccato non lo trovo (vedi blocks.ts).
+        blocks: { where: { blocked: { publicId: callerPublicId } }, select: { id: true } },
       },
     });
 
-    return user && user.publicId !== callerPublicId ? [user] : [];
+    if (!user || user.publicId === callerPublicId || user.blocks.length > 0) {
+      return [];
+    }
+    return [{ publicId: user.publicId, nickName: user.nickName }];
+  }
+
+  /**
+   * I contatti (2026-11-07): chi condivide gia' con me una spesa o un gruppo,
+   * per nickname. Li elenca la scelta dei partecipanti, come i "friends"
+   * automatici di Splitwise: con chi non c'e' ancora si usa la ricerca esatta.
+   */
+  async contacts(userPublicId: string) {
+    const me = await this.prisma.user.findUnique({
+      where: { publicId: userPublicId },
+      select: { id: true },
+    });
+    if (!me) {
+      return [];
+    }
+    return this.prisma.user.findMany({
+      where: {
+        id: { not: me.id },
+        // Niente blocchi in nessuna delle due direzioni.
+        blocks: { none: { blockedId: me.id } },
+        blockedBy: { none: { blockerId: me.id } },
+        OR: [
+          {
+            expenseContributions: {
+              some: { expense: { expenseContributions: { some: { userId: me.id } } } },
+            },
+          },
+          {
+            userOnGroups: {
+              some: { group: { usersOnGroup: { some: { userId: me.id } } } },
+            },
+          },
+        ],
+      },
+      select: { publicId: true, nickName: true },
+      orderBy: { nickName: 'asc' },
+    });
+  }
+
+  /** Chi ho bloccato, dal piu' recente. */
+  async blocks(userPublicId: string) {
+    const rows = await this.prisma.userBlock.findMany({
+      where: { blocker: { publicId: userPublicId } },
+      orderBy: { createdDate: 'desc' },
+      select: { blocked: { select: { publicId: true, nickName: true } } },
+    });
+    return rows.map((row) => row.blocked);
+  }
+
+  // Idempotente: bloccare due volte non e' un errore.
+  async block(userPublicId: string, targetPublicId: string) {
+    if (userPublicId === targetPublicId) {
+      throw new BadRequestException('Non puoi bloccare te stesso');
+    }
+    const [me, target] = await Promise.all([
+      this.prisma.user.findUnique({ where: { publicId: userPublicId }, select: { id: true } }),
+      this.prisma.user.findUnique({ where: { publicId: targetPublicId }, select: { id: true } }),
+    ]);
+    if (!me || !target) {
+      throw new NotFoundException('Utente non trovato');
+    }
+    await this.prisma.userBlock.createMany({
+      data: [{ blockerId: me.id, blockedId: target.id }],
+      skipDuplicates: true,
+    });
+  }
+
+  async unblock(userPublicId: string, targetPublicId: string) {
+    await this.prisma.userBlock.deleteMany({
+      where: { blocker: { publicId: userPublicId }, blocked: { publicId: targetPublicId } },
+    });
   }
 
   /**

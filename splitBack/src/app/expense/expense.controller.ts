@@ -84,16 +84,4 @@ export class ExpenseController {
     const user = request['user'] as AuthUser;
     return this.expenseService.remove(user.publicId, publicId);
   }
-
-  // Rifiuta una spesa in attesa (2026-10-25): la propria quota passa a chi ci
-  // aveva aggiunto. Accettare invece e' POST /api/friend/:publicId/accept.
-  @Post(':publicId/reject')
-  @HttpCode(204)
-  @UseGuards(SessionAuthGuard)
-  reject(
-    @Req() request: Request & { user: AuthUser },
-    @Param('publicId') publicId: string,
-  ) {
-    return this.expenseService.reject(request.user.publicId, publicId);
-  }
 }

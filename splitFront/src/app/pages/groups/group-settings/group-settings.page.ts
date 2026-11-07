@@ -18,26 +18,22 @@ import {
   IonText,
   IonTitle,
   IonToolbar,
-  ModalController,
   NavController,
   ToastController,
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { personAddOutline, trashOutline } from 'ionicons/icons';
+import { exitOutline, trashOutline } from 'ionicons/icons';
 
-import {
-  ParticipantSelection,
-  SelectParticipantComponent,
-} from '../../../components/select-participant/select-participant.component';
 import { Group } from '../../../models/group.model';
 import { User } from '../../../models/user.model';
 import { AuthService } from '../../../services/auth.service';
 import { GroupService } from '../../../services/group.service';
 import { initialOf } from '../../../utils/initial';
 
-// Impostazioni di un gruppo: rinomina e gestione membri, spostate fuori dal
-// dettaglio (che ora e' un contenitore a segmenti Spese/Saldi/Membri).
+// Impostazioni di un gruppo: rinomina e rimozione dei membri, fuori dal
+// dettaglio (un contenitore a segmenti Spese/Saldi/Membri). Si entra solo col
+// link d'invito, che sta nel segmento Membri (2026-11-07).
 @Component({
   selector: 'app-group-settings',
   templateUrl: './group-settings.page.html',
@@ -65,7 +61,6 @@ import { initialOf } from '../../../utils/initial';
 export class GroupSettingsPage implements OnInit {
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
-  private modalCtrl = inject(ModalController);
   private alertCtrl = inject(AlertController);
   private toastCtrl = inject(ToastController);
   private navCtrl = inject(NavController);
@@ -85,10 +80,7 @@ export class GroupSettingsPage implements OnInit {
   });
 
   constructor() {
-    addIcons({
-      'person-add-outline': personAddOutline,
-      'trash-outline': trashOutline,
-    });
+    addIcons({ 'exit-outline': exitOutline, 'trash-outline': trashOutline });
   }
 
   ngOnInit() {
@@ -123,39 +115,6 @@ export class GroupSettingsPage implements OnInit {
       });
   }
 
-  async openMemberModal() {
-    const modal = await this.modalCtrl.create({
-      component: SelectParticipantComponent,
-      componentProps: { allowGroups: false },
-    });
-    await modal.present();
-
-    const { data } = await modal.onWillDismiss<ParticipantSelection>();
-    if (data?.user) {
-      this.addMember(data.user);
-    }
-  }
-
-  addMember(member: User) {
-    if (
-      [...(this.group?.members ?? []), ...(this.group?.invited ?? [])].some(
-        (m) => m.publicId === member.publicId,
-      )
-    ) {
-      return;
-    }
-    this.errorMessage = '';
-    this.groupService.addMembers(this.publicId, [member.publicId]).subscribe({
-      next: (group) => {
-        this.group = group;
-        // Chi non e' mio amico non entra subito: e' invitato e deve accettare.
-        const invited = group.invited?.some((m) => m.publicId === member.publicId);
-        this.presentToast(invited ? 'groups.member-invited' : 'groups.member-added');
-      },
-      error: () => (this.errorMessage = 'groups.member-error'),
-    });
-  }
-
   async confirmRemoveMember(member: User) {
     const alert = await this.alertCtrl.create({
       header: this.translate.instant('groups.remove-member-confirm', {
@@ -177,17 +136,34 @@ export class GroupSettingsPage implements OnInit {
     }
   }
 
+  async confirmLeave() {
+    const alert = await this.alertCtrl.create({
+      header: this.translate.instant('groups.leave-confirm', { group: this.group?.name ?? '' }),
+      message: this.translate.instant('groups.leave-message'),
+      buttons: [
+        { text: this.translate.instant('groups.cancel'), role: 'cancel' },
+        { text: this.translate.instant('groups.leave'), role: 'destructive' },
+      ],
+    });
+    await alert.present();
+    const { role } = await alert.onWillDismiss();
+    if (role === 'destructive') {
+      this.removeMember({ publicId: this.mePublicId, nickName: '' });
+    }
+  }
+
   private removeMember(member: User) {
     this.errorMessage = '';
     this.groupService.removeMember(this.publicId, member.publicId).subscribe({
       next: () => {
-        this.presentToast('groups.member-removed');
         // Chi toglie se stesso perde l'accesso al gruppo: restare qui (o
         // tornare al dettaglio) darebbe solo un 403.
         if (member.publicId === this.mePublicId) {
+          this.presentToast('groups.left');
           this.navCtrl.navigateBack('/tabs/groups');
           return;
         }
+        this.presentToast('groups.member-removed');
         this.loadGroup();
       },
       error: () => (this.errorMessage = 'groups.member-error'),

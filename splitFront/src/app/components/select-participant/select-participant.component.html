@@ -46,7 +46,7 @@
 
 <ion-content>
   @if (mode === 'person') {
-    <!-- Ricerca esatta (bottone Cerca): serve per chi non e' ancora amico. -->
+    <!-- Ricerca esatta (bottone Cerca): serve per chi non e' fra i contatti. -->
     @if (isLoading) {
       <div class="ion-text-center ion-padding">
         <ion-spinner name="crescent" color="primary"></ion-spinner>
@@ -57,7 +57,7 @@
         <ion-list>
           <ion-item>
             <ion-label class="ion-text-center" color="danger">
-              {{ 'select-participant.search-error' | translate }}
+              {{ searchErrorKey | translate }}
             </ion-label>
           </ion-item>
         </ion-list>
@@ -70,13 +70,6 @@
           </ion-item>
         </ion-list>
       } @else {
-        <!-- L'avviso sta nell'intestazione e non nella riga, che resta un
-             bottone col solo nickname. -->
-        @if (strangers.length > 0) {
-          <ion-list-header>
-            <ion-label class="ion-text-wrap">{{ 'select-participant.not-friend' | translate }}</ion-label>
-          </ion-list-header>
-        }
         <ion-list>
           @for (user of searchResults; track user.publicId) {
             <ion-item button (click)="selectParticipant(user)">
@@ -87,13 +80,13 @@
       }
     }
 
-    <!-- Gli amici: si aggiungono senza conferma; il testo li filtra. -->
-    @if (filteredFriends.length > 0) {
+    <!-- I contatti: il testo li filtra. -->
+    @if (filteredContacts.length > 0) {
       <ion-list-header>
-        <ion-label>{{ 'select-participant.friends' | translate }}</ion-label>
+        <ion-label>{{ 'select-participant.contacts' | translate }}</ion-label>
       </ion-list-header>
       <ion-list>
-        @for (user of filteredFriends; track user.publicId) {
+        @for (user of filteredContacts; track user.publicId) {
           <ion-item button (click)="selectParticipant(user)">
             <ion-label>{{ user.nickName }}</ion-label>
           </ion-item>
@@ -104,7 +97,7 @@
     @if (!hasSearched && !isLoading) {
       <p class="ion-padding">
         <ion-note>
-          {{ (friends.length > 0 ? 'select-participant.search-hint-friends' : 'select-participant.search-hint') | translate }}
+          {{ (contacts.length > 0 ? 'select-participant.search-hint-contacts' : 'select-participant.search-hint') | translate }}
         </ion-note>
       </p>
     }

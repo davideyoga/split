@@ -3,7 +3,6 @@ import { RouterLink } from '@angular/router';
 import {
   IonButton,
   IonButtons,
-  IonCard,
   IonContent,
   IonFab,
   IonFabButton,
@@ -18,17 +17,17 @@ import {
   IonTitle,
   IonToolbar,
   ModalController,
+  NavController,
 } from '@ionic/angular/standalone';
 import { TranslatePipe } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { add, chevronForward, mailUnreadOutline, peopleOutline } from 'ionicons/icons';
+import { add, chevronForward, peopleOutline } from 'ionicons/icons';
 
 import { LoadingSkeletonComponent } from '../../../components/loading-skeleton/loading-skeleton.component';
 import { NotificationBellComponent } from '../../../components/notification-bell/notification-bell.component';
 import { ProfileButtonComponent } from '../../../components/profile-button/profile-button.component';
 import { Group } from '../../../models/group.model';
 import { AuthService } from '../../../services/auth.service';
-import { FriendService } from '../../../services/friend.service';
 import { NotificationService } from '../../../services/notification.service';
 import { GroupService } from '../../../services/group.service';
 import { NewGroupModal } from '../new-group/new-group.modal';
@@ -47,7 +46,6 @@ import { NewGroupModal } from '../new-group/new-group.modal';
     ProfileButtonComponent,
     IonButton,
     IonButtons,
-    IonCard,
     IonContent,
     IonFab,
     IonFabButton,
@@ -65,25 +63,17 @@ import { NewGroupModal } from '../new-group/new-group.modal';
 })
 export class GroupList {
   private modalCtrl = inject(ModalController);
+  private navCtrl = inject(NavController);
   private groupService = inject(GroupService);
   private authService = inject(AuthService);
   private notificationService = inject(NotificationService);
-  private friendService = inject(FriendService);
-
-  // Inviti ai gruppi ancora da accettare (si decidono dalle Notifiche).
-  invitationCount = 0;
 
   groups: Group[] = [];
   loadError = false;
   loaded = false;
 
   constructor() {
-    addIcons({
-      add,
-      'chevron-forward': chevronForward,
-      'mail-unread-outline': mailUnreadOutline,
-      'people-outline': peopleOutline,
-    });
+    addIcons({ add, 'chevron-forward': chevronForward, 'people-outline': peopleOutline });
   }
 
   // Gli altri membri del gruppo, per il sottotitolo della riga ('' se ci sono
@@ -101,10 +91,6 @@ export class GroupList {
   ionViewWillEnter() {
     this.loadGroups();
     this.notificationService.refreshCount();
-    this.friendService.requests().subscribe({
-      next: (requests) => (this.invitationCount = requests.groups.length),
-      error: () => undefined,
-    });
   }
 
   loadGroups(onDone?: () => void) {
@@ -130,9 +116,13 @@ export class GroupList {
     const modal = await this.modalCtrl.create({ component: NewGroupModal });
     await modal.present();
 
-    const { role } = await modal.onWillDismiss();
-    if (role === 'created') {
-      this.loadGroups();
+    // Appena creato il gruppo ha solo te: si apre sui Membri, dove c'e' il
+    // link d'invito.
+    const { data, role } = await modal.onWillDismiss<Group>();
+    if (role === 'created' && data) {
+      this.navCtrl.navigateForward(['/tabs/groups', data.publicId], {
+        queryParams: { segment: 'members' },
+      });
     }
   }
 }

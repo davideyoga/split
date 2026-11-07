@@ -31,6 +31,7 @@ import {
   sparklesOutline,
 } from 'ionicons/icons';
 
+import { GroupInviteComponent } from '../../../components/group-invite/group-invite.component';
 import { ExpenseBalancesComponent } from '../../../components/expense-balances/expense-balances.component';
 import { GroupExpensesComponent } from '../../../components/group-expenses/group-expenses.component';
 import { LoadingSkeletonComponent } from '../../../components/loading-skeleton/loading-skeleton.component';
@@ -52,6 +53,7 @@ type GroupSegment = 'expenses' | 'balances' | 'members';
   styleUrls: ['./group-detail.scss'],
   standalone: true,
   imports: [
+    GroupInviteComponent,
     CommonModule,
     RouterLink,
     TranslatePipe,
@@ -108,6 +110,11 @@ export class GroupDetail implements OnInit {
 
   ngOnInit() {
     this.publicId = this.route.snapshot.paramMap.get('publicId') ?? '';
+    // ?segment=members: un gruppo appena creato si apre dove si invita.
+    const segment = this.route.snapshot.queryParamMap.get('segment');
+    if (segment === 'expenses' || segment === 'balances' || segment === 'members') {
+      this.segment = segment;
+    }
   }
 
   // Non ngOnInit: tornando indietro da group-settings la pagina e' ancora

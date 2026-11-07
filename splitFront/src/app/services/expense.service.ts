@@ -45,11 +45,6 @@ export interface UpdateExpensePayload {
 export interface ExpenseContribution {
   id: number;
   share: string;
-  // Quota in attesa (2026-10-25): `user` non ha ancora accettato, perche' non
-  // e' amico di `invitedBy`. Per lui la spesa non conta (utils/balance.ts
-  // isPendingFor), per tutti gli altri si'.
-  pending: boolean;
-  invitedBy: User | null;
   user: User;
 }
 
@@ -111,11 +106,5 @@ export class ExpenseService {
 
   remove(publicId: string): Observable<unknown> {
     return this.http.delete(`${this.baseUrl}/expense/${publicId}`);
-  }
-
-  // Rifiuta una spesa in attesa: la mia quota passa a chi mi ci ha messo.
-  // Accettarla e' FriendService.accept (si accetta la persona).
-  reject(publicId: string): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/expense/${publicId}/reject`, {});
   }
 }

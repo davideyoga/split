@@ -1,0 +1,31 @@
+// Come l'eroe del Profilo: cerchio grande, nome del gruppo, poi l'azione.
+.hero {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 24px 0 16px;
+
+  h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  ion-button {
+    width: 100%;
+    margin-top: 8px;
+  }
+}
+
+.avatar.large {
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  font-size: 28px;
+}

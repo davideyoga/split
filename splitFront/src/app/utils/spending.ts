@@ -1,5 +1,5 @@
 import { isSmartSplit } from '../models/category.model';
-import { BalanceExpenseInput, isPendingFor, toCents } from './balance';
+import { BalanceExpenseInput, toCents } from './balance';
 import { dayOf, todayIso } from './date';
 
 /**
@@ -121,8 +121,7 @@ export function computeMonthlySpending(
 
     const myContribution = myContributionTo(expense, mePublicId);
     const iPaid = expense.paidBy?.publicId === mePublicId;
-    // Una spesa ancora da accettare non e' (ancora) spesa mia.
-    if ((!myContribution && !iPaid) || myContribution?.pending) {
+    if (!myContribution && !iPaid) {
       continue;
     }
 
@@ -178,7 +177,6 @@ export function expensesInCategory<T extends SpendingExpenseInput>(
     (expense) =>
       countsIn(expense, period) &&
       (expense.category?.publicId ?? '') === categoryKey &&
-      !isPendingFor(expense, mePublicId) &&
       toCents(myContributionTo(expense, mePublicId)?.share) > 0,
   );
 }

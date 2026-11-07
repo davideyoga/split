@@ -2,7 +2,16 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import { API_URL } from './support/env';
 import { t } from './support/i18n';
 import { visible } from './support/ionic';
-import { apiLogin, createExpense, createGroup, loginAs, makeFriends, USERS, type Session } from './support/session';
+import {
+  apiLogin,
+  createExpense,
+  createGroup,
+  createInvite,
+  joinGroup,
+  loginAs,
+  USERS,
+  type Session,
+} from './support/session';
 
 interface ApiNotification {
   publicId: string;
@@ -17,8 +26,8 @@ function auth(session: Session) {
   return { headers: { Authorization: `Bearer ${session.accessToken}` } };
 }
 
-// Notifiche gia' presenti prima dei controlli (quelle lasciate da makeFriends):
-// i controlli guardano solo quelle nuove.
+// Notifiche gia' presenti prima dei controlli (per esempio di un test
+// precedente con gli stessi utenti): i controlli guardano solo quelle nuove.
 const baseline = new Set<string>();
 
 async function notifications(request: APIRequestContext, session: Session): Promise<ApiNotification[]> {
@@ -64,9 +73,6 @@ test('notifiche via API: chi le riceve e cosa resta', async ({ request }) => {
   const rockerduck = await apiLogin(request, USERS.rockerduck);
   const brigitta = await apiLogin(request, USERS.brigitta);
   const withBrigitta = { participantPublicIds: [brigitta.user.publicId] };
-  // Amici, cosi' le spese contano subito per entrambi (le richieste hanno la
-  // loro spec, friends.spec.ts).
-  await makeFriends(request, rockerduck, brigitta);
   await forgetExisting(request, rockerduck);
   await forgetExisting(request, brigitta);
 
@@ -122,31 +128,26 @@ test('notifiche via API: chi le riceve e cosa resta', async ({ request }) => {
   expect(afterDelete.map((n) => n.type)).toEqual(['EXPENSE_DELETED', 'EXPENSE_REMOVED']);
   expect(afterDelete[0].params).toMatchObject({ description: 'Gelato', amount: '10' });
 
-  // Gruppo (una volta sola, anche se la si aggiunge di nuovo) e rimborso.
-  const group = await createGroup(request, rockerduck, 'Deposito', [brigitta.user.publicId]);
-  const again = await request.post(`${API_URL}/group/${group.publicId}/members`, {
-    ...auth(rockerduck),
-    data: { memberPublicIds: [brigitta.user.publicId] },
-  });
-  expect(again.ok()).toBeTruthy();
+  // Ingresso col link: lo sanno i membri (una volta sola, anche rientrando
+  // con lo stesso link), non chi entra. Poi un rimborso.
+  const group = await createGroup(request, rockerduck, 'Deposito');
+  const token = await createInvite(request, rockerduck, group.publicId);
+  await joinGroup(request, brigitta, token);
+  await joinGroup(request, brigitta, token);
   const settlement = await request.post(`${API_URL}/settlement`, {
     ...auth(rockerduck),
     data: { fromPublicId: brigitta.user.publicId, toPublicId: rockerduck.user.publicId, amount: 5 },
   });
   expect(settlement.ok()).toBeTruthy();
-  expect(await types(request, brigitta)).toEqual([
-    'SETTLEMENT_ADDED',
-    'GROUP_ADDED',
-    'EXPENSE_DELETED',
-    'EXPENSE_REMOVED',
-  ]);
-  expect(await types(request, rockerduck)).toEqual([]);
+  expect(await types(request, brigitta)).toEqual(['SETTLEMENT_ADDED', 'EXPENSE_DELETED', 'EXPENSE_REMOVED']);
+  const [joined] = await notifications(request, rockerduck);
+  expect(await types(request, rockerduck)).toEqual(['GROUP_JOINED']);
+  expect(joined).toMatchObject({ actor: { nickName: 'Brigitta' } });
 });
 
 test('campanella: numero, lista tradotta, lette all\'apertura', async ({ page }) => {
   const brigitta = await loginAs(page, USERS.brigitta);
   const rockerduck = await apiLogin(page.request, USERS.rockerduck);
-  await makeFriends(page.request, rockerduck, brigitta);
   const cinema = await createExpense(page.request, rockerduck, {
     amount: 12,
     description: 'Cinema',

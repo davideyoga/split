@@ -56,7 +56,6 @@ import { User } from '../../models/user.model';
 import { AuthService } from '../../services/auth.service';
 import { CategoryService } from '../../services/category.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
-import { FriendService } from '../../services/friend.service';
 import { GroupService } from '../../services/group.service';
 import { formatCents, toCents } from '../../utils/balance';
 import { currencySymbol } from '../../utils/money';
@@ -118,13 +117,6 @@ export class ExpenseFormModal implements OnInit {
   private expenseService = inject(ExpenseService);
   private categoryService = inject(CategoryService);
   private groupService = inject(GroupService);
-  private friendService = inject(FriendService);
-
-  // Chi entra senza conferma (2026-10-25): i miei amici e, in modifica, chi
-  // aveva gia' accettato. Per gli altri partecipanti la spesa restera' in
-  // attesa finche' non accettano: la form lo dice sotto i chip.
-  private friendIds = new Set<string>();
-  private acceptedIds = new Set<string>();
 
   // Chi ha creato la spesa: e' sempre un contributore (lo impone il backend) e
   // non si puo' togliere. In creazione e' l'utente loggato, in modifica il
@@ -207,30 +199,9 @@ export class ExpenseFormModal implements OnInit {
       this.refreshPayerCandidates();
     }
     this.loadCategories();
-    this.friendService.list().subscribe({
-      next: (friends) => (this.friendIds = new Set(friends.map((f) => f.publicId))),
-      error: () => undefined,
-    });
-  }
-
-  // Partecipanti singoli che dovranno accettare la spesa.
-  get needingAcceptance(): User[] {
-    return this.participants.filter(
-      (p) =>
-        p.publicId !== this.mePublicId &&
-        !this.friendIds.has(p.publicId) &&
-        !this.acceptedIds.has(p.publicId),
-    );
-  }
-
-  get needingAcceptanceNames(): string {
-    return this.needingAcceptance.map((p) => p.nickName).join(', ');
   }
 
   private initFromExpense(expense: ExpenseListItem) {
-    this.acceptedIds = new Set(
-      expense.expenseContributions.filter((c) => !c.pending).map((c) => c.user.publicId),
-    );
     this.ready = false;
     this.creator = expense.createdBy;
     this.paidByPublicId = expense.paidBy.publicId;

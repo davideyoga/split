@@ -8,30 +8,27 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 
 ## Backend (`splitBack`)
 
-- [group.service.ts:28](splitBack/src/app/group/group.service.ts#L28) — permessi gruppo: oggi qualsiasi membro puo' rinominare il gruppo e aggiungere/rimuovere membri. Prima della beta aggiungere `Group.createdById` (owner) e limitare le mutazioni all'owner.
-- [auth.factory.ts:13](splitBack/src/app/auth/auth.factory.ts#L13) — prima della beta: dietro un reverse proxy il rate limit del login vede solo l'IP del proxy (un contatore per tutti); leggere `X-Forwarded-For` con `advanced.ipAddress.trustedProxies`.
+- [group.service.ts:26](splitBack/src/app/group/group.service.ts#L26) — permessi gruppo: oggi qualsiasi membro puo' rinominare il gruppo, creare o revocare il link d'invito e rimuovere membri. Prima della beta aggiungere `Group.createdById` (owner) e limitare le mutazioni all'owner.
+- [auth.factory.ts:14](splitBack/src/app/auth/auth.factory.ts#L14) — prima della beta: dietro un reverse proxy il rate limit del login vede solo l'IP del proxy (un contatore per tutti); leggere `X-Forwarded-For` con `advanced.ipAddress.trustedProxies`.
 
 
 ## Funzionalita' da aggiungere Priorita' alta
-- Registrazione
+- Piano in [doc/InvitiGruppo.md](doc/InvitiGruppo.md) (2026-11-07). Fatte le fasi A (via gli amici), B (link d'invito) e C ("Blocca" ed "Esci dal gruppo"). La fase D (registrazione aperta) e' nel branch `registration`.
+
+  Ospiti senza account: estensione futura.
+- Captcha alla registrazione (rimandato, 2026-10-25): da riconsiderare se, con la registrazione aperta, arrivano abusi sull'invio dei codici (quota Brevo). Vedi [doc/InvitiGruppo.md](doc/InvitiGruppo.md).
 - Passkey (accesso con impronta/FaceID dopo il primo login via codice): plugin `@better-auth/passkey` (MIT), aggiunge una tabella. Su Capacitor serve un plugin nativo open source e la configurazione del dominio (`assetlinks.json` / `apple-app-site-association`). Vedi [doc/Auth.md](doc/Auth.md).
 - Dominio per le email: con Brevo e mittente Gmail i codici di login possono finire in spam; con un dominio autenticato in Brevo (SPF/DKIM) no.
-- Amici, limiti dell'alpha (fatti il 2026-10-25: ricerca esatta, notifiche, amici con spese e inviti in attesa; vedi CLAUDE.md, "Friends"):
-  - non si puo' togliere un amico ne' bloccare qualcuno che continua ad aggiungerti a spese;
-  - l'elenco degli amici si vede solo nella scelta dei partecipanti (nessuna pagina "Amici" nel Profilo);
-  - chi deve ancora accettare puo' essere il pagante: se rifiuta, il pagamento passa a chi si prende la sua quota;
-  - le spese di compensazione della divisione intelligente con ex membri non amici nascono in attesa, e rifiutarne una sposta i netti.
 - Notifiche push: agganciarle all'unico punto di creazione, `NotificationService.notify()`, dopo il commit della transazione. Il testo della push lo genera il server, quindi serve la lingua dell'utente salvata sul server (`User.locale`; oggi e' solo in localStorage). Vedi CLAUDE.md, "Notifications".
 - Notifiche, limiti dell'alpha (priorita' bassa):
   - nessuna notifica si cancella mai (se ne mostrano le ultime 50): serve una pulizia di quelle vecchie;
   - il numero sulla campanella non si aggiorna da solo mentre l'app resta aperta sulla stessa pagina (con le push non servira');
   - mancano le notifiche per la rinomina di un gruppo e per un rimborso eliminato.
-- Rate limit su `GET /api/user` (prima della beta): oggi un utente loggato puo' provare un'email alla volta per sapere se ha un account (e il suo nickname). Nest non ha ancora un throttler. Vedi CLAUDE.md, "User search".
+- Rate limit su `GET /api/user` (prima della registrazione aperta): oggi un utente loggato puo' provare un'email alla volta per sapere se ha un account (e il suo nickname). Nest non ha ancora un throttler. Vedi CLAUDE.md, "User search".
+- Link d'invito nell'app nativa (Capacitor): il link usa `window.location.origin`, che li' e' `https://localhost`. Serve l'URL pubblico del sito (es. in `environment`) e il deep link `/join` configurato in Android/iOS.
 
 
 - Nickname liberati da un rename (priorita' media, prima della beta): oggi un nickname appena lasciato puo' essere preso subito da un altro utente, e chi cerca il vecchio nome aggiunge alla spesa la persona sbagliata. Possibili rimedi: riservare per qualche settimana i nickname liberati, o un limite di cambi. Vedi CLAUDE.md, "Nickname".
-
-- Fare in modo che le spese e le aggiunte ad i gruppi siano accettate o almeno limitate agli utenti "amici", altrimenti posso aggiungere spese a gente random
 
 
 ## Funzionalita' da aggiungere priorita' bassa

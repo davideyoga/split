@@ -22,7 +22,6 @@ import { FormsModule } from '@angular/forms';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Group } from '../../models/group.model';
 import { User } from '../../models/user.model';
-import { FriendService } from '../../services/friend.service';
 import { GroupService } from '../../services/group.service';
 import { UserService } from '../../services/user.service';
 
@@ -69,16 +68,14 @@ export class SelectParticipantComponent implements OnInit {
   @Input() allowGroups = true;
 
   private userService = inject(UserService);
-  private friendService = inject(FriendService);
   private groupService = inject(GroupService);
   private modalCtrl = inject(ModalController);
 
   mode: SelectMode = 'person';
 
-  // Gli amici si aggiungono senza conferma (2026-10-25); gli altri si trovano
-  // solo con la ricerca esatta, e la spesa restera' in attesa finche' non
-  // accettano.
-  friends: User[] = [];
+  // Chi condivide gia' con me una spesa o un gruppo; gli altri si trovano con
+  // la ricerca esatta.
+  contacts: User[] = [];
   searchResults: User[] = [];
   searchQuery = '';
   isLoading = false;
@@ -86,36 +83,29 @@ export class SelectParticipantComponent implements OnInit {
   // mostra solo dopo aver premuto Cerca, e sparisce appena si cambia il testo.
   private searchedQuery: string | null = null;
   searchFailed = false;
+  searchErrorKey = 'select-participant.search-error';
 
   groups: Group[] = [];
   groupsLoading = false;
   private groupsLoaded = false;
 
   ngOnInit() {
-    // Senza amici (o se la chiamata fallisce) resta la sola ricerca esatta.
-    this.friendService.list().subscribe({
-      next: (friends) => (this.friends = friends),
+    // Senza contatti (o se la chiamata fallisce) resta la sola ricerca esatta.
+    this.userService.getContacts().subscribe({
+      next: (contacts) => (this.contacts = contacts),
       error: () => undefined,
     });
   }
 
-  // Gli amici il cui nickname contiene il testo scritto (tutti, se e' vuoto),
+  // I contatti il cui nickname contiene il testo scritto (tutti, se e' vuoto),
   // tranne chi e' gia' nel risultato della ricerca qui sopra.
-  get filteredFriends(): User[] {
+  get filteredContacts(): User[] {
     const q = this.searchQuery.trim().toLowerCase();
     const shown = this.hasSearched ? this.searchResults : [];
-    return this.friends.filter(
-      (f) =>
-        (!q || f.nickName.toLowerCase().includes(q)) &&
-        !shown.some((user) => user.publicId === f.publicId),
-    );
-  }
-
-  // Risultati della ricerca esatta che non sono amici: la spesa restera' in
-  // attesa finche' non accettano.
-  get strangers(): User[] {
-    return this.searchResults.filter(
-      (user) => !this.friends.some((f) => f.publicId === user.publicId),
+    return this.contacts.filter(
+      (c) =>
+        (!q || c.nickName.toLowerCase().includes(q)) &&
+        !shown.some((user) => user.publicId === c.publicId),
     );
   }
 
@@ -151,7 +141,9 @@ export class SelectParticipantComponent implements OnInit {
         this.searchedQuery = query;
         this.isLoading = false;
       },
-      error: () => {
+      error: (error: { status?: number }) => {
+        this.searchErrorKey =
+          error.status === 429 ? 'select-participant.rate-limited' : 'select-participant.search-error';
         this.searchFailed = true;
         this.searchedQuery = query;
         this.isLoading = false;

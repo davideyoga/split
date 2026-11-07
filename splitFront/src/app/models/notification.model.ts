@@ -10,13 +10,8 @@ export type NotificationType =
   | 'EXPENSE_REMOVED'
   | 'EXPENSE_DELETED'
   | 'GROUP_ADDED'
-  | 'SETTLEMENT_ADDED'
-  | 'EXPENSE_PENDING'
-  | 'EXPENSE_REJECTED'
-  | 'FRIEND_ACCEPTED'
-  | 'GROUP_INVITED'
   | 'GROUP_JOINED'
-  | 'GROUP_DECLINED';
+  | 'SETTLEMENT_ADDED';
 
 // La spesa com'era, per EXPENSE_REMOVED / EXPENSE_DELETED: non si puo' piu' aprire.
 export interface ExpenseSnapshot {

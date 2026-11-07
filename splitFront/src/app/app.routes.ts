@@ -90,6 +90,12 @@ export const routes: Routes = [
       import('./pages/notifications/notifications.page').then((m) => m.NotificationsPage),
     canActivate: [authGuard],
   },
+  // Link d'invito a un gruppo, /join#<token> (2026-11-07): senza authGuard,
+  // perche' chi lo apre puo' non aver ancora fatto login.
+  {
+    path: 'join',
+    loadComponent: () => import('./pages/join/join.page').then((m) => m.JoinPage),
+  },
   // Compatibilita' con i vecchi link / deep link. La nuova spesa non e' piu' una
   // rotta ma una modale (pages/expense-form), aperta dai FAB.
   { path: 'home', redirectTo: 'tabs/activity', pathMatch: 'full' },

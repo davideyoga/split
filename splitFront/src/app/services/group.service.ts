@@ -26,35 +26,19 @@ export class GroupService {
     return this.http.get<Group>(`${this.baseUrl}/group/${publicId}`);
   }
 
-  createGroup(name: string, memberPublicIds: string[]): Observable<Group> {
-    return this.http.post<Group>(`${this.baseUrl}/group`, {
-      name,
-      memberPublicIds,
-    });
+  // Il gruppo nasce col solo creatore: gli altri entrano col link d'invito
+  // (InviteService).
+  createGroup(name: string): Observable<Group> {
+    return this.http.post<Group>(`${this.baseUrl}/group`, { name });
   }
 
   renameGroup(publicId: string, name: string): Observable<Group> {
     return this.http.patch<Group>(`${this.baseUrl}/group/${publicId}`, { name });
   }
 
-  addMembers(publicId: string, memberPublicIds: string[]): Observable<Group> {
-    return this.http.post<Group>(`${this.baseUrl}/group/${publicId}/members`, {
-      memberPublicIds,
-    });
-  }
-
   removeMember(publicId: string, userPublicId: string): Observable<unknown> {
     return this.http.delete(
       `${this.baseUrl}/group/${publicId}/members/${userPublicId}`,
     );
-  }
-
-  // Invito in attesa: accettando si entra e si diventa amici di tutti i membri.
-  acceptInvitation(publicId: string): Observable<Group> {
-    return this.http.post<Group>(`${this.baseUrl}/group/${publicId}/accept`, {});
-  }
-
-  declineInvitation(publicId: string): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/group/${publicId}/decline`, {});
   }
 }

@@ -15,8 +15,6 @@ import { User } from '../models/user.model';
 export interface BalanceContributionInput {
   share: string | number;
   user: User;
-  // Quota non ancora accettata (vedi isPendingFor).
-  pending?: boolean;
 }
 
 export interface BalanceExpenseInput {
@@ -59,21 +57,6 @@ export function toCents(value: string | number | null | undefined): number {
   return Number.isFinite(parsed) ? Math.round(parsed * 100) : 0;
 }
 
-/**
- * La mia quota di questa spesa e' in attesa: chi mi ci ha messo non e' ancora
- * mio amico e non ho accettato. Finche' e' cosi' la spesa non esiste per me
- * (saldi, spese del mese), mentre per tutti gli altri conta gia' (decisione
- * dell'utente, 2026-10-25).
- */
-export function isPendingFor(
-  expense: BalanceExpenseInput | null | undefined,
-  mePublicId: string | null | undefined,
-): boolean {
-  return !!expense?.expenseContributions?.some(
-    (contribution) => contribution?.user?.publicId === mePublicId && contribution.pending,
-  );
-}
-
 export function computeBalances(
   expenses: readonly BalanceExpenseInput[] | null | undefined,
   mePublicId: string | null | undefined,
@@ -88,7 +71,7 @@ export function computeBalances(
   if (mePublicId) {
     for (const expense of entries) {
       const payer = expense?.paidBy;
-      if (!payer?.publicId || isPendingFor(expense, mePublicId)) {
+      if (!payer?.publicId) {
         continue;
       }
 

@@ -46,6 +46,10 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 
 - Giorno di inizio del mese (Priorita' Bassa): e' salvato solo sul dispositivo (`split.monthStartDay`), quindi non segue l'utente su un altro telefono o PC. Per sincronizzarlo serve una colonna su `User` e `PATCH /api/user/me`.
 
+- Pulizia delle sessioni scadute (Priorita' Bassa): Better Auth cancella una riga di `Session` scaduta solo quando quel token viene riusato, quindi su un dispositivo non piu' usato restano per sempre IP e user agent. Serve un job periodico che cancelli le righe con `expiresAt` passato. Dopo, aggiornare la riga "Sessione" del punto 7 in [doc/privacy/informativa-privacy.it.md](doc/privacy/informativa-privacy.it.md) e [doc/privacy/privacy-policy.en.md](doc/privacy/privacy-policy.en.md).
+
+- Avviso nell'app quando cambia l'informativa privacy (da fare prima della prima modifica importante): il punto 11 di [doc/privacy/informativa-privacy.it.md](doc/privacy/informativa-privacy.it.md) e di [doc/privacy/privacy-policy.en.md](doc/privacy/privacy-policy.en.md) promette un avviso nell'app, ma oggi non esiste un meccanismo per mandarlo a tutti gli utenti. Possibile base: un nuovo tipo di notifica (`NotificationService.notify()`, vedi CLAUDE.md, "Notifications"), che pero' oggi nasce sempre dall'azione di un altro utente.
+
 - Gestione categorie personali (Priorita' Bassa): mancano nell'interfaccia rinomina, archiviazione e scelta di icona e colore. Endpoint e colonne esistono gia'.
 
 - Feedback dei tester ([doc/feedback](doc/feedback)): aggiungere una spesa non e' abbastanza intuitivo; il pannello saldi vuoto non e' bello da vedere.

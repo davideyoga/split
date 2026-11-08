@@ -106,7 +106,7 @@ These transfers rely on the EU-US Data Privacy Framework, where the provider is 
 | Email sending logs | For the period set by Brevo |
 | Database backups | The copies we make are deleted within 30 days and do not contain sessions or sign-in codes. The database provider also keeps a short technical history |
 
-**If you delete your account from your Profile**, we delete or anonymise your data immediately (within 30 days if you ask by email): email, nickname, sessions, links with Google or Apple, expenses that are yours alone, custom categories, notifications, blocked people and the repayment notes you wrote. You also leave all your groups, and the invite links you created stop working.
+**If you delete your account from your Profile**, we delete or anonymise your data immediately (within 30 days if you ask by email): email, nickname, sessions, links with Google or Apple, expenses that are yours alone, custom categories, notifications, blocked people and the repayment notes you wrote. You also leave all your groups, and the invite links you created stop working. For a limited time, the data may remain only in the backups and technical logs listed in the table above.
 
 Expenses and repayments shared with others are needed to calculate their balances, so they remain: your name is replaced with an anonymous label ("Deleted user"), even if you still have open balances. Shared expenses lose the custom categories you created. Text you wrote in a shared expense stays visible to the other participants, but you can edit it before deleting your account.
 

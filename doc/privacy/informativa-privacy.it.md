@@ -106,7 +106,7 @@ Questi trasferimenti avvengono sulla base del Data Privacy Framework UE-USA, dov
 | Registri di invio delle email | Per il periodo previsto da Brevo |
 | Copie di sicurezza del database | Le copie che facciamo noi vengono cancellate entro 30 giorni e non contengono le sessioni né i codici di accesso. Il fornitore del database conserva inoltre una breve cronologia tecnica |
 
-**Se cancelli il tuo account dal Profilo** eliminiamo o rendiamo anonimi i tuoi dati subito (entro 30 giorni se lo chiedi via email): email, nickname, sessioni, collegamenti con Google o Apple, spese solo tue, categorie personalizzate, notifiche, persone bloccate e note dei rimborsi che hai scritto. Esci anche da tutti i gruppi, e i link d'invito che hai creato smettono di funzionare.
+**Se cancelli il tuo account dal Profilo** eliminiamo o rendiamo anonimi i tuoi dati subito (entro 30 giorni se lo chiedi via email): email, nickname, sessioni, collegamenti con Google o Apple, spese solo tue, categorie personalizzate, notifiche, persone bloccate e note dei rimborsi che hai scritto. Esci anche da tutti i gruppi, e i link d'invito che hai creato smettono di funzionare. Per un periodo limitato i dati possono restare solo nelle copie di sicurezza e nei registri tecnici indicati nella tabella qui sopra.
 
 Le spese e i rimborsi condivisi con altri servono a calcolare i loro saldi, quindi restano: il tuo nome viene sostituito da un'indicazione anonima ("Utente eliminato"), anche se hai saldi ancora aperti. Le spese condivise perdono le categorie personalizzate che avevi creato. Il testo che hai scritto in una spesa condivisa resta visibile agli altri partecipanti, ma puoi modificarlo prima di cancellare l'account.
 

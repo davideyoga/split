@@ -128,6 +128,7 @@ Google e Apple non si possono provare nell'e2e, perché servono token firmati da
 | `BETTER_AUTH_URL` | no | URL pubblico dell'API. Se manca, viene ricavato da ogni richiesta |
 | `AUTH_TRUSTED_ORIGINS` | no | Origini del frontend, separate da virgole. Il default copre localhost e Capacitor. Vale per il login **e per CORS su tutta l'API**: un frontend pubblicato va aggiunto, altrimenti il login risponde `403 INVALID_ORIGIN` e il browser blocca le altre chiamate |
 | `AUTH_RATE_LIMIT` | no | `off` disattiva il rate limit (solo per i test e2e) |
+| `AUTH_TRUSTED_PROXIES` | dietro un proxy | IP o range CIDR dei reverse proxy, separati da virgole. Senza, il rate limit usa l'IP del socket e ignora `X-Forwarded-For` |
 | `AUTH_SIGN_UP` | no | `open` apre la registrazione (codice, Google, Apple). Default: chiusa |
 | `GOOGLE_CLIENT_ID` | no | Client ID OAuth "Web application"; più ID separati da virgola (web + app native). Senza, niente Google |
 | `APPLE_CLIENT_ID` | no | Services ID del web. Senza (e senza il bundle), niente Apple |
@@ -149,7 +150,7 @@ Google e Apple non si possono provare nell'e2e, perché servono token firmati da
 ## Sicurezza: cosa è già coperto
 
 - **Codici:** salvati solo come hash, validi 10 minuti, al massimo 5 tentativi, e ogni nuova richiesta invalida il codice precedente.
-- **Rate limit per IP:** di default 3 invii di codice al minuto, poi `429`. L'IP arriva dal socket tramite l'header `x-split-client-ip`, che viene sempre sovrascritto, quindi un client non può falsificarlo. **Dietro un reverse proxy** va invece configurato `advanced.ipAddress.trustedProxies` (vedi TODO.md).
+- **Rate limit per IP:** di default 3 invii di codice al minuto, poi `429`. L'IP arriva dal socket tramite l'header `x-split-client-ip`, che viene sempre sovrascritto, quindi un client non può falsificarlo. **Dietro un reverse proxy** va impostato `AUTH_TRUSTED_PROXIES`: `main.ts` passa allora la catena `X-Forwarded-For` con in fondo l'IP del socket, e Better Auth la legge da destra fermandosi al primo indirizzo non fidato, quindi i valori inventati da un client a sinistra non contano (`auth/client-ip.ts`). Da quel momento la colonna `Session.ipAddress` contiene l'IP vero dell'utente, non quello del proxy: è un dato personale da citare nell'informativa privacy.
 - **Solo Bearer, mai cookie:** il guard e le rotte `/api/auth/*` ignorano i cookie. Se fossero accettati, un cookie rimasto nel browser autenticherebbe da solo le richieste (CSRF) quando app e API stanno sullo stesso dominio.
 - **Origine:** le chiamate di login fatte da un browser devono venire da un'origine in `AUTH_TRUSTED_ORIGINS`. La stessa lista è quella di CORS: solo quelle origini possono leggere le risposte dell'API da un browser.
 - **Nessuna enumerazione degli utenti:** un'email registrata e una sconosciuta ricevono la stessa risposta. Dall'interno, la ricerca esatta per email lo rivela una email alla volta: per questo `GET /api/user` ha un limite di 30 ricerche all'ora per utente (`429 SEARCH_RATE_LIMITED`).

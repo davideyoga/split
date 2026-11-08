@@ -11,10 +11,10 @@ import { provisionalNickname } from './provisional-nickname';
 export const BETTER_AUTH = Symbol('BETTER_AUTH');
 
 /**
- * Header in cui main.ts mette l'IP del socket prima di passare la richiesta a
- * Better Auth. TODO before beta: dietro un reverse proxy l'IP del socket e'
- * quello del proxy (tutti i client in un solo contatore del rate limit):
- * leggere allora X-Forwarded-For con `advanced.ipAddress.trustedProxies`.
+ * Header in cui main.ts mette l'IP del client prima di passare la richiesta a
+ * Better Auth: l'IP del socket, preceduto da X-Forwarded-For solo se
+ * AUTH_TRUSTED_PROXIES dice che siamo dietro un proxy (vedi client-ip.ts). Lo
+ * sovrascrive sempre main.ts: un valore mandato dal client non conta.
  */
 export const CLIENT_IP_HEADER = 'x-split-client-ip';
 
@@ -50,6 +50,16 @@ export function signUpOpen(): boolean {
 
 function listFromEnv(name: string): string[] {
   return (process.env[name] ?? '').split(',').map((v) => v.trim()).filter(Boolean);
+}
+
+/**
+ * IP o range CIDR dei reverse proxy davanti all'API, per il rate limit per IP.
+ * Vuota (default): nessun proxy, conta l'IP del socket. Il valore per Render e'
+ * in doc/DECISIONI_HOSTING.md. Un range mancante non apre buchi: quell'hop viene
+ * preso per il client, e chi passa da li' condivide un contatore.
+ */
+export function trustedProxies(): string[] {
+  return listFromEnv('AUTH_TRUSTED_PROXIES');
 }
 
 /**
@@ -92,7 +102,7 @@ export function createAuth(prisma: PrismaClient, mail: MailService) {
     advanced: {
       // Id interi autoincrement, come il resto dello schema.
       database: { generateId: 'serial' },
-      ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
+      ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER], trustedProxies: trustedProxies() },
     },
     telemetry: { enabled: false },
     // La tabella `user` di Better Auth e' il nostro User: si rimappano i nomi

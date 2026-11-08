@@ -13,7 +13,8 @@ import { NestFactory } from '@nestjs/core';
 import type { Express } from 'express';
 import { toNodeHandler } from 'better-auth/node';
 import { AppModule } from './app/app.module';
-import { BETTER_AUTH, CLIENT_IP_HEADER, trustedOrigins, type Auth } from './app/auth/auth.factory';
+import { BETTER_AUTH, CLIENT_IP_HEADER, trustedOrigins, trustedProxies, type Auth } from './app/auth/auth.factory';
+import { clientIpChain } from './app/auth/client-ip';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,14 +31,16 @@ async function bootstrap() {
   // - Better Auth riceve una Request web senza l'indirizzo del socket, quindi
   //   l'IP del client (per il rate limit per IP) gli arriva in
   //   CLIENT_IP_HEADER, sempre sovrascritto qui: un valore mandato dal client
-  //   non conta.
+  //   non conta. Dietro un proxy (AUTH_TRUSTED_PROXIES) include la catena
+  //   X-Forwarded-For, vedi client-ip.ts.
   // - I cookie si scartano: la sessione viaggia solo come Bearer (plugin
   //   bearer), come in SessionAuthGuard, cosi' un cookie rimasto nel browser
   //   non autentica nulla da solo.
   const auth = app.get<Auth>(BETTER_AUTH);
   const authHandler = toNodeHandler(auth);
+  const behindProxy = trustedProxies().length > 0;
   (app.getHttpAdapter().getInstance() as Express).all('/api/auth/*splat', (req, res) => {
-    req.headers[CLIENT_IP_HEADER] = req.socket.remoteAddress ?? '';
+    req.headers[CLIENT_IP_HEADER] = clientIpChain(req.socket.remoteAddress, req.headers['x-forwarded-for'] as string | undefined, behindProxy);
     delete req.headers.cookie;
     return authHandler(req, res);
   });

@@ -77,11 +77,22 @@ Web Service, runtime Node, regione Frankfurt, istanza Free, branch `test`, Root 
   | `BETTER_AUTH_URL` | `https://<servizio>.onrender.com` |
   | `MAIL_TRANSPORT` | `brevo` (con `BREVO_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME`), oppure `console` per una prima prova: il codice compare nei log di Render |
   | `AUTH_TRUSTED_ORIGINS` | l'URL dello static site del frontend, più `https://localhost,capacitor://localhost` se si usa l'app Capacitor. Impostarla **sostituisce** i default |
+  | `AUTH_TRUSTED_PROXIES` | `10.0.0.0/8` più i range di Cloudflare, valore completo sotto |
 
   `PORT` lo imposta Render. `NODE_ENV` non va impostato.
 - **Verifica:** `https://<servizio>.onrender.com/api` risponde `{"message":"Hello API"}`.
 - **Migrazioni su DB vuoto:** verificate il 2026-09-27. Le 7 migrazioni si applicano su un DB vuoto e il risultato coincide con `schema.prisma` (`migrate diff --exit-code` = 0).
-- **Limite noto:** dietro il proxy di Render, `req.socket.remoteAddress` è l'IP del proxy, quindi il rate limit sull'invio dei codici (3 al minuto per IP) è condiviso da tutti i tester. Vedi il TODO in [auth.factory.ts](../splitBack/src/app/auth/auth.factory.ts#L13).
+- **IP del client dietro il proxy (2026-11-08):** senza `AUTH_TRUSTED_PROXIES`, `req.socket.remoteAddress` è l'IP del proxy e il rate limit sull'invio dei codici (3 al minuto per IP) è condiviso da tutti i tester. Valore da impostare su Render:
+
+  ```
+  10.0.0.0/8,173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32
+  ```
+
+  - `10.0.0.0/8` è la rete interna di Render, il resto sono i range pubblicati da Cloudflare ([IPv4](https://www.cloudflare.com/ips-v4), [IPv6](https://www.cloudflare.com/ips-v6), letti il 2026-11-08). Se Cloudflare ne aggiunge uno, i client che passano da lì condividono un contatore finché la lista non viene aggiornata: nessun buco, solo il comportamento di prima.
+  - **La catena non è documentata da Render.** La forma `client, edge Cloudflare` con socket `10.x`, e il fatto che Render non ripulisca un `X-Forwarded-For` mandato dal client, vengono da [questa analisi](https://rohitpaulk.com/articles/render-rails-remote-ip) e dal [forum feedback di Render](https://feedback.render.com/features/p/send-the-correct-xforwardedfor). Per questo si legge la catena da destra, senza fidarsi del primo valore.
+  - **Scelto X-Forwarded-For invece di `CF-Connecting-IP` / `True-Client-IP`:** nessuna fonte conferma che Render o Cloudflare sovrascrivano quegli header, e l'app non può controllare che la richiesta sia passata davvero da Cloudflare.
+  - **Limite accettato:** una richiesta partita da un Cloudflare Worker dell'attaccante ha un IP di Cloudflare, quindi viene saltata come hop fidato e può aggirare il contatore. Serve un minimo di impegno e il danno è limitato a qualche codice in più.
+  - **Verifica dopo il deploy:** quattro `POST /api/auth/email-otp/send-verification-otp` in un minuto dallo stesso PC, con un'email inesistente, devono dare `429` alla quarta. La quarta deve restare `429` anche aggiungendo `-H 'X-Forwarded-For: 1.2.3.4'`. Nello stesso minuto, da un telefono in rete mobile (IP diverso), la richiesta deve invece passare.
 
 Backend pubblicato il 2026-09-27: `https://split-eued.onrender.com/api`. La radice `/` risponde 404 perché tutte le rotte stanno sotto `/api`.
 

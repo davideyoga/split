@@ -37,13 +37,13 @@
                 @if (row.payerIsMe) {
                   {{ 'expense-list.you-paid' | translate: { amount: (row.amountCents | money: row.expense.currency) } }}
                 } @else {
-                  {{ 'expense-list.they-paid' | translate: { name: row.expense.paidBy.nickName, amount: (row.amountCents | money: row.expense.currency) } }}
+                  {{ 'expense-list.they-paid' | translate: { name: (row.expense.paidBy.nickName | userName), amount: (row.amountCents | money: row.expense.currency) } }}
                 }
               } @else {
                 @if (row.payerIsMe) {
                   {{ 'expense-list.paid-by-you' | translate }}
                 } @else {
-                  {{ 'expense-list.paid-by-name' | translate: { name: row.expense.paidBy.nickName } }}
+                  {{ 'expense-list.paid-by-name' | translate: { name: (row.expense.paidBy.nickName | userName) } }}
                 }
               }
               @if (row.context; as context) {
@@ -51,11 +51,11 @@
                 @if (context.kind === 'group') {
                   {{ context.name }}
                 } @else if (context.names.length === 1) {
-                  {{ 'expense-list.with-one' | translate: { name: context.names[0] } }}
+                  {{ 'expense-list.with-one' | translate: { name: (context.names[0] | userName) } }}
                 } @else if (context.names.length === 2) {
-                  {{ 'expense-list.with-two' | translate: { first: context.names[0], second: context.names[1] } }}
+                  {{ 'expense-list.with-two' | translate: { first: (context.names[0] | userName), second: (context.names[1] | userName) } }}
                 } @else {
-                  {{ 'expense-list.with-many' | translate: { name: context.names[0], count: context.names.length - 1 } }}
+                  {{ 'expense-list.with-many' | translate: { name: (context.names[0] | userName), count: context.names.length - 1 } }}
                 }
               }
             }

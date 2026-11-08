@@ -3,7 +3,7 @@
     <ion-buttons slot="start">
       <ion-button (click)="cancel()">{{ 'settlements.cancel' | translate }}</ion-button>
     </ion-buttons>
-    <ion-title>{{ 'balances.settle-title' | translate: { name: balance.user.nickName } }}</ion-title>
+    <ion-title>{{ 'balances.settle-title' | translate: { name: (balance.user.nickName | userName) } }}</ion-title>
     <ion-buttons slot="end">
       <ion-button [strong]="true" [disabled]="!canSave" (click)="save()">
         {{ 'settlements.save' | translate }}
@@ -17,7 +17,7 @@
   <p class="direction ion-padding-horizontal">
     {{
       (theyPay ? 'settlements.they-paid-you' : 'settlements.you-paid-them')
-        | translate: { name: balance.user.nickName }
+        | translate: { name: (balance.user.nickName | userName) }
     }}
   </p>
 
@@ -42,7 +42,7 @@
         {{ 'settlements.current-balance' | translate }}:
         {{
           (theyPay ? 'balances.owes-you' : 'balances.you-owe')
-            | translate: { name: balance.user.nickName }
+            | translate: { name: (balance.user.nickName | userName) }
         }}
         {{ balance.cents | money }}
       </p>

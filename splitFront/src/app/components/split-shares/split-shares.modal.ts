@@ -25,6 +25,7 @@ import { formatCents, toCents } from '../../utils/balance';
 import { initialOf } from '../../utils/initial';
 import { MoneyPipe } from '../../pipes/money.pipe';
 import { splitEqually } from '../../utils/split';
+import { UserNamePipe } from '../../pipes/user-name.pipe';
 
 // Quote personalizzate, in centesimi, per publicId dell'utente.
 export type ShareMap = Record<string, number>;
@@ -42,6 +43,7 @@ export type ShareMap = Record<string, number>;
   styleUrls: ['./split-shares.modal.scss'],
   standalone: true,
   imports: [
+    UserNamePipe,
     MoneyPipe,
     TranslatePipe,
     IonButton,

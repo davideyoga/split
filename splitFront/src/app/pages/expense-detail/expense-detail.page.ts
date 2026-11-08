@@ -34,6 +34,8 @@ import { ExpenseListItem, ExpenseService } from '../../services/expense.service'
 import { AmountPipe } from '../../pipes/amount.pipe';
 import { initialOf } from '../../utils/initial';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
+import { UserNamePipe } from '../../pipes/user-name.pipe';
+import { isDeletedNickname } from '../../utils/nickname';
 
 // Dettaglio di una spesa. Stessa pagina su due rotte, cosi' resta nella tab da
 // cui e' stata aperta:
@@ -48,6 +50,7 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
   styleUrls: ['./expense-detail.page.scss'],
   standalone: true,
   imports: [
+    UserNamePipe,
     AmountPipe,
     CommonModule,
     TranslatePipe,
@@ -194,8 +197,13 @@ export class ExpenseDetailPage implements OnInit {
 
   // Toccando un altro partecipante: "Blocca" (2026-11-07). Come per gli
   // alert, niente `handler`: si legge il ruolo alla chiusura.
+  // Ne' se stessi ne' un account cancellato, che non si puo' bloccare.
+  canAct(person: User): boolean {
+    return person.publicId !== this.mePublicId && !isDeletedNickname(person.nickName);
+  }
+
   async openPersonActions(person: User) {
-    if (person.publicId === this.mePublicId) {
+    if (!this.canAct(person)) {
       return;
     }
     const sheet = await this.actionSheetCtrl.create({

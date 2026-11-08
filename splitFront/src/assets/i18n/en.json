@@ -1,6 +1,7 @@
 {
   "common": {
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "deleted-user": "Deleted user"
   },
   "expense-form": {
     "title-new": "New expense",
@@ -157,7 +158,24 @@
       "NICKNAME_TAKEN": "This nickname is already taken",
       "SAVE_ERROR": "Couldn't save the nickname, try again"
     },
-    "blocked": "Blocked people"
+    "blocked": "Blocked people",
+    "delete": {
+      "title": "Delete account",
+      "intro-title": "This can't be undone",
+      "intro": "Your account is deleted right away and can't be recovered.",
+      "balances-title": "You still have open balances",
+      "balances-owe": "You owe {{amount}}",
+      "balances-owed": "You are owed {{amount}}",
+      "balances-hint": "They won't go away: the others will keep seeing them, with \"Deleted user\" instead of your name. If you want, settle them first from the Balances tab.",
+      "balances-unknown": "We couldn't check your balances. Any open debt will stay visible to the others, with \"Deleted user\" instead of your name.",
+      "removed-title": "What gets deleted",
+      "removed": "Your email and nickname, the expenses that are only yours, your custom categories, your notifications and the people you blocked. You also leave all your groups.",
+      "kept-title": "What stays",
+      "kept": "Expenses and repayments shared with others, because they are needed for their balances. They will show \"Deleted user\" instead of your name, and the descriptions you wrote stay visible to the other participants.",
+      "confirm": "Delete my account permanently",
+      "done": "Your account has been deleted",
+      "error": "Couldn't delete the account, try again"
+    }
   },
   "balances": {
     "title": "Balances",

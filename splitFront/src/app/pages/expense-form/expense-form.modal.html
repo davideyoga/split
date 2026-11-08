@@ -84,7 +84,7 @@
             }
             @for (participant of participants; track participant.publicId) {
               <ion-chip color="medium">
-                <ion-label>{{ participant.nickName }}</ion-label>
+                <ion-label>{{ participant.nickName | userName }}</ion-label>
                 <ion-icon name="close" (click)="removeParticipant(participant)"></ion-icon>
               </ion-chip>
             }
@@ -106,7 +106,7 @@
           >
             @for (candidate of payerCandidates; track candidate.publicId) {
               <ion-select-option [value]="candidate.publicId">
-                {{ candidate.nickName }}
+                {{ candidate.nickName | userName }}
                 @if (candidate.publicId === mePublicId) {
                   ({{ 'expense-form.you' | translate }})
                 }

@@ -31,6 +31,7 @@ import { GroupService } from '../../services/group.service';
 import { MoneyPipe } from '../../pipes/money.pipe';
 import { todayIso } from '../../utils/date';
 import { planRebalance, RebalanceExpense, RebalancePlan } from '../../utils/simplify';
+import { displayName, UserNamePipe } from '../../pipes/user-name.pipe';
 
 // Divisione intelligente, aperta dal segmento Saldi del gruppo. Ricarica gruppo
 // e spese (non usa quelle della pagina, possono essere vecchie), calcola con
@@ -42,6 +43,7 @@ import { planRebalance, RebalanceExpense, RebalancePlan } from '../../utils/simp
   templateUrl: './smart-split.modal.html',
   standalone: true,
   imports: [
+    UserNamePipe,
     MoneyPipe,
     TranslatePipe,
     IonButton,
@@ -121,7 +123,7 @@ export class SmartSplitModal implements OnInit {
   }
 
   label(user: User): string {
-    return this.isMe(user) ? this.translate.instant('smart-split.you') : user.nickName;
+    return this.isMe(user) ? this.translate.instant('smart-split.you') : displayName(this.translate, user.nickName);
   }
 
   cancel() {

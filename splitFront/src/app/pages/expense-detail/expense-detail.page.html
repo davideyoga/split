@@ -48,7 +48,7 @@
       <ion-item>
         <ion-label>{{ 'expense-detail.paid-by' | translate }}</ion-label>
         <ion-note slot="end">
-          {{ expense.paidBy.nickName }}
+          {{ expense.paidBy.nickName | userName }}
           @if (expense.paidBy.publicId === mePublicId) {
             ({{ 'expense-detail.you' | translate }})
           }
@@ -85,14 +85,14 @@
       <!-- Toccando un altro partecipante si puo' bloccarlo. -->
       @for (contribution of expense.expenseContributions; track contribution.id) {
         <ion-item
-          [button]="contribution.user.publicId !== mePublicId"
+          [button]="canAct(contribution.user)"
           [detail]="false"
           (click)="openPersonActions(contribution.user)"
         >
           <div slot="start" class="avatar initial" aria-hidden="true">{{ initial(contribution.user.nickName) }}</div>
           <ion-label>
             <h2>
-              {{ contribution.user.nickName }}
+              {{ contribution.user.nickName | userName }}
               @if (contribution.user.publicId === mePublicId) {
                 ({{ 'expense-detail.you' | translate }})
               }

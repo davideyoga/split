@@ -75,7 +75,7 @@
                 <h2>
                   {{
                     (isMe(expense.payer) ? 'smart-split.paid-by-you' : 'smart-split.paid-by')
-                      | translate: { name: expense.payer.nickName }
+                      | translate: { name: (expense.payer.nickName | userName) }
                   }}
                 </h2>
                 <p>

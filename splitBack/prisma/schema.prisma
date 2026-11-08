@@ -32,6 +32,9 @@ model User {
   // scelto il nickname: ne ha uno provvisorio e l'app lo manda su /welcome.
   // Torna false con PATCH /api/user/me. Chi viene da seed/add-users ha gia' il suo.
   needsName            Boolean               @default(false)
+  // Account cancellato dal Profilo (2026-11-08): la riga resta svuotata, perche'
+  // spese e rimborsi degli altri la referenziano (account-deletion.service.ts).
+  deletedAt            DateTime?
   image                String?
   sessions             Session[]
   accounts             Account[]

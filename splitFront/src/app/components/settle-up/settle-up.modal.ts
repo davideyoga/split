@@ -20,6 +20,7 @@ import { SettlementService } from '../../services/settlement.service';
 import { Balance, formatCents, toCents } from '../../utils/balance';
 import { currencySymbol } from '../../utils/money';
 import { MoneyPipe } from '../../pipes/money.pipe';
+import { UserNamePipe } from '../../pipes/user-name.pipe';
 
 // Registra un rimborso con la controparte di un saldo, aperta dal bottone
 // "Salda" della tab Saldi. La direzione viene dal segno del saldo (se la
@@ -33,6 +34,7 @@ import { MoneyPipe } from '../../pipes/money.pipe';
   styleUrls: ['./settle-up.modal.scss'],
   standalone: true,
   imports: [
+    UserNamePipe,
     MoneyPipe,
     TranslatePipe,
     IonButton,

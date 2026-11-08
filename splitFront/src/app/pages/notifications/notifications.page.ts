@@ -34,6 +34,7 @@ import { MoneyPipe } from '../../pipes/money.pipe';
 import { AuthService } from '../../services/auth.service';
 import { NotificationService } from '../../services/notification.service';
 import { toCents } from '../../utils/balance';
+import { UserNamePipe } from '../../pipes/user-name.pipe';
 
 // Una riga della lista, gia' pronta per il template.
 interface NotificationRow {
@@ -63,6 +64,7 @@ interface NotificationRow {
   styleUrls: ['./notifications.page.scss'],
   standalone: true,
   imports: [
+    UserNamePipe,
     DatePipe,
     IonBackButton,
     IonButtons,

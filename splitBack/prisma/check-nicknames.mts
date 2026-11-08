@@ -15,7 +15,7 @@
  * solo, per questo l'import e' dinamico): il database va indicato ogni volta.
  * Esce con codice 1 se trova qualcosa da correggere.
  */
-import { nicknameError } from '../src/app/user/nickname.ts';
+import { DELETED_NICKNAME_PREFIX, nicknameError } from '../src/app/user/nickname.ts';
 
 async function main(): Promise<void> {
   const databaseUrl = process.env.DATABASE_URL;
@@ -28,7 +28,10 @@ async function main(): Promise<void> {
   const prisma = new PrismaClient();
   let users: { nickName: string; email: string }[];
   try {
-    users = await prisma.user.findMany({ select: { nickName: true, email: true }, orderBy: { id: 'asc' } });
+    users = (await prisma.user.findMany({ select: { nickName: true, email: true }, orderBy: { id: 'asc' } })).filter(
+      // Gli account cancellati hanno apposta un nickname fuori dalle regole.
+      (u) => !u.nickName.startsWith(DELETED_NICKNAME_PREFIX),
+    );
   } finally {
     await prisma.$disconnect();
   }

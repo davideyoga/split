@@ -15,6 +15,7 @@ import {
 import type { Request } from 'express';
 import type { AuthUser } from '../auth/auth-user';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { AccountDeletionService } from './account-deletion.service';
 import { BlockUserDto } from './dto/block-user.dto';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { SearchRateLimitGuard } from './search-rate-limit.guard';
@@ -29,7 +30,10 @@ type AuthRequest = Request & { user: AuthUser };
 // POST /api/user, aperto a chiunque, e' stato rimosso il 2026-09-27.
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly accountDeletion: AccountDeletionService,
+  ) {}
 
   // Ricerca esatta per nickname o email: GET /api/user?q=Pippo. Era
   // GET /api/user/:nickname, ma un testo libero nel path si rompe con `/`,
@@ -75,5 +79,13 @@ export class UserController {
   @UseGuards(SessionAuthGuard)
   updateMe(@Req() request: AuthRequest, @Body(new ValidationPipe()) dto: UpdateMeDto) {
     return this.userService.updateMe(request.user.publicId, dto.nickName);
+  }
+
+  // Definitiva: effetti in account-deletion.service.ts.
+  @Delete('me')
+  @HttpCode(204)
+  @UseGuards(SessionAuthGuard)
+  async deleteMe(@Req() request: AuthRequest) {
+    await this.accountDeletion.deleteAccount(request.user.publicId);
   }
 }

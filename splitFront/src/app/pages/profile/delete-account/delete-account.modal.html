@@ -1,0 +1,53 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="cancel()">{{ 'profile.cancel' | translate }}</ion-button>
+    </ion-buttons>
+    <ion-title>{{ 'profile.delete.title' | translate }}</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="intro">
+    <ion-icon name="warning-outline" color="danger" aria-hidden="true"></ion-icon>
+    <h2>{{ 'profile.delete.intro-title' | translate }}</h2>
+    <p>{{ 'profile.delete.intro' | translate }}</p>
+  </div>
+
+  <!-- I saldi prima di tutto il resto: e' la cosa che pesa sugli altri. -->
+  @if (loadError) {
+    <div class="box warning">
+      <h3>{{ 'profile.delete.balances-title' | translate }}</h3>
+      <p>{{ 'profile.delete.balances-unknown' | translate }}</p>
+    </div>
+  } @else if (loaded && hasOpenBalances) {
+    <div class="box warning">
+      <h3>{{ 'profile.delete.balances-title' | translate }}</h3>
+      @if (iOweCents !== 0) {
+        <p class="figure">{{ 'profile.delete.balances-owe' | translate: { amount: (iOweCents | money) } }}</p>
+      }
+      @if (owedToMeCents !== 0) {
+        <p class="figure">{{ 'profile.delete.balances-owed' | translate: { amount: (owedToMeCents | money) } }}</p>
+      }
+      <p>{{ 'profile.delete.balances-hint' | translate }}</p>
+    </div>
+  }
+
+  <div class="box">
+    <h3>{{ 'profile.delete.removed-title' | translate }}</h3>
+    <p>{{ 'profile.delete.removed' | translate }}</p>
+  </div>
+
+  <div class="box">
+    <h3>{{ 'profile.delete.kept-title' | translate }}</h3>
+    <p>{{ 'profile.delete.kept' | translate }}</p>
+  </div>
+
+  @if (deleteError) {
+    <ion-text color="danger"><p role="alert">{{ 'profile.delete.error' | translate }}</p></ion-text>
+  }
+
+  <ion-button expand="block" color="danger" [disabled]="!loaded || deleting" (click)="confirm()">
+    {{ 'profile.delete.confirm' | translate }}
+  </ion-button>
+</ion-content>

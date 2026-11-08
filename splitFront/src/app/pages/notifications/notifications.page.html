@@ -42,7 +42,7 @@
                 row.key
                   | translate
                     : {
-                        actor: row.actor ?? ('notifications.someone' | translate),
+                        actor: row.actor ? (row.actor | userName) : ('notifications.someone' | translate),
                         description: row.description || (row.fallbackKey | translate),
                         amount: (row.cents | money: row.currency),
                         group: row.group,

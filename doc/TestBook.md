@@ -243,6 +243,18 @@ Prima di iniziare **D** fa login dalla pagina di login (`dario2@testbook.test`) 
   - nel segmento Membri di A non c'è più Bruno.T2.
 - [ ] OK
 
+### B-06 · Eliminare l'account
+Serve un utente usa e getta che abbia un debito verso A (una spesa di A divisa con lui).
+- Con l'utente da eliminare: **Profilo** → **Elimina account** (in fondo, in rosso).
+- **Atteso:** la schermata dice cosa viene cancellato e cosa resta, e riporta quanto devi ancora.
+- Tocca **Annulla** e riapri: non è cambiato niente.
+- Tocca **Elimina definitivamente il mio account**.
+- **Atteso:**
+  - toast "Il tuo account è stato eliminato", si torna al login;
+  - con A: la spesa c'è ancora, con "Utente eliminato" come partecipante, e il saldo verso "Utente eliminato" resta e si può regolare con **Salda**;
+  - la ricerca della vecchia email o del vecchio nickname non trova nessuno.
+- [ ] OK
+
 ---
 
 ## 4. Registrazione con il codice via email (R)

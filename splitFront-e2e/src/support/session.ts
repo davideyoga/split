@@ -39,6 +39,9 @@ export const USERS = {
   filo: 'filo@disney.test',
   macchianera: 'macchianera@disney.test',
   paperetta: 'paperetta@disney.test',
+  anacleto: 'anacleto@disney.test',
+  basettoni: 'basettoni@disney.test',
+  manetta: 'manetta@disney.test',
 } as const;
 
 export interface Session {

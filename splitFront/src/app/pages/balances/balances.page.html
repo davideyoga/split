@@ -41,9 +41,9 @@
             <ion-label>
               <h2>
                 @if (settlement.to.publicId === mePublicId) {
-                  {{ 'settlements.they-paid-you' | translate: { name: settlement.from.nickName } }}
+                  {{ 'settlements.they-paid-you' | translate: { name: (settlement.from.nickName | userName) } }}
                 } @else {
-                  {{ 'settlements.you-paid-them' | translate: { name: settlement.to.nickName } }}
+                  {{ 'settlements.you-paid-them' | translate: { name: (settlement.to.nickName | userName) } }}
                 }
               </h2>
               <p>

@@ -19,11 +19,12 @@ import {
 } from '@ionic/angular/standalone';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { addIcons } from 'ionicons';
-import { banOutline, languageOutline, logOutOutline, pencilOutline, personOutline } from 'ionicons/icons';
+import { banOutline, languageOutline, logOutOutline, pencilOutline, personOutline, trashOutline } from 'ionicons/icons';
 
 import { AuthService } from '../../services/auth.service';
 import { AppLang, LanguageService } from '../../services/language.service';
 import { BlockedUsersModal } from './blocked-users/blocked-users.modal';
+import { DeleteAccountModal } from './delete-account/delete-account.modal';
 import { EditNicknameModal } from './edit-nickname/edit-nickname.modal';
 import { initialOf } from '../../utils/initial';
 
@@ -73,6 +74,7 @@ export class ProfilePage {
       'log-out-outline': logOutOutline,
       'pencil-outline': pencilOutline,
       'person-outline': personOutline,
+      'trash-outline': trashOutline,
     });
   }
 
@@ -113,6 +115,17 @@ export class ProfilePage {
     const { role } = await alert.onWillDismiss();
     if (role === 'confirm') {
       this.logout();
+    }
+  }
+
+  async openDeleteAccount() {
+    const modal = await this.modalCtrl.create({ component: DeleteAccountModal });
+    await modal.present();
+    const { role } = await modal.onWillDismiss();
+    if (role === 'deleted') {
+      // Solo stato locale, niente signOut(): la sessione sul server non c'e' piu'.
+      this.authService.logout();
+      this.navCtrl.navigateRoot('/login');
     }
   }
 

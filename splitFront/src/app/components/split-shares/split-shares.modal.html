@@ -48,7 +48,7 @@
       <ion-item>
         <div slot="start" class="avatar initial" aria-hidden="true">{{ initial(person.nickName) }}</div>
         <ion-label>
-          {{ person.nickName }}
+          {{ person.nickName | userName }}
           @if (person.publicId === mePublicId) {
             ({{ 'split-shares.you' | translate }})
           }
@@ -69,7 +69,7 @@
           inputmode="decimal"
           placeholder="0.00"
           [value]="values[person.publicId]"
-          [attr.aria-label]="person.nickName"
+          [attr.aria-label]="person.nickName | userName"
           (ionInput)="onInput(person, $event)"
           (ionBlur)="onBlur(person)"
         ></ion-input>

@@ -28,12 +28,13 @@ export class UserService {
       select: {
         publicId: true,
         nickName: true,
+        deletedAt: true,
         // Chi mi ha bloccato non lo trovo (vedi blocks.ts).
         blocks: { where: { blocked: { publicId: callerPublicId } }, select: { id: true } },
       },
     });
 
-    if (!user || user.publicId === callerPublicId || user.blocks.length > 0) {
+    if (!user || user.deletedAt || user.publicId === callerPublicId || user.blocks.length > 0) {
       return [];
     }
     return [{ publicId: user.publicId, nickName: user.nickName }];
@@ -55,6 +56,7 @@ export class UserService {
     return this.prisma.user.findMany({
       where: {
         id: { not: me.id },
+        deletedAt: null,
         // Niente blocchi in nessuna delle due direzioni.
         blocks: { none: { blockedId: me.id } },
         blockedBy: { none: { blockerId: me.id } },
@@ -93,9 +95,9 @@ export class UserService {
     }
     const [me, target] = await Promise.all([
       this.prisma.user.findUnique({ where: { publicId: userPublicId }, select: { id: true } }),
-      this.prisma.user.findUnique({ where: { publicId: targetPublicId }, select: { id: true } }),
+      this.prisma.user.findUnique({ where: { publicId: targetPublicId }, select: { id: true, deletedAt: true } }),
     ]);
-    if (!me || !target) {
+    if (!me || !target || target.deletedAt) {
       throw new NotFoundException('Utente non trovato');
     }
     await this.prisma.userBlock.createMany({

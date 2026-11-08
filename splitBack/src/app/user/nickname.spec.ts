@@ -13,6 +13,7 @@ const CASES: [string, ReturnType<typeof nicknameError>][] = [
   ['Pippo-', 'NICKNAME_EDGE'],
   ['Pip..po', 'NICKNAME_DOUBLE_SEPARATOR'],
   ['Pip.-po', 'NICKNAME_DOUBLE_SEPARATOR'],
+  ['~deleted~abcd', 'NICKNAME_INVALID_CHAR'],
 ];
 
 describe('nicknameError', () => {

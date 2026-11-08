@@ -16,6 +16,14 @@
  * Niente enum: il file lo importano anche script lanciati con `node`, che
  * toglie i tipi ma non traduce le enum.
  */
+
+/**
+ * Inizio del nickname di un account cancellato (account-deletion.service.ts).
+ * `~` non e' ammesso dalle regole qui sotto, quindi nessuno puo' sceglierlo: il
+ * frontend lo riconosce e mostra "Utente eliminato" nella lingua di chi legge.
+ */
+export const DELETED_NICKNAME_PREFIX = '~deleted~';
+
 export const NICKNAME_MIN_LENGTH = 5;
 export const NICKNAME_MAX_LENGTH = 20;
 

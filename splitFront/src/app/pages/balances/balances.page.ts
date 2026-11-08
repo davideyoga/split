@@ -36,6 +36,7 @@ import { ExpenseListItem, ExpenseService } from '../../services/expense.service'
 import { SettlementService } from '../../services/settlement.service';
 import { Balance } from '../../utils/balance';
 import { ExpenseFormModal } from '../expense-form/expense-form.modal';
+import { UserNamePipe } from '../../pipes/user-name.pipe';
 
 // Tab Saldi: `app-expense-balances` a piena pagina sulle spese e sui rimborsi
 // dell'utente, con il bottone "Salda" per riga, e sotto lo storico dei
@@ -49,6 +50,7 @@ import { ExpenseFormModal } from '../expense-form/expense-form.modal';
   templateUrl: './balances.page.html',
   standalone: true,
   imports: [
+    UserNamePipe,
     AmountPipe,
     DatePipe,
     ExpenseBalancesComponent,

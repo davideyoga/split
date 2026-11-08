@@ -35,6 +35,7 @@ import { ExpenseListComponent } from '../../components/expense-list/expense-list
 import { LoadingSkeletonComponent } from '../../components/loading-skeleton/loading-skeleton.component';
 import { NotificationBellComponent } from '../../components/notification-bell/notification-bell.component';
 import { ProfileButtonComponent } from '../../components/profile-button/profile-button.component';
+import { displayName } from '../../pipes/user-name.pipe';
 
 // Tab Attivita': i due lavori dell'app alla pari, in due riquadri gemelli
 // (speso del mese -> pagina Spese, saldo netto -> tab Saldi), poi le spese con
@@ -161,7 +162,7 @@ export class ActivityPage {
     this.filteredExpenses = listed.filter((expense) =>
       [
         expense.description,
-        expense.paidBy.nickName,
+        displayName(this.translate, expense.paidBy.nickName),
         expense.group?.name,
         expense.category?.name ??
           (expense.category?.slug

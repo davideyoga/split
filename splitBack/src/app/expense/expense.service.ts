@@ -202,7 +202,7 @@ export class ExpenseService {
     const participantIds = await this.resolveParticipants(
       dto.participantPublicIds ?? [],
     );
-    await this.assertNotBlocked(creator.id, newcomers(creator.id, participantIds, []));
+    await this.assertAddable(creator.id, newcomers(creator.id, participantIds, []));
 
     // Se la spesa è legata a un gruppo, i suoi membri diventano contributori.
     let groupId: number | null = null;
@@ -316,7 +316,7 @@ export class ExpenseService {
             );
     // Solo chi entra adesso: una spesa in comune da prima di un blocco si
     // modifica ancora.
-    await this.assertNotBlocked(
+    await this.assertAddable(
       user.id,
       newcomers(user.id, participantIds, expense.expenseContributions.map((c) => c.userId)),
     );
@@ -526,9 +526,13 @@ export class ExpenseService {
   }
 
   // Chi ha bloccato chi agisce non si puo' mettere in una spesa: stesso
-  // errore di un utente che non esiste, cosi' chi e' bloccato non lo sa.
-  private async assertNotBlocked(actorId: number, participantIds: number[]) {
-    if ((await blockersOf(this.prisma, actorId, participantIds)).size > 0) {
+  // errore di un utente che non esiste, cosi' chi e' bloccato non lo sa. Un
+  // account cancellato resta nelle spese in cui era gia', ma non entra in altre.
+  private async assertAddable(actorId: number, participantIds: number[]) {
+    const deleted = await this.prisma.user.count({
+      where: { id: { in: participantIds }, deletedAt: { not: null } },
+    });
+    if (deleted > 0 || (await blockersOf(this.prisma, actorId, participantIds)).size > 0) {
       throw new BadRequestException('Uno o più partecipanti non esistono');
     }
   }

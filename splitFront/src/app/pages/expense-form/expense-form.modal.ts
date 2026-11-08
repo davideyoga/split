@@ -62,6 +62,7 @@ import { currencySymbol } from '../../utils/money';
 import { MoneyPipe } from '../../pipes/money.pipe';
 import { dayOf, todayIso } from '../../utils/date';
 import { isEqualSplit } from '../../utils/split';
+import { UserNamePipe } from '../../pipes/user-name.pipe';
 
 // Nuova spesa o modifica di una esistente, come modale.
 // - Creazione: pre-contestualizzata dal punto di partenza (aperta dal dettaglio
@@ -77,6 +78,7 @@ import { isEqualSplit } from '../../utils/split';
   styleUrls: ['./expense-form.modal.scss'],
   standalone: true,
   imports: [
+    UserNamePipe,
     MoneyPipe,
     CommonModule,
     FormsModule,

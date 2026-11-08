@@ -19,6 +19,7 @@ import {
 } from '../../utils/balance';
 import { MoneyPipe } from '../../pipes/money.pipe';
 import { initialOf } from '../../utils/initial';
+import { UserNamePipe } from '../../pipes/user-name.pipe';
 
 // Saldi ("chi mi deve quanto" / "a chi devo quanto") calcolati sulla lista di
 // spese ricevuta in input: in cima due riquadri gemelli (ti devono / devi, come
@@ -31,6 +32,7 @@ import { initialOf } from '../../utils/initial';
   styleUrls: ['./expense-balances.component.scss'],
   standalone: true,
   imports: [
+    UserNamePipe,
     TranslatePipe,
     MoneyPipe,
     IonButton,

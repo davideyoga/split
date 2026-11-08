@@ -10,7 +10,7 @@ Split è un'app per dividere le spese con altre persone e tenere traccia delle p
 - Non ci sono pubblicità né strumenti di analisi o profilazione, e non vendiamo i tuoi dati.
 - La tua email non viene mostrata agli altri utenti. Chi la conosce, però, può trovarti e aggiungerti a una spesa.
 - Le persone con cui condividi una spesa o un gruppo vedono il tuo nickname e i dati di quella spesa o di quel gruppo.
-- Puoi chiedere in qualsiasi momento una copia dei tuoi dati o la cancellazione del tuo account.
+- Puoi chiedere in qualsiasi momento una copia dei tuoi dati e cancellare il tuo account direttamente dal Profilo.
 
 ## 1. Titolare del trattamento
 
@@ -106,9 +106,9 @@ Questi trasferimenti avvengono sulla base del Data Privacy Framework UE-USA, dov
 | Registri di invio delle email | Per il periodo previsto da Brevo |
 | Copie di sicurezza del database | Le copie che facciamo noi vengono cancellate entro 30 giorni e non contengono le sessioni né i codici di accesso. Il fornitore del database conserva inoltre una breve cronologia tecnica |
 
-**Se chiedi la cancellazione dell'account** eliminiamo o rendiamo anonimi i tuoi dati entro 30 giorni: email, nickname, sessioni, collegamenti con Google o Apple, spese solo tue, categorie personalizzate e notifiche.
+**Se cancelli il tuo account dal Profilo** eliminiamo o rendiamo anonimi i tuoi dati subito (entro 30 giorni se lo chiedi via email): email, nickname, sessioni, collegamenti con Google o Apple, spese solo tue, categorie personalizzate, notifiche, persone bloccate e note dei rimborsi che hai scritto. Esci anche da tutti i gruppi, e i link d'invito che hai creato smettono di funzionare.
 
-Le spese condivise con altri servono a calcolare i loro saldi, quindi restano: il tuo nome viene sostituito da un'indicazione anonima. Il testo che hai scritto in una spesa condivisa resta visibile agli altri partecipanti, ma puoi modificarlo prima di chiedere la cancellazione.
+Le spese e i rimborsi condivisi con altri servono a calcolare i loro saldi, quindi restano: il tuo nome viene sostituito da un'indicazione anonima ("Utente eliminato"), anche se hai saldi ancora aperti. Le spese condivise perdono le categorie personalizzate che avevi creato. Il testo che hai scritto in una spesa condivisa resta visibile agli altri partecipanti, ma puoi modificarlo prima di cancellare l'account.
 
 ## 8. Dati salvati sul tuo dispositivo
 
@@ -134,7 +134,7 @@ Puoi chiederci in qualsiasi momento di:
 - ricevere i dati che ci hai fornito in un formato strutturato e leggibile da un dispositivo (portabilità);
 - **opporti** ai trattamenti basati sul legittimo interesse.
 
-Per esercitare questi diritti scrivi all'indirizzo indicato al punto 1, dall'email del tuo account. Ti risponderemo gratuitamente entro un mese. La cancellazione dell'account non è ancora disponibile dall'app e si richiede quindi via email.
+Per esercitare questi diritti scrivi all'indirizzo indicato al punto 1, dall'email del tuo account. Ti risponderemo gratuitamente entro un mese. Il tuo account puoi cancellarlo direttamente dal Profilo.
 
 Se ritieni che il trattamento violi la normativa, puoi proporre reclamo al [Garante per la protezione dei dati personali](https://www.garanteprivacy.it) o all'autorità di controllo del Paese in cui vivi o lavori.
 

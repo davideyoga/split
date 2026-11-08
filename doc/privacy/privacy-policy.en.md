@@ -10,7 +10,7 @@ Split is an app for sharing expenses with other people and keeping track of your
 - There are no ads and no analytics or profiling tools, and we do not sell your data.
 - Your email is not shown to other users. However, someone who knows it can find you and add you to an expense.
 - People you share an expense or a group with can see your nickname and the details of that expense or group.
-- You can ask for a copy of your data or the deletion of your account at any time.
+- You can ask for a copy of your data at any time and delete your account directly from your Profile.
 
 ## 1. Data controller
 
@@ -106,9 +106,9 @@ These transfers rely on the EU-US Data Privacy Framework, where the provider is 
 | Email sending logs | For the period set by Brevo |
 | Database backups | The copies we make are deleted within 30 days and do not contain sessions or sign-in codes. The database provider also keeps a short technical history |
 
-**If you ask us to delete your account**, we delete or anonymise your data within 30 days: email, nickname, sessions, links with Google or Apple, expenses that are yours alone, custom categories and notifications.
+**If you delete your account from your Profile**, we delete or anonymise your data immediately (within 30 days if you ask by email): email, nickname, sessions, links with Google or Apple, expenses that are yours alone, custom categories, notifications, blocked people and the repayment notes you wrote. You also leave all your groups, and the invite links you created stop working.
 
-Expenses shared with others are needed to calculate their balances, so they remain: your name is replaced with an anonymous label. Text you wrote in a shared expense stays visible to the other participants, but you can edit it before asking for deletion.
+Expenses and repayments shared with others are needed to calculate their balances, so they remain: your name is replaced with an anonymous label ("Deleted user"), even if you still have open balances. Shared expenses lose the custom categories you created. Text you wrote in a shared expense stays visible to the other participants, but you can edit it before deleting your account.
 
 ## 8. Data stored on your device
 
@@ -134,7 +134,7 @@ You can ask us at any time to:
 - receive the data you gave us in a structured, machine-readable format (portability);
 - **object** to processing based on legitimate interest.
 
-To exercise these rights, write to the address in section 1 from your account's email. We will reply free of charge within one month. Account deletion is not yet available in the app, so it is requested by email.
+To exercise these rights, write to the address in section 1 from your account's email. We will reply free of charge within one month. You can delete your account directly from your Profile.
 
 If you believe the processing breaks the law, you can lodge a complaint with the Italian [Garante per la protezione dei dati personali](https://www.garanteprivacy.it) or with the supervisory authority of the country where you live or work.
 

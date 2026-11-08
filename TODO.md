@@ -13,7 +13,7 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 
 ## Funzionalita' da aggiungere Priorita' alta
 - Registrazione (codice via email, Google, Apple, collegamento per email, `/welcome`; vedi CLAUDE.md, "Registration"). Manca, **prima di impostare `AUTH_SIGN_UP=open` in produzione**:
-  - eliminazione dell'account e informativa privacy (GDPR). L'informativa serve anche a Google per pubblicare la schermata di consenso OAuth fuori dalla modalita' "Testing";
+  - pubblicare l'informativa privacy nell'app ([doc/privacy/](doc/privacy/), mancano titolare, contatto e data). Serve anche a Google per pubblicare la schermata di consenso OAuth fuori dalla modalita' "Testing";
   - captcha (plugin `captcha` di Better Auth) se arrivano abusi: chiunque puo' far mandare codici a indirizzi a caso, e Brevo gratuito si ferma a ~300 email al giorno.
 - Login con Google e Apple nell'app nativa (Capacitor): oggi solo web/PWA. Nella WebView Google rifiuta il login (`disallowed_useragent`) e il JS di Apple non e' pensato per le app: servono plugin nativi open source che restituiscano l'ID token, e i loro client ID (Android/iOS) aggiunti a `GOOGLE_CLIENT_ID` / `APPLE_APP_BUNDLE_IDENTIFIER`. Vedi [doc/Auth.md](doc/Auth.md).
 - Login con Apple: per ora non si puo' provare (2026-11-07), quindi resta fuori dal test book. Con "Nascondi la mia email" Apple da' un indirizzo `@privaterelay.appleid.com`, diverso da quello usato col codice, quindi nasce un secondo account invece di collegarsi al primo. Rimedio possibile: collegare Apple dal Profilo, a sessione aperta (`/link-social` con ID token e `allowDifferentEmails`).
@@ -65,7 +65,6 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 - I vincoli fra progetti Nx non sono applicati: `depConstraints` in `eslint.config.mjs` permette tutto (`'*'` → `['*']`) e nessun progetto ha `tags`, quindi nulla impedisce a `splitFront` di importare `splitBack`.
 - `package.json`: `workspaces` elenca `splitBack-e2e`, che non esiste.
 - `data-access/` non e' importato da nessuno: i tipi sono duplicati a mano fra frontend e backend.
-- [auth.factory.ts:44](splitBack/src/app/auth/auth.factory.ts#L44) — il commento cita ancora "Blocca" fra i requisiti per aprire la registrazione, ma esiste gia'.
 
 
 ## Bug riscontrati durante l'alpha:

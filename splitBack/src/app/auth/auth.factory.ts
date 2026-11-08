@@ -41,8 +41,7 @@ export function trustedOrigins(): string[] {
  * via email, Google o Apple). Qualsiasi altro valore, o niente: entra solo chi
  * e' gia' nel DB (seed.ts, add-users.mts), come nell'alpha. Chiusa di default
  * perche' un deploy che se ne dimentica resti chiuso: prima di aprirla davvero
- * servono "Blocca", l'eliminazione dell'account e l'informativa privacy (vedi
- * TODO.md).
+ * serve l'informativa privacy pubblicata nell'app (vedi TODO.md).
  */
 export function signUpOpen(): boolean {
   return process.env['AUTH_SIGN_UP'] === 'open';

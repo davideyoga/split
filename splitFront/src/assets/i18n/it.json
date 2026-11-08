@@ -1,6 +1,7 @@
 {
   "common": {
-    "loading": "Caricamento…"
+    "loading": "Caricamento…",
+    "deleted-user": "Utente eliminato"
   },
   "expense-form": {
     "title-new": "Nuova spesa",
@@ -157,7 +158,24 @@
       "NICKNAME_TAKEN": "Questo nickname è già usato",
       "SAVE_ERROR": "Non è stato possibile salvare il nickname, riprova"
     },
-    "blocked": "Persone bloccate"
+    "blocked": "Persone bloccate",
+    "delete": {
+      "title": "Elimina account",
+      "intro-title": "Non si può annullare",
+      "intro": "Il tuo account viene eliminato subito e non si può recuperare.",
+      "balances-title": "Hai ancora dei saldi aperti",
+      "balances-owe": "Devi {{amount}}",
+      "balances-owed": "Ti devono {{amount}}",
+      "balances-hint": "Non spariscono: gli altri continueranno a vederli, con \"Utente eliminato\" al posto del tuo nome. Se vuoi, prima saldali dal tab Saldi.",
+      "balances-unknown": "Non siamo riusciti a controllare i tuoi saldi. Eventuali debiti aperti resteranno visibili agli altri, con \"Utente eliminato\" al posto del tuo nome.",
+      "removed-title": "Cosa viene cancellato",
+      "removed": "Email e nickname, le spese solo tue, le categorie che hai creato, le tue notifiche e le persone che hai bloccato. Esci anche da tutti i gruppi.",
+      "kept-title": "Cosa resta",
+      "kept": "Le spese e i rimborsi condivisi con altri, perché servono ai loro saldi. Mostreranno \"Utente eliminato\" al posto del tuo nome, e le descrizioni che hai scritto resteranno visibili agli altri partecipanti.",
+      "confirm": "Elimina definitivamente il mio account",
+      "done": "Il tuo account è stato eliminato",
+      "error": "Non è stato possibile eliminare l'account, riprova"
+    }
   },
   "balances": {
     "title": "Saldi",

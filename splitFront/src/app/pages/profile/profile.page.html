@@ -46,4 +46,12 @@
       <ion-label color="danger">{{ 'profile.logout' | translate }}</ion-label>
     </ion-item>
   </ion-list>
+
+  <!-- Staccata dal resto: e' l'unica azione che non si puo' annullare. -->
+  <ion-list lines="none" class="settings">
+    <ion-item button="true" [detail]="false" (click)="openDeleteAccount()">
+      <div slot="start" class="avatar neutral"><ion-icon name="trash-outline" color="danger" aria-hidden="true"></ion-icon></div>
+      <ion-label color="danger">{{ 'profile.delete.title' | translate }}</ion-label>
+    </ion-item>
+  </ion-list>
 </ion-content>

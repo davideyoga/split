@@ -53,9 +53,9 @@
         <ion-label>
           <h2>
             @if (balance.cents > 0) {
-              {{ 'balances.owes-you' | translate: { name: balance.user.nickName } }}
+              {{ 'balances.owes-you' | translate: { name: (balance.user.nickName | userName) } }}
             } @else {
-              {{ 'balances.you-owe' | translate: { name: balance.user.nickName } }}
+              {{ 'balances.you-owe' | translate: { name: (balance.user.nickName | userName) } }}
             }
           </h2>
         </ion-label>

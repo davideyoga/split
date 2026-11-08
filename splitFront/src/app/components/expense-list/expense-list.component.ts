@@ -12,6 +12,7 @@ import { LanguageService } from '../../services/language.service';
 import { MoneyPipe } from '../../pipes/money.pipe';
 import { toCents } from '../../utils/balance';
 import { addDays, dayOf, longDay, todayIso } from '../../utils/date';
+import { UserNamePipe } from '../../pipes/user-name.pipe';
 
 // Cosa dice la riga accanto a chi ha pagato: il gruppo, o con chi e' divisa
 // (gli altri contributori, senza me e senza chi ha pagato, gia' nominato).
@@ -55,7 +56,7 @@ interface DayGroup {
   templateUrl: './expense-list.component.html',
   styleUrls: ['./expense-list.component.scss'],
   standalone: true,
-  imports: [IonIcon, IonItem, IonLabel, IonList, IonText, MoneyPipe, RouterLink, TranslatePipe],
+  imports: [UserNamePipe, IonIcon, IonItem, IonLabel, IonList, IonText, MoneyPipe, RouterLink, TranslatePipe],
 })
 export class ExpenseListComponent {
   private authService = inject(AuthService);

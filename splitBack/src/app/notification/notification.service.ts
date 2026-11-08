@@ -73,10 +73,16 @@ export class NotificationService {
       (id) => id !== notification.actorId,
     );
     // Chi ha bloccato chi agisce non riceve niente delle sue azioni.
+    // Chi ha cancellato l'account non puo' piu' leggerle.
+    const deleted = await tx.user.findMany({
+      where: { id: { in: recipients }, deletedAt: { not: null } },
+      select: { id: true },
+    });
+    const deletedIds = new Set(deleted.map((user) => user.id));
     const userIds = withoutBlockers(
       recipients,
       await blockersOf(tx, notification.actorId, recipients),
-    );
+    ).filter((id) => !deletedIds.has(id));
     if (userIds.length === 0) {
       return;
     }

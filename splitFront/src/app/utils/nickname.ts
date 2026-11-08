@@ -4,6 +4,15 @@
  * scrive). Se ne cambi una, cambia anche l'altra. Motivazioni delle regole:
  * vedi il file del backend e CLAUDE.md, "Nickname".
  */
+
+// Inizio del nickname di un account cancellato: `~` non e' ammesso dalle regole
+// qui sotto, quindi nessuno puo' sceglierlo. Si mostra "Utente eliminato".
+export const DELETED_NICKNAME_PREFIX = '~deleted~';
+
+export function isDeletedNickname(nickName: string | null | undefined): boolean {
+  return nickName?.startsWith(DELETED_NICKNAME_PREFIX) ?? false;
+}
+
 export const NICKNAME_MIN_LENGTH = 5;
 export const NICKNAME_MAX_LENGTH = 20;
 

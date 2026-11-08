@@ -51,4 +51,9 @@ export class UserService {
   updateMyNickname(nickName: string): Observable<User> {
     return this.http.patch<User>(`${this.baseUrl}/user/me`, { nickName });
   }
+
+  // Definitiva: l'account viene anonimizzato (vedi account-deletion.service.ts).
+  deleteMyAccount(): Observable<unknown> {
+    return this.http.delete(`${this.baseUrl}/user/me`);
+  }
 }

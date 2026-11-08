@@ -217,7 +217,7 @@ Login: [email] → [codice]
 
 - **Chiunque può far mandare email dal server.** Brevo gratuito permette circa 300 email al giorno, e il rate limit è di 3 invii al minuto per IP. Esaurita la quota, nessuno riceve più il codice fino al giorno dopo. Il captcha (plugin `captcha` di Better Auth) è da riconsiderare se arrivano abusi.
 - **Spese da sconosciuti:** chiunque si iscrive può trovare un utente con la ricerca esatta e aggiungerlo a una spesa. La difesa è "Blocca" (fase C), che quindi va fatta prima della fase D.
-- **Prima di un'apertura vera** servono l'**eliminazione dell'account** e un'**informativa privacy** (GDPR).
+- **Prima di un'apertura vera** serve un'**informativa privacy** pubblicata nell'app (GDPR). L'eliminazione dell'account esiste dal 2026-11-08 (Profilo).
 - Documenti da aggiornare: [Auth.md](Auth.md) ("Registrazione disabilitata"), [DECISIONI_HOSTING.md](DECISIONI_HOSTING.md) ("non serve la registrazione"), CLAUDE.md (Auth, User search).
 
 ## Estensione futura: ospiti senza account

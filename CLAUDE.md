@@ -46,6 +46,7 @@ Serve apps:
 ```
 npx nx serve splitFront   # Ionic/Angular client, dev server
 npx nx serve splitBack    # NestJS API
+npm run dev               # both together, in one terminal (nx run-many -t serve)
 ```
 
 > `nx serve splitBack` is **not** a watch server: its `build` target (`splitBack/package.json`) is an `nx:run-commands` running `webpack-cli build` with no `--watch`, so `@nx/js:node` compiles once at startup and never rebuilds. **Restart it after every backend change** — otherwise new routes 404 (`Cannot GET /api/…`) while old ones still answer, which looks like a frontend bug. To check whether the running process is stale without restarting it, build and run the bundle on another port: `PORT=3333 node splitBack/dist/main.js`.

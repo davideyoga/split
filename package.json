@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "nx run-many -t serve -p splitFront,@split/splitBack",
     "db:snapshot": "node tools/db-snapshot/snapshot.mts",
     "db:restore": "node tools/db-snapshot/restore.mts",
     "db:csv": "node tools/db-snapshot/csv.mts"

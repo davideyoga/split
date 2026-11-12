@@ -43,6 +43,7 @@ model User {
   groupInvites         GroupInvite[]
   blocks               UserBlock[]           @relation("Blocker")
   blockedBy            UserBlock[]           @relation("Blocked")
+  pushDevices          PushDevice[]
 }
 
 // Tabelle di Better Auth (login con codice via email). Gli id sono interi
@@ -252,9 +253,39 @@ model Notification {
   params       Json?
   readAt       DateTime?
   createdDate  DateTime    @default(now())
+  // Push (doc/NotifichePush.md): null = non ancora gestita. La scrive
+  // PushDispatcher dopo il commit, anche quando la push non parte (tipo
+  // escluso, nessun dispositivo, push spente). Le righe nate prima delle push
+  // l'hanno uguale a createdDate. La campanella non la guarda.
+  pushedAt     DateTime?
 
   @@index([userId, createdDate])
   @@index([userId, readAt])
+  @@index([pushedAt])
+}
+
+// Un dispositivo che riceve le push (2026-11-12, doc/NotifichePush.md). Oggi
+// solo browser e PWA (Web Push); Android (FCM) e iOS (APNs) useranno la stessa
+// tabella con un'altra `platform`. Contiene segreti (endpoint e chiavi), quindi
+// resta fuori dagli snapshot: SKIP_DATA in tools/db-snapshot/snapshot.mts.
+model PushDevice {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  // 'web'; in futuro 'android' | 'ios'. Stringa e non enum, come Notification.type.
+  platform    String
+  // Web Push: l'URL del servizio di consegna del browser (per FCM/APNs sara'
+  // il token). Unico: lo stesso browser registrato da un altro utente passa a lui.
+  endpoint    String   @unique
+  // Chiavi di cifratura del browser (Web Push); null per i token nativi.
+  p256dh      String?
+  auth        String?
+  // 'it' | 'en': la lingua dell'app e' per dispositivo, e la push la segue.
+  locale      String
+  createdDate DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@index([userId])
 }
 
 // "Blocca" (2026-11-07, doc/InvitiGruppo.md): `blocked` non trova piu' `blocker`

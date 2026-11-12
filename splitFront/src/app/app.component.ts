@@ -6,6 +6,7 @@ import { catchError, filter, forkJoin, of, take } from 'rxjs';
 
 import { AppUpdateService } from './services/app-update.service';
 import { LanguageService } from './services/language.service';
+import { PushService } from './services/push.service';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,8 @@ export class AppComponent {
     // La lingua non e' piu' forzata a 'en': la decide LanguageService.
     inject(LanguageService).init();
     inject(AppUpdateService).init();
+    // Push: segue login/logout e apre la pagina giusta al tocco su una notifica.
+    inject(PushService).init();
     this.hideBootSplashWhenReady();
   }
 

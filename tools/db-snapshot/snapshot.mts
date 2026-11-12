@@ -40,8 +40,9 @@ const OUT_DIR = 'db-snapshots';
 // delle sessioni in chiaro: con uno di quelli si entra come quell'utente per
 // 30 giorni, quindi non devono finire in una copia sul PC. Verification ha
 // solo codici di login che scadono in 10 minuti. Dopo un ripristino tutti
-// rifanno il login.
-const SKIP_DATA = ['"Session"', '"Verification"'];
+// rifanno il login. PushDevice ha endpoint e chiavi delle push di ogni browser:
+// dopo un ripristino si riattivano dal Profilo.
+const SKIP_DATA = ['"Session"', '"Verification"', '"PushDevice"'];
 
 /** `2026-11-07_153012`, ora locale. */
 function timestamp(now = new Date()): string {

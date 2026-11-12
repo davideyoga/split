@@ -31,6 +31,7 @@ For any question or request about privacy, write to [PRIVACY CONTACT EMAIL].
 | **Repayments** | Who paid whom, amount, date, optional note |
 | **Custom categories** | Name and appearance of the categories you create |
 | **Notifications** | What happened, who did it, read status. For an expense that was deleted, or that you were removed from, we keep its description, amount, currency and category in order to show you the notification |
+| **Push notifications** (only if you turn them on in your Profile) | For each device: the address where your browser's delivery service delivers notifications, the keys to encrypt them, the app language and the dates they were turned on and updated |
 | **People you blocked** | The list of users you have blocked |
 | **Technical data** | IP address, date and time of requests and any errors, in the hosting provider's technical logs. A failure to send a sign-in code may also log your email |
 
@@ -86,6 +87,8 @@ We do not make decisions based solely on automated processing that produce legal
 
 **Google and Apple.** If you use their sign-in button, Google Ireland Limited or Apple Distribution International Ltd. process your data as independent controllers, under their own policies ([Google](https://policies.google.com/privacy), [Apple](https://www.apple.com/legal/privacy/)). Where the Google button is available, it is loaded directly from Google's servers when you open the sign-in page. Google therefore receives your IP address and can read its own cookies, even if you do not press the button.
 
+**Push notifications.** If you turn them on, each notification (for example "Pippo added you to “Dinner” (€30.00)") reaches your device through your browser's delivery service: Google for Chrome and Chromium-based browsers, Mozilla for Firefox, Apple for Safari, Microsoft for Edge on Windows. The text travels encrypted with keys that only your browser has, so the service cannot read it; it does see which device a notification goes to, when, and how large it is. These services are part of the browser you use and are governed by their providers' own policies.
+
 We do not share your data with anyone else, unless the law requires it.
 
 ## 6. Transfers outside the European Union
@@ -102,11 +105,12 @@ These transfers rely on the EU-US Data Privacy Framework, where the provider is 
 | Sign-in code | Valid for 10 minutes, then removed at the next automatic cleanup |
 | Session | Expires 30 days after last use and is removed when you sign out. An expired session on a device no longer in use may stay stored, with its IP address and user agent, until the account is deleted |
 | Link with Google or Apple | As long as the account exists |
+| A device's push notification subscription | Until you turn notifications off or sign out on that device, or until the browser's service tells us it is no longer valid |
 | Hosting technical logs | 7 days on the current plan |
 | Email sending logs | For the period set by Brevo |
 | Database backups | The copies we make are deleted within 30 days and do not contain sessions or sign-in codes. The database provider also keeps a short technical history |
 
-**If you delete your account from your Profile**, we delete or anonymise your data immediately (within 30 days if you ask by email): email, nickname, sessions, links with Google or Apple, expenses that are yours alone, custom categories, notifications, blocked people and the repayment notes you wrote. You also leave all your groups, and the invite links you created stop working. For a limited time, the data may remain only in the backups and technical logs listed in the table above.
+**If you delete your account from your Profile**, we delete or anonymise your data immediately (within 30 days if you ask by email): email, nickname, sessions, links with Google or Apple, expenses that are yours alone, custom categories, notifications, push notification subscriptions, blocked people and the repayment notes you wrote. You also leave all your groups, and the invite links you created stop working. For a limited time, the data may remain only in the backups and technical logs listed in the table above.
 
 Expenses and repayments shared with others are needed to calculate their balances, so they remain: your name is replaced with an anonymous label ("Deleted user"), even if you still have open balances. Shared expenses lose the custom categories you created. Text you wrote in a shared expense stays visible to the other participants, but you can edit it before deleting your account.
 
@@ -120,6 +124,9 @@ Split does not use profiling cookies or cookies of its own to run the app. It st
 | `split.lang` (localStorage) | The language you chose | Until you clear your browser data |
 | `split.monthStartDay` (localStorage) | The day your spending month starts | Until you clear your browser data |
 | `split.inviteToken` (sessionStorage) | The invite link being used | Until the tab is closed |
+| `split.pushOwner` (localStorage) | The ID of the account that turned on push notifications in this browser | Until notifications are turned off or you sign out |
+
+If you turn on push notifications, your browser also keeps the subscription to its delivery service; it is removed when you turn them off or sign out.
 
 If you install the app, your browser also keeps a copy of the application files so that it opens faster. This copy does not contain your expense data.
 

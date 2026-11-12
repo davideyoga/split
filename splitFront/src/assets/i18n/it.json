@@ -407,5 +407,13 @@
     "unblock-name": "Sblocca {{name}}",
     "unblocked": "Hai sbloccato {{name}}",
     "close": "Chiudi"
+  },
+  "push": {
+    "toggle": "Notifiche su questo dispositivo",
+    "description": "Quando qualcuno ti aggiunge a una spesa, registra un rimborso con te o entra in un tuo gruppo",
+    "unsupported": "Questo browser non può ricevere notifiche",
+    "ios-install": "Su iPhone funzionano solo con Split nella schermata Home: tocca Condividi, poi “Aggiungi alla schermata Home”, e aprilo da lì",
+    "denied": "Le notifiche sono bloccate: consentile per questo sito nelle impostazioni del browser",
+    "error": "Non è stato possibile cambiare le notifiche, riprova"
   }
 }

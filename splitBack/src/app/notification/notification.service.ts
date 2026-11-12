@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { blockersOf, withoutBlockers } from '../user/blocks';
 import { ExpenseSnapshot, NotificationType } from './notification.types';
+import { PushDispatcher } from './push/push-dispatcher';
 
 // Come per spese e rimborsi, degli utenti si espongono solo publicId e nickName.
 const USER_SELECT = { publicId: true, nickName: true } as const;
@@ -53,16 +54,19 @@ export interface NewNotification {
 
 @Injectable()
 export class NotificationService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private pushDispatcher: PushDispatcher,
+  ) {}
 
   /**
    * Unico punto in cui nascono le notifiche, dentro la transazione
    * dell'azione che le causa: una spesa non esiste mai senza la sua notifica,
    * ne' il contrario. Chi ha fatto l'azione non riceve niente.
    *
-   * Qui si aggancera' la push, dopo il commit della transazione (vedi
-   * TODO.md): una push partita per una transazione poi annullata
-   * annuncerebbe una spesa che non esiste.
+   * Le push partono dalle righe create qui, ma solo dopo il commit (vedi
+   * PushDispatcher): una push partita per una transazione poi annullata
+   * annuncerebbe una spesa che non esiste. Chi chiama non se ne occupa.
    */
   async notify(
     tx: Prisma.TransactionClient,
@@ -97,6 +101,7 @@ export class NotificationService {
         params: notification.params,
       })),
     });
+    this.pushDispatcher.requestFlush();
   }
 
   /**

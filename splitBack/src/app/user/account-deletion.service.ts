@@ -73,6 +73,9 @@ export class AccountDeletionService {
           where: { OR: [{ blockerId: me.id }, { blockedId: me.id }] },
         });
         await tx.notification.deleteMany({ where: { userId: me.id } });
+        // La riga User resta, quindi la cascata non scatta: i browser iscritti
+        // alle push vanno tolti a mano.
+        await tx.pushDevice.deleteMany({ where: { userId: me.id } });
 
         // Le descrizioni delle spese condivise restano (decisione dell'utente,
         // e lo dice l'informativa); le note dei rimborsi non servono ai saldi.

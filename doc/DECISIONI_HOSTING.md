@@ -1,6 +1,6 @@
-# Decisioni hosting e messa online (alpha)
+# Decisioni hosting e messa online (alpha e produzione)
 
-Data: 2026-09-26, aggiornato il 2026-09-27. Stato: **hosting deciso** (Render gratuito + Neon gratuito + ping, vedi sezione 2). Nessuno degli interventi elencati sotto è ancora stato implementato.
+Data: 2026-09-26, aggiornato il 2026-09-27. Sezione 4 (produzione sugli store) aggiunta il 2026-11-12. Stato: **hosting deciso** (Render gratuito + Neon gratuito + ping, vedi sezione 2). Nessuno degli interventi elencati sotto è ancora stato implementato.
 
 Prezzi e limiti dei piani sono stati verificati il 2026-09-26. I piani gratuiti e i listini cambiano spesso: vanno ricontrollati prima di attivare qualcosa.
 
@@ -78,6 +78,7 @@ Web Service, runtime Node, regione Frankfurt, istanza Free, branch `test`, Root 
   | `MAIL_TRANSPORT` | `brevo` (con `BREVO_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME`), oppure `console` per una prima prova: il codice compare nei log di Render |
   | `AUTH_TRUSTED_ORIGINS` | l'URL dello static site del frontend, più `https://localhost,capacitor://localhost` se si usa l'app Capacitor. Impostarla **sostituisce** i default |
   | `AUTH_TRUSTED_PROXIES` | `10.0.0.0/8` più i range di Cloudflare, valore completo sotto |
+  | `PUSH_TRANSPORT` | `live` per le notifiche push (2026-11-12, [NotifichePush.md](NotifichePush.md)), con `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (generate una volta con `npx web-push generate-vapid-keys`, diverse da quelle di sviluppo) e `VAPID_SUBJECT` (`mailto:` con un indirizzo vero). Senza: push spente |
 
   `PORT` lo imposta Render. `NODE_ENV` non va impostato.
 - **Verifica:** `https://<servizio>.onrender.com/api` risponde `{"message":"Hello API"}`.
@@ -170,6 +171,100 @@ Dettagli pratici:
 - Il DB si risveglia in meno di un secondo, niente a che vedere con il minuto di Render gratuito. Con Prisma conviene aggiungere `connect_timeout=15` alla connection string, così la prima query dopo la pausa non va in timeout.
 - Il DB va creato nella regione Francoforte, con il backend vicino. Ogni schermata fa più query, e con DB e server lontani ognuna aggiunge circa 100 ms.
 
+## 4. Produzione
+
+Analisi del 2026-11-12, per l'ipotesi di uscire sugli store (Android e iOS) tenendo anche la PWA. **Non è ancora una decisione**: la proposta è in fondo alla sezione.
+
+Prezzi letti il 2026-11-12, regione Francoforte, IVA esclusa. Vanno ricontrollati prima di attivare qualcosa.
+
+**Ipotesi di partenza:**
+
+- produzione e staging separati;
+- da qualche centinaio a qualche migliaio di utenti, con uso a picchi (cene, viaggi).
+
+### Costi che non dipendono dall'hosting
+
+- **Apple Developer Program:** 99 $ all'anno. **Google Play:** 25 $ una volta sola.
+- **Dominio:** 10–15 € all'anno. Con gli store diventa necessario per quattro cose:
+  - l'URL della privacy policy, che gli store chiedono;
+  - i link d'invito dall'app nativa: oggi usano `window.location.origin`, che in Capacitor vale `https://localhost` (vedi `TODO.md`);
+  - App Links (Android) e Universal Links (iOS), che leggono file serviti dal dominio (`/.well-known/assetlinks.json`, `apple-app-site-association`);
+  - un mittente autenticato su Brevo, così i codici di login non finiscono nello spam.
+- **Build iOS senza Mac:** Codemagic dà 500 minuti macOS gratis al mese su un account personale (non su un account Team). Su GitHub Actions un runner macOS costa 0,062 $ al minuto.
+- **Push (APNs, FCM, Web Push) ed email Brevo:** gratis ai volumi iniziali.
+
+### Confronto (produzione + staging, al mese)
+
+| | Produzione | Staging | Totale | Chi gestisce il server |
+|---|---|---|---|---|
+| **Render + Neon** | 13–28 $ | 0–1 $ | **14–30 $** | Render e Neon |
+| AWS Lightsail (container + Postgres gestito) | ~25 $ | ~22 $ | ~45 $ | quasi tutto AWS |
+| AWS ECS Fargate + RDS (Docker) | 60–70 $ | 15–30 $ | **75–100 $** | in parte noi |
+| Hetzner VPS + Docker Compose | ~9 € | sulla stessa VM | 10–20 € | tutto noi |
+
+### Render + Neon
+
+**Produzione:**
+
+- **Workspace Hobby di Render:** 0 $. Permette 1 membro e 2 ambienti per progetto, cioè proprio produzione e staging. Il piano Pro (25 $ al mese) serve solo per collaboratori, preview environment o autoscaling.
+- **Backend Starter** (0,5 CPU, 512 MB): 7 $. Non si spegne, quindi il ping non serve più.
+- **Frontend su static site:** 0 $.
+- **Neon Launch:** 0,106 $ per CU-ora, senza minimo mensile. La taglia minima (0,25 CU) costa circa 2,7 centesimi per ogni ora in cui il DB è sveglio:
+  - 200 ore al mese: circa 5 $;
+  - 400 ore: circa 11 $;
+  - sempre acceso: circa 19 $.
+  - In più storage a 0,35 $/GB e ripristino fino a 7 giorni a 0,20 $/GB: centesimi finché il DB resta sotto 1 GB. Il traffico in uscita è incluso fino a 500 GB al mese.
+- **Il piano Free di Neon non va bene per la produzione.** Oggi ha 100 CU-ore e 5 GB di traffico al mese per progetto, e il ripristino copre solo 6 ore. Superato un limite di calcolo o di traffico, il DB resta sospeso fino al mese dopo: in produzione vorrebbe dire app ferma.
+
+**Staging:** il web service gratuito di Render (si spegne dopo 15 minuti, ma per lo staging va bene) più un secondo progetto Neon che si spegne da solo. Costa centesimi.
+
+- Lo staging non deve avere il ping: le 750 ore gratuite valgono per tutto il workspace (vedi sezione 2).
+- Lo staging non va creato come branch Neon della produzione: il branch conterrebbe i dati degli utenti veri.
+
+**La voce da tenere d'occhio è il traffico di Render.** Dal 1° agosto 2026 il piano Hobby include solo 5 GB al mese (prima 100 GB), poi si pagano 0,15 $/GB. Conta anche lo static site.
+
+- L'app nativa non scarica il frontend da Render, perché è dentro l'APK/IPA, ma chiama l'API.
+- Due cose fanno crescere il traffico dell'API:
+  - il backend non comprime le risposte ([main.ts](../splitBack/src/main.ts));
+  - `GET /api/expense` restituisce tutte le spese dell'utente senza paginazione ([expense.service.ts](../splitBack/src/app/expense/expense.service.ts)).
+- Con qualche migliaio di utenti sono pochi dollari al mese; con la compressione in Nest diventano quasi zero.
+
+### AWS
+
+**ECS Fargate + RDS**, con ECS Express Mode. App Runner, l'equivalente di Render su AWS, non accetta nuovi clienti dal 30 aprile 2026, e AWS indica Express Mode come alternativa.
+
+- **Fargate ARM, 0,5 vCPU e 1 GB, sempre acceso:** circa 17 $ (circa 8 $ con 0,25 vCPU e 0,5 GB).
+- **Load balancer (ALB):** circa 20 $ fissi più il traffico. Express Mode lo condivide fra un massimo di 25 servizi, quindi lo staging lo usa senza pagarne un secondo.
+- **IPv4 pubblici:** 3,65 $ ciascuno. Il load balancer su 2 zone più il container fanno circa 11 $. Mettere il container in una rete privata non conviene: il NAT gateway che serve costa più di 33 $.
+- **RDS db.t4g.micro** (una sola zona): circa 14 $ più circa 3 $ di storage. A differenza di Neon non si spegne da solo. Con due zone (failover automatico) il costo del DB raddoppia.
+- **Log, DNS e registro delle immagini:** qualche dollaro.
+
+Per un'app piccola il problema è che circa 45 $ al mese (load balancer, IP, RDS) si pagano anche con zero utenti.
+
+**Lightsail** costa meno: un container Micro (1 GB, con HTTPS e bilanciatore inclusi) costa 10 $, il Postgres gestito 15 $. Però non si spegne mai, quindi lo staging costa quasi quanto la produzione.
+
+Un account AWS nuovo riceve crediti (fino a 200 $ per 6 mesi): coprono i primi mesi, non quelli dopo.
+
+### Hetzner + Docker
+
+- **Costo:** il VPS CX23 (2 CPU, 4 GB) costa 5,49 €, più 0,50 € di IPv4 e circa 1,10 € di backup, più IVA. Produzione e staging possono stare sulla stessa macchina, con due stack Compose.
+- **È l'opzione più economica, ma il server lo gestiamo tutto noi:** aggiornamenti, firewall, backup del DB su un'altra macchina, monitoraggio, e il ripristino se la macchina si guasta. Con dati di utenti veri, e una privacy policy che promette tempi di cancellazione, è la parte che costa di più in ore.
+- **Disponibilità:** tra settembre e ottobre 2026 i piani CX/CAX a tratti non si potevano ordinare. Hetzner ha alzato i prezzi più volte nel 2026 (vedi sezione 2).
+
+### Docker non obbliga a cambiare fornitore
+
+Render può fare il deploy anche da un Dockerfile, quindi usare Docker non significa lasciare Render.
+
+- Oggi il repo non ha un Dockerfile. Scriverlo è una buona assicurazione: lo stesso container gira poi su Render, Fly, Hetzner o ECS senza toccare il codice.
+- Il DB si sposta già facilmente: `pg_dump`/`pg_restore` (vedi `tools/db-snapshot/`), e nel codice cambia solo `DATABASE_URL`.
+
+### Proposta
+
+**Restare su Render + Neon:** Render Starter e Neon Launch per la produzione, i piani gratuiti per lo staging.
+
+- A questa scala costa da 3 a 5 volte meno di AWS, e lo spegnimento automatico di Neon segue l'uso a picchi di Split.
+- AWS conviene quando il traffico diventa alto e costante (Neon con 1 CU sempre acceso costa circa 77 $, e lì un Postgres a prezzo fisso costa meno), oppure quando serve un servizio che esiste solo su AWS.
+
 ## Da decidere
 
 - [x] Scegliere l'hosting: Render gratuito + Neon gratuito + ping (2026-09-27).
@@ -179,6 +274,7 @@ Dettagli pratici:
 - [x] Utenti veri in produzione: `DATABASE_URL='<Neon>' node splitBack/prisma/add-users.mts`, che legge `splitBack/prisma/users.local.json` (gitignored, vedi CLAUDE.md "Seed test users") (2026-09-27). Il primo utente e le categorie sono stati creati con `seed.ts`.
 - [x] Bloccante 5 (2026-09-27): gli utenti Disney non stanno più in `seed.ts` (commit `0df3ba5`). Ora li crea solo il database e2e, da `splitFront-e2e/scripts/users.e2e.json`. Se il DB di produzione era stato popolato con un seed precedente, lì vanno cancellati a mano. Testo originale del bloccante: seed di produzione senza gli utenti Disney. Con `MAIL_TRANSPORT=brevo` non possono fare login (le email `@disney.test` non esistono), ma compaiono nella ricerca utenti. Ordine proposto: (1) password, script `create-user` e pagina di login; (2) chiusura degli endpoint utente, throttler e CORS; (3) `fileReplacements`, divisione del seed e prova delle migrazioni su DB vuoto.
 - [ ] Registrare in CLAUDE.md le scorciatoie dell'alpha una volta implementate.
+- [ ] Scegliere l'hosting di produzione. Proposta: Render Starter + Neon Launch, staging sui piani gratuiti (sezione 4).
 
 ## Fonti
 
@@ -201,3 +297,20 @@ Dettagli pratici:
 - [Northflank: Hetzner price increases in 2026](https://northflank.com/blog/hetzner-cloud-server-price-increases)
 - [InfoQ: Oracle Quietly Halves Free Tier Ampere A1 Limits](https://www.infoq.com/news/2026/07/oracle-cloud-free-tier-limits/)
 - [Oracle: Always Free Resources](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm)
+
+Sezione 4 (lette il 2026-11-12):
+
+- [Neon Pricing](https://neon.com/pricing) e [Neon Plans](https://neon.com/docs/introduction/plans)
+- [Neon: new usage-based pricing](https://neon.com/blog/new-usage-based-pricing)
+- [Render: New Workspace Plans](https://render.com/docs/new-workspace-plans)
+- [Render: removing seat fees](https://render.com/blog/better-pricing-for-fast-growing-teams)
+- [Render Pricing Calculator (makerkit)](https://makerkit.dev/pricing-calculator/render)
+- [AWS App Runner availability change](https://docs.aws.amazon.com/ja_jp/apprunner/latest/dg/apprunner-availability-change.html)
+- [AWS blog: ECS Express Mode](https://aws.amazon.com/blogs/aws/build-production-ready-applications-without-infrastructure-complexity-using-amazon-ecs-express-mode/)
+- [AWS Fargate Pricing](https://aws.amazon.com/fargate/pricing/) e [prezzi Fargate per regione (vmprices)](https://vmprices.com/serverless/fargate/)
+- [CloudCostDB: AWS load balancers](https://cloudcostdb.com/aws/networking/load-balancers/)
+- [Hostim: quanto costa un "Hello World" su AWS](https://hostim.dev/blog/hello-world-cost-aws-vs-bare-metal/)
+- [Bytebase: RDS db.t4g.micro](https://www.bytebase.com/dbcost/rds/instance/db.t4g.micro/)
+- [Lightsail containers (awsfundamentals)](https://awsfundamentals.com/blog/lightsail-containers-first-rung) e [CloudZero: Lightsail pricing](https://www.cloudzero.com/blog/amazon-lightsail-pricing/)
+- [Bitdoze: Hetzner cost-optimized plans](https://www.bitdoze.com/hetzner-cloud-cost-optimized-plans/)
+- [Codemagic pricing](https://docs.codemagic.io/billing/pricing/)

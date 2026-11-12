@@ -407,5 +407,13 @@
     "unblock-name": "Unblock {{name}}",
     "unblocked": "You unblocked {{name}}",
     "close": "Close"
+  },
+  "push": {
+    "toggle": "Notifications on this device",
+    "description": "When someone adds you to an expense, records a repayment with you or joins one of your groups",
+    "unsupported": "This browser can't receive notifications",
+    "ios-install": "On iPhone they only work with Split on the Home Screen: tap Share, then “Add to Home Screen”, and open it from there",
+    "denied": "Notifications are blocked: allow them for this site in the browser settings",
+    "error": "Couldn't change the notifications, please try again"
   }
 }

@@ -9,10 +9,10 @@ import { AuthService } from './auth.service';
 /**
  * Notifiche e numero sulla campanella (components/notification-bell).
  *
- * Niente tempo reale finche' non ci sono le push: il numero si ricarica quando
- * si entra in una pagina principale (Attivita', Gruppi, Saldi chiamano
- * refreshCount nel loro ionViewWillEnter), quando l'app torna in primo piano e
- * dopo aver aperto la lista.
+ * Niente tempo reale: il numero si ricarica quando si entra in una pagina
+ * principale (Attivita', Gruppi, Saldi chiamano refreshCount nel loro
+ * ionViewWillEnter), quando l'app torna in primo piano, dopo aver aperto la
+ * lista e, con le push accese, quando ne arriva una (PushService).
  */
 @Injectable({
   providedIn: 'root',

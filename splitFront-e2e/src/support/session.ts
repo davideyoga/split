@@ -42,6 +42,10 @@ export const USERS = {
   anacleto: 'anacleto@disney.test',
   basettoni: 'basettoni@disney.test',
   manetta: 'manetta@disney.test',
+  etabeta: 'etabeta@disney.test',
+  topesio: 'topesio@disney.test',
+  pennino: 'pennino@disney.test',
+  paperinik: 'paperinik@disney.test',
 } as const;
 
 export interface Session {

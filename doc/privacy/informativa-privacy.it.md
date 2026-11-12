@@ -31,6 +31,7 @@ Per qualsiasi domanda o richiesta sulla privacy puoi scrivere a [EMAIL DI CONTAT
 | **Rimborsi** | Chi ha pagato chi, importo, data, nota facoltativa |
 | **Categorie personalizzate** | Nome e aspetto delle categorie che crei |
 | **Notifiche** | Cosa è successo, chi ha compiuto l'azione, stato di lettura. Per una spesa eliminata, o da cui sei stato tolto, conserviamo descrizione, importo, valuta e categoria per mostrarti la notifica |
+| **Notifiche push** (solo se le attivi dal Profilo) | Per ogni dispositivo: l'indirizzo a cui il servizio del tuo browser consegna le notifiche, le chiavi per cifrarle, la lingua dell'app e le date di attivazione e di aggiornamento |
 | **Persone bloccate** | L'elenco degli utenti che hai bloccato |
 | **Dati tecnici** | Indirizzo IP, data e ora delle richieste ed eventuali errori, nei registri tecnici del fornitore di hosting. Un errore di invio del codice può registrare anche la tua email |
 
@@ -86,6 +87,8 @@ Non prendiamo decisioni basate unicamente su un trattamento automatizzato che pr
 
 **Google e Apple.** Se usi il loro pulsante di accesso, Google Ireland Limited o Apple Distribution International Ltd. trattano i tuoi dati come titolari autonomi, secondo le rispettive informative ([Google](https://policies.google.com/privacy), [Apple](https://www.apple.com/legal/privacy/)). Dove il pulsante di Google è disponibile, viene caricato direttamente dai server di Google quando apri la pagina di accesso. Google riceve quindi il tuo indirizzo IP e può leggere i propri cookie, anche se non premi il pulsante.
 
+**Notifiche push.** Se le attivi, ogni notifica (per esempio "Pippo ti ha aggiunto a «Cena» (30,00 €)") arriva al tuo dispositivo attraverso il servizio di consegna del tuo browser: Google per Chrome e i browser basati su Chromium, Mozilla per Firefox, Apple per Safari, Microsoft per Edge su Windows. Il testo viaggia cifrato con chiavi che ha solo il tuo browser, quindi il servizio non lo può leggere; vede però a quale dispositivo arriva una notifica, quando e quanto è grande. Questi servizi fanno parte del browser che usi e sono regolati dalle informative dei rispettivi fornitori.
+
 Non comunichiamo i tuoi dati ad altri, salvo quando lo impone la legge.
 
 ## 6. Trasferimenti fuori dall'Unione Europea
@@ -102,11 +105,12 @@ Questi trasferimenti avvengono sulla base del Data Privacy Framework UE-USA, dov
 | Codice di accesso | Valido 10 minuti, poi rimosso alla pulizia automatica successiva |
 | Sessione | Scade 30 giorni dopo l'ultimo utilizzo e viene rimossa quando esci dall'app. Una sessione scaduta su un dispositivo non più usato può restare archiviata, con il relativo IP e user agent, fino alla cancellazione dell'account |
 | Dati del collegamento con Google o Apple | Finché l'account esiste |
+| Iscrizione di un dispositivo alle notifiche push | Finché non le disattivi o esci dall'app su quel dispositivo, oppure finché il servizio del browser non ci dice che non è più valida |
 | Registri tecnici dell'hosting | 7 giorni con il piano attuale |
 | Registri di invio delle email | Per il periodo previsto da Brevo |
 | Copie di sicurezza del database | Le copie che facciamo noi vengono cancellate entro 30 giorni e non contengono le sessioni né i codici di accesso. Il fornitore del database conserva inoltre una breve cronologia tecnica |
 
-**Se cancelli il tuo account dal Profilo** eliminiamo o rendiamo anonimi i tuoi dati subito (entro 30 giorni se lo chiedi via email): email, nickname, sessioni, collegamenti con Google o Apple, spese solo tue, categorie personalizzate, notifiche, persone bloccate e note dei rimborsi che hai scritto. Esci anche da tutti i gruppi, e i link d'invito che hai creato smettono di funzionare. Per un periodo limitato i dati possono restare solo nelle copie di sicurezza e nei registri tecnici indicati nella tabella qui sopra.
+**Se cancelli il tuo account dal Profilo** eliminiamo o rendiamo anonimi i tuoi dati subito (entro 30 giorni se lo chiedi via email): email, nickname, sessioni, collegamenti con Google o Apple, spese solo tue, categorie personalizzate, notifiche, iscrizioni alle notifiche push, persone bloccate e note dei rimborsi che hai scritto. Esci anche da tutti i gruppi, e i link d'invito che hai creato smettono di funzionare. Per un periodo limitato i dati possono restare solo nelle copie di sicurezza e nei registri tecnici indicati nella tabella qui sopra.
 
 Le spese e i rimborsi condivisi con altri servono a calcolare i loro saldi, quindi restano: il tuo nome viene sostituito da un'indicazione anonima ("Utente eliminato"), anche se hai saldi ancora aperti. Le spese condivise perdono le categorie personalizzate che avevi creato. Il testo che hai scritto in una spesa condivisa resta visibile agli altri partecipanti, ma puoi modificarlo prima di cancellare l'account.
 
@@ -120,6 +124,9 @@ Split non usa cookie di profilazione né cookie propri per il funzionamento dell
 | `split.lang` (localStorage) | Lingua che hai scelto | Finché non cancelli i dati del browser |
 | `split.monthStartDay` (localStorage) | Giorno di inizio del tuo mese di spesa | Finché non cancelli i dati del browser |
 | `split.inviteToken` (sessionStorage) | Link d'invito in corso di utilizzo | Fino alla chiusura della scheda |
+| `split.pushOwner` (localStorage) | Identificativo dell'account che ha attivato le notifiche push su questo browser | Fino alla disattivazione delle notifiche o all'uscita dall'app |
+
+Se attivi le notifiche push, il browser conserva anche l'iscrizione al suo servizio di consegna; si cancella quando le disattivi o esci dall'app.
 
 Se installi l'app, il browser conserva anche una copia dei file dell'applicazione, per aprirla più velocemente. Non contiene i dati delle tue spese.
 

@@ -19,3 +19,9 @@ export const E2E_DATABASE_NAME = 'split-db-e2e';
  * che e' gitignored.
  */
 export const MAIL_OUTBOX_DIR = join(__dirname, '..', '..', '..', 'dist', 'e2e-outbox');
+
+/**
+ * Cartella in cui l'API dei test scrive le push (PUSH_TRANSPORT=outbox): un
+ * file per destinatario (publicId) con tutte quelle ricevute. Vedi push.ts.
+ */
+export const PUSH_OUTBOX_DIR = join(__dirname, '..', '..', '..', 'dist', 'e2e-push-outbox');

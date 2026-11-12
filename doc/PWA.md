@@ -67,5 +67,5 @@ Per ripetere la prova basta ricostruire (`npx nx build splitFront`) e servire `d
 ## Possibili passi successivi
 
 - Pulsante "Installa l'app" nel Profilo, con `beforeinstallprompt` su Android e istruzioni su iOS.
-- Notifiche push, per esempio "Pippo ha aggiunto una spesa". Su iOS funzionano solo con l'app installata (iOS 16.4+). Servono un backend con Web Push (chiavi VAPID) e il consenso dell'utente.
+- ~~Notifiche push~~: fatte il 2026-11-12 con Web Push e il service worker di Angular (`SwPush`), vedi [NotifichePush.md](NotifichePush.md). Su iOS funzionano solo con l'app sulla schermata Home (iOS 16.4+).
 - Colori del tema Ionic allineati al logo (teal `#0F5E56`). Oggi il manifest usa il bianco della toolbar.

@@ -37,6 +37,28 @@
         }
       </ion-select>
     </ion-item>
+    <!-- Push: per dispositivo. Nascoste del tutto se il server le ha spente. -->
+    @if (push() === 'on' || push() === 'off') {
+      <ion-item>
+        <div slot="start" class="avatar neutral"><ion-icon name="notifications-outline" aria-hidden="true"></ion-icon></div>
+        <ion-toggle
+          justify="space-between"
+          [checked]="push() === 'on'"
+          [disabled]="pushBusy()"
+          [helperText]="'push.description' | translate"
+          (ionChange)="onPushToggle($event)"
+        >{{ 'push.toggle' | translate }}</ion-toggle>
+      </ion-item>
+    } @else if (pushProblemKey(); as problemKey) {
+      <!-- Niente interruttore spento: la spiegazione resta leggibile. -->
+      <ion-item>
+        <div slot="start" class="avatar neutral"><ion-icon name="notifications-outline" aria-hidden="true"></ion-icon></div>
+        <ion-label>
+          {{ 'push.toggle' | translate }}
+          <p>{{ problemKey | translate }}</p>
+        </ion-label>
+      </ion-item>
+    }
     <ion-item button="true" [detail]="false" (click)="openBlocked()">
       <div slot="start" class="avatar neutral"><ion-icon name="ban-outline" aria-hidden="true"></ion-icon></div>
       <ion-label>{{ 'profile.blocked' | translate }}</ion-label>

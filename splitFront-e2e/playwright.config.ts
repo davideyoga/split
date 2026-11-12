@@ -3,7 +3,7 @@ import { nxE2EPreset } from '@nx/playwright/preset';
 import { workspaceRoot } from '@nx/devkit';
 import { config as loadEnv } from 'dotenv';
 import { join } from 'node:path';
-import { API_PORT, API_URL, E2E_DATABASE_NAME, MAIL_OUTBOX_DIR, WEB_URL } from './src/support/env';
+import { API_PORT, API_URL, E2E_DATABASE_NAME, MAIL_OUTBOX_DIR, PUSH_OUTBOX_DIR, WEB_URL } from './src/support/env';
 
 // BETTER_AUTH_SECRET e DATABASE_URL arrivano dal .env della root. `nx e2e` lo carica
 // già, `npx playwright test` lanciato a mano no. Non sovrascrive variabili già
@@ -60,13 +60,17 @@ export default defineConfig({
       url: API_URL,
       cwd: workspaceRoot,
       // Email scritte in MAIL_OUTBOX_DIR invece che inviate (i test ci leggono
-      // il codice di login), niente rate limit (tanti login dallo stesso IP) e
-      // registrazione aperta (registration.spec.ts).
+      // il codice di login), push scritte in PUSH_OUTBOX_DIR (push.spec.ts),
+      // niente rate limit (tanti login dallo stesso IP) e registrazione aperta
+      // (registration.spec.ts). Senza chiavi VAPID il frontend vede le push
+      // come spente: nei test non c'e' service worker che possa riceverle.
       env: {
         ...(databaseUrl && { DATABASE_URL: databaseUrl }),
         PORT: String(API_PORT),
         MAIL_TRANSPORT: 'outbox',
         MAIL_OUTBOX_DIR,
+        PUSH_TRANSPORT: 'outbox',
+        PUSH_OUTBOX_DIR,
         AUTH_RATE_LIMIT: 'off',
         AUTH_SIGN_UP: 'open',
       },

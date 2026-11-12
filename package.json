@@ -43,6 +43,7 @@
     "@swc/helpers": "~0.5.11",
     "@types/jest": "^30.0.0",
     "@types/node": "20.19.9",
+    "@types/web-push": "3.6.4",
     "@typescript-eslint/utils": "^8.40.0",
     "angular-eslint": "^20.3.0",
     "eslint": "^9.8.0",
@@ -98,6 +99,7 @@
     "ionicons": "^7.0.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
+    "web-push": "3.6.7",
     "zone.js": "~0.15.0"
   }
 }

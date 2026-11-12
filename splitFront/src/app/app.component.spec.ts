@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -10,8 +12,11 @@ describe('AppComponent', () => {
     await TestBed.configureTestingModule({
       // AppComponent inizializza LanguageService, che usa TranslateService.
       imports: [AppComponent, TranslateModule.forRoot()],
-      // Service worker spento, come in sviluppo: AppUpdateService ne chiede uno.
+      // Service worker spento, come in sviluppo: AppUpdateService e
+      // PushService ne chiedono uno. PushService usa anche HttpClient.
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         provideRouter([]),
         provideIonicAngular(),
         provideServiceWorker('ngsw-worker.js', { enabled: false }),

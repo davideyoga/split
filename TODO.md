@@ -19,10 +19,14 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 - Login con Apple: per ora non si puo' provare (2026-11-07), quindi resta fuori dal test book. Con "Nascondi la mia email" Apple da' un indirizzo `@privaterelay.appleid.com`, diverso da quello usato col codice, quindi nasce un secondo account invece di collegarsi al primo. Rimedio possibile: collegare Apple dal Profilo, a sessione aperta (`/link-social` con ID token e `allowDifferentEmails`).
 - Passkey (accesso con impronta/FaceID dopo il primo login via codice): plugin `@better-auth/passkey` (MIT), aggiunge una tabella. Su Capacitor serve un plugin nativo open source e la configurazione del dominio (`assetlinks.json` / `apple-app-site-association`). Vedi [doc/Auth.md](doc/Auth.md).
 - Dominio per le email: con Brevo e mittente Gmail i codici di login possono finire in spam; con un dominio autenticato in Brevo (SPF/DKIM) no.
-- Notifiche push: agganciarle all'unico punto di creazione, `NotificationService.notify()`, dopo il commit della transazione. Il testo della push lo genera il server, quindi serve la lingua dell'utente salvata sul server (`User.locale`; oggi e' solo in localStorage). Vedi CLAUDE.md, "Notifications".
+- Notifiche push, fasi successive (fase 1, Web Push per PWA e browser, fatta il 2026-11-12; vedi [doc/NotifichePush.md](doc/NotifichePush.md)):
+  - Android (FCM): prima Capacitor 8 (Play chiede target API 36 dal 31 agosto 2026; il repo e' alla 6.2.1), un `appId` vero al posto di `io.ionic.starter` e la cartella `android/`. Poi `@capacitor/push-notifications` nell'app, `firebase-admin` sul server, `PushDevice` con `platform: 'android'` e un trasporto in piu' in `PushSender`;
+  - iOS (APNs diretto, senza Firebase): stesso plugin, `@parse/node-apn` con la chiave `.p8`, un Mac o una CI macOS, e l'ambiente di ogni token (sviluppo/produzione);
+  - prova vera su Render: impostare `PUSH_TRANSPORT=live` e le chiavi VAPID, poi provare con Chrome su Android e con un iPhone con Split sulla schermata Home (nell'UE non e' verificato che funzionino per le PWA);
+  - un invio fallito (rete, servizio giu') non si ritenta: la push e' persa, la campanella resta. Un retry vorrebbe una colonna di tentativi.
 - Notifiche, limiti dell'alpha (priorita' bassa):
   - nessuna notifica si cancella mai (se ne mostrano le ultime 50): serve una pulizia di quelle vecchie;
-  - il numero sulla campanella non si aggiorna da solo mentre l'app resta aperta sulla stessa pagina (con le push non servira');
+  - il numero sulla campanella non si aggiorna da solo mentre l'app resta aperta sulla stessa pagina, se le push sono spente (con le push accese si aggiorna all'arrivo di una push);
   - mancano le notifiche per la rinomina di un gruppo e per un rimborso eliminato.
 - Rate limit su `GET /api/user`: fatto il 2026-11-07 (30 ricerche all'ora per utente, `search-rate-limit.guard.ts`), ma in memoria come quello del login: si azzera a ogni riavvio e vale per un solo processo. Se l'API gira su piu' istanze, spostarlo su storage condiviso. Il frontend (`select-participant`) mostra il 429 come "Troppe ricerche".
 - Link d'invito nell'app nativa (Capacitor): il link usa `window.location.origin`, che li' e' `https://localhost`. Serve l'URL pubblico del sito (es. in `environment`) e il deep link `/join` configurato in Android/iOS.

@@ -19,8 +19,10 @@ test('divisione non uniforme: "io 10, il resto a Paperone" e saldo coerente', as
   await topModal(page).getByRole('button', { name: t('expense-form.split-equal') }).click();
   const done = topModal(page).getByRole('button', { name: t('split-shares.done') });
 
-  await topModal(page).getByRole('textbox', { name: 'Topolino' }).fill('10');
-  await topModal(page).getByRole('textbox', { name: 'Paperone' }).fill('');
+  // fillInput: sotto carico un fill('') ogni tanto non svuotava la quota di
+  // Paperone, e il bottone "+20.00" non compariva (CLAUDE.md, Known gaps).
+  await fillInput(topModal(page).getByRole('textbox', { name: 'Topolino' }), '10');
+  await fillInput(topModal(page).getByRole('textbox', { name: 'Paperone' }), '');
   await expect(done).toBeDisabled(); // 10 su 30: mancano 20
 
   // "+20.00" sulla riga di Paperone gli assegna quel che manca

@@ -28,7 +28,7 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
   - nessuna notifica si cancella mai (se ne mostrano le ultime 50): serve una pulizia di quelle vecchie;
   - il numero sulla campanella non si aggiorna da solo mentre l'app resta aperta sulla stessa pagina, se le push sono spente (con le push accese si aggiorna all'arrivo di una push);
   - mancano le notifiche per la rinomina di un gruppo e per un rimborso eliminato.
-- Rate limit su `GET /api/user`: fatto il 2026-11-07 (30 ricerche all'ora per utente, `search-rate-limit.guard.ts`), ma in memoria come quello del login: si azzera a ogni riavvio e vale per un solo processo. Se l'API gira su piu' istanze, spostarlo su storage condiviso. Il frontend (`select-participant`) mostra il 429 come "Troppe ricerche".
+- Rate limit su `GET /api/user`: fatto il 2026-11-07 (30 ricerche all'ora per utente, `search-rate-limit.guard.ts`), ma in memoria come quello del login: si azzera a ogni riavvio e vale per un solo processo. Se l'API gira su piu' istanze, spostarlo su storage condiviso. Il frontend (`select-participant`) mostra il 429 come "Troppe ricerche". Vale lo stesso per i limiti di tutte le rotte aggiunti il 2026-11-14 (`splitBack/src/app/rate-limit/`, vedi CLAUDE.md, "API limits").
 - Link d'invito nell'app nativa (Capacitor): il link usa `window.location.origin`, che li' e' `https://localhost`. Serve l'URL pubblico del sito (es. in `environment`) e il deep link `/join` configurato in Android/iOS.
 
 
@@ -65,6 +65,7 @@ Elenco centralizzato di tutti i TODO presenti nel codice. Ogni `TODO` aggiunto n
 
 
 ## Debito tecnico
+- Vulnerabilita' note rimaste dopo l'aggiornamento del 2026-11-14 (vedi CLAUDE.md, "Dependency upgrades"): la CLI di `prisma` (si chiude solo con Prisma 7, una major) e gli strumenti di sviluppo (Nx, Angular CLI, Capacitor CLI). Non finiscono nel codice pubblicato; `npm audit` le elenca.
 - Nessuna CI: manca `.github/workflows`.
 - I vincoli fra progetti Nx non sono applicati: `depConstraints` in `eslint.config.mjs` permette tutto (`'*'` → `['*']`) e nessun progetto ha `tags`, quindi nulla impedisce a `splitFront` di importare `splitBack`.
 - `package.json`: `workspaces` elenca `splitBack-e2e`, che non esiste.

@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { API_URL } from './support/env';
 import { t } from './support/i18n';
 import { fillInput, toast, topModal, visible } from './support/ionic';
-import { loginAs, USERS } from './support/session';
+import { apiLogin, loginAs, USERS } from './support/session';
 
 // Stesso formato dei template (`date: 'dd/MM/yyyy'`).
 function label(date: Date): string {
@@ -133,4 +133,37 @@ test('data della spesa: oggi di default, modificabile; la data di inserimento la
   const body = await created.json();
   expect(body.date.slice(0, 10)).toBe('2026-01-15');
   expect(new Date(body.createdDate).getFullYear()).not.toBe(2000);
+});
+
+// Tetti sui dati in arrivo (splitBack/src/app/limits.ts): oltre, 400 e niente
+// viene salvato.
+test('importi e testi oltre i tetti vengono rifiutati', async ({ request }) => {
+  const { accessToken, user } = await apiLogin(request, USERS.pippo);
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  const post = (path: string, data: unknown) => request.post(`${API_URL}/${path}`, { headers, data });
+
+  expect((await post('expense', { amount: 1_000_000_000 })).status()).toBe(201);
+  expect((await post('expense', { amount: 1_000_000_000.01 })).status()).toBe(400);
+  expect((await post('expense', { amount: 1e300 })).status()).toBe(400);
+  expect((await post('expense', { amount: 5, description: 'x'.repeat(300) })).status()).toBe(201);
+  expect((await post('expense', { amount: 5, description: 'x'.repeat(301) })).status()).toBe(400);
+  expect(
+    (await post('expense', { amount: 5, participantPublicIds: Array.from({ length: 101 }, () => user.publicId) })).status(),
+  ).toBe(400);
+  expect((await post('group', { name: 'x'.repeat(61) })).status()).toBe(400);
+  expect((await post('category', { name: 'x'.repeat(41) })).status()).toBe(400);
+  expect(
+    (await post('settlement', { fromPublicId: user.publicId, toPublicId: user.publicId, amount: 1e300 })).status(),
+  ).toBe(400);
+
+  // La nota di un rimborso ha lo stesso tetto della descrizione: 300 caratteri.
+  const [pluto] = await (await request.get(`${API_URL}/user`, { headers, params: { q: 'Pluto' } })).json();
+  const settle = (note: string) =>
+    post('settlement', { fromPublicId: user.publicId, toPublicId: pluto.publicId, amount: 1, note });
+  const withNote = await settle('x'.repeat(300));
+  expect(withNote.status()).toBe(201);
+  expect((await settle('x'.repeat(301))).status()).toBe(400);
+  // Tolto subito: non deve restare nei saldi di Pippo e Pluto.
+  const { publicId } = await withNote.json();
+  expect((await request.delete(`${API_URL}/settlement/${publicId}`, { headers })).status()).toBe(204);
 });

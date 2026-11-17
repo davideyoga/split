@@ -4,6 +4,7 @@ import { APIError, createAuthMiddleware } from 'better-auth/api';
 import { bearer, emailOTP } from 'better-auth/plugins';
 import type { PrismaClient } from '@prisma/client';
 import type { MailService } from '../mail/mail.service';
+import { authSecret } from './auth-secret';
 import { otpEmail, pickLang } from './otp-email';
 import { provisionalNickname } from './provisional-nickname';
 
@@ -89,11 +90,12 @@ function socialProviders() {
  * Configurazione di Better Auth: login senza password con un codice di 6 cifre
  * via email (plugin emailOTP) o con Google/Apple, sessione passata come Bearer
  * token (plugin bearer), dati nel nostro Postgres via Prisma. Il segreto e'
- * BETTER_AUTH_SECRET, letto da Better Auth stesso.
+ * BETTER_AUTH_SECRET (vedi auth-secret.ts).
  */
 export function createAuth(prisma: PrismaClient, mail: MailService) {
   return betterAuth({
     appName: 'Split',
+    secret: authSecret(),
     basePath: '/api/auth',
     baseURL: process.env['BETTER_AUTH_URL'],
     trustedOrigins: trustedOrigins(),

@@ -14,6 +14,7 @@ import type { Request } from 'express';
 import type { AuthUser } from '../auth/auth-user';
 import { OptionalSessionAuthGuard } from '../auth/optional-session-auth.guard';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { ExtraRateLimit, INVITE_CREATE } from '../rate-limit/rate-limit.rules';
 import { CreateInviteDto } from './dto/create-invite.dto';
 import { InviteTokenDto } from './dto/invite-token.dto';
 import { InviteService } from './invite.service';
@@ -37,6 +38,7 @@ export class InviteController {
 
   @Post('group/:publicId/invite')
   @UseGuards(SessionAuthGuard)
+  @ExtraRateLimit(INVITE_CREATE)
   create(
     @Req() request: AuthRequest,
     @Param('publicId') publicId: string,

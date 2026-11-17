@@ -61,8 +61,10 @@ export default defineConfig({
       cwd: workspaceRoot,
       // Email scritte in MAIL_OUTBOX_DIR invece che inviate (i test ci leggono
       // il codice di login), push scritte in PUSH_OUTBOX_DIR (push.spec.ts),
-      // niente rate limit (tanti login dallo stesso IP) e registrazione aperta
-      // (registration.spec.ts). Senza chiavi VAPID il frontend vede le push
+      // niente rate limit (tanti login dallo stesso IP, e un utente che fa in
+      // pochi secondi le richieste di molte sessioni) e registrazione aperta
+      // (registration.spec.ts). Il limite orario della ricerca utenti resta
+      // acceso: ha il suo test. Senza chiavi VAPID il frontend vede le push
       // come spente: nei test non c'e' service worker che possa riceverle.
       env: {
         ...(databaseUrl && { DATABASE_URL: databaseUrl }),
@@ -72,6 +74,7 @@ export default defineConfig({
         PUSH_TRANSPORT: 'outbox',
         PUSH_OUTBOX_DIR,
         AUTH_RATE_LIMIT: 'off',
+        API_RATE_LIMIT: 'off',
         AUTH_SIGN_UP: 'open',
       },
       reuseExistingServer: false,

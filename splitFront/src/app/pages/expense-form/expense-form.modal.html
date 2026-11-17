@@ -39,13 +39,14 @@
     }
 
     <ion-list>
-      <!-- DESCRIZIONE -->
+      <!-- DESCRIZIONE. maxlength: stesso tetto del backend (splitBack/src/app/limits.ts) -->
       <ion-item>
         <ion-input
           label="{{ 'expense-form.description-label' | translate }}"
           labelPlacement="floating"
           type="text"
           formControlName="description"
+          [maxlength]="300"
           placeholder="{{ 'expense-form.description-placeholder' | translate }}"
         ></ion-input>
       </ion-item>
@@ -193,6 +194,7 @@
             fill="outline"
             type="text"
             [(ngModel)]="newCategoryName"
+            [maxlength]="40"
             [ngModelOptions]="{ standalone: true }"
             placeholder="{{ 'categories.name-placeholder' | translate }}"
             (keyup.enter)="createCategory()"

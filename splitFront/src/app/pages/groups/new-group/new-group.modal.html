@@ -19,12 +19,14 @@
 <ion-content>
   <form [formGroup]="groupForm">
     <ion-list>
+      <!-- maxlength: stesso tetto del backend (splitBack/src/app/limits.ts) -->
       <ion-item>
         <ion-input
           label="{{ 'groups.name-label' | translate }}"
           labelPlacement="floating"
           type="text"
           formControlName="name"
+          [maxlength]="60"
           placeholder="{{ 'groups.name-placeholder' | translate }}"
         ></ion-input>
       </ion-item>

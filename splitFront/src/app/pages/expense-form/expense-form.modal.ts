@@ -58,7 +58,7 @@ import { CategoryService } from '../../services/category.service';
 import { ExpenseListItem, ExpenseService } from '../../services/expense.service';
 import { GroupService } from '../../services/group.service';
 import { formatCents, toCents } from '../../utils/balance';
-import { currencySymbol } from '../../utils/money';
+import { currencySymbol, MAX_AMOUNT } from '../../utils/money';
 import { MoneyPipe } from '../../pipes/money.pipe';
 import { dayOf, todayIso } from '../../utils/date';
 import { isEqualSplit } from '../../utils/split';
@@ -162,7 +162,7 @@ export class ExpenseFormModal implements OnInit {
   saving = false;
 
   expenseForm = this.fb.group({
-    amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.01)]],
+    amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/), Validators.min(0.01), Validators.max(MAX_AMOUNT)]],
     description: [''],
   });
 

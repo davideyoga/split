@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './user/user.module';
@@ -10,6 +11,7 @@ import { CategoryModule } from './category/category.module';
 import { SettlementModule } from './settlement/settlement.module';
 import { NotificationModule } from './notification/notification.module';
 import { InviteModule } from './invite/invite.module';
+import { RateLimitInterceptor } from './rate-limit/rate-limit.interceptor';
 
 
 @Module({
@@ -25,7 +27,12 @@ import { InviteModule } from './invite/invite.module';
     InviteModule,
   ],
   controllers: [AppController],
-  providers: [AppService, PrismaModule],
+  providers: [
+    AppService,
+    PrismaModule,
+    // Limiti di frequenza su tutte le rotte (rate-limit/).
+    { provide: APP_INTERCEPTOR, useClass: RateLimitInterceptor },
+  ],
   exports: [PrismaModule],
 })
 

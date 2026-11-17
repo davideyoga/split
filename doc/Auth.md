@@ -6,7 +6,7 @@ Login senza password: l'utente scrive la sua email, riceve un codice di 6 cifre 
 
 | Tema | Scelta | Perché |
 |---|---|---|
-| Libreria | [Better Auth](https://better-auth.com) 1.7.6, licenza MIT | Self-hosted (utenti e sessioni nel nostro Postgres), gratuita anche per uso commerciale, con plugin per OTP via email, passkey e social |
+| Libreria | [Better Auth](https://better-auth.com) 1.7.25 (1.7.6 fino al 2026-11-14), licenza MIT | Self-hosted (utenti e sessioni nel nostro Postgres), gratuita anche per uso commerciale, con plugin per OTP via email, passkey e social |
 | Metodo | Codice di 6 cifre via email (plugin `emailOTP`) | Gratuito, a differenza degli SMS. Su mobile è più comodo del magic link, che aprirebbe il browser invece dell'app |
 | Sessione | Token di sessione nel DB, mandato come `Authorization: Bearer` (plugin `bearer`) | Funziona uguale su web e Capacitor. 30 giorni, rinnovati a ogni giorno d'uso: niente refresh token da gestire |
 | Email | `MailService` con trasporto a scelta: Brevo, console od outbox | Brevo è gratuito (circa 300 email al giorno) e usa solo `fetch`, niente SDK |
@@ -87,6 +87,8 @@ Google e Apple non si possono provare nell'e2e, perché servono token firmati da
 - un utente nuovo nasce con `Jose.Perez` o `user` + 8 cifre e `needsName`;
 - chi si è registrato con Google entra poi col codice;
 - con la registrazione chiusa: `403 SIGN_UP_DISABLED` e nessun codice inviato.
+
+Rifatta il 2026-11-14 dopo il passaggio a Better Auth 1.7.25, con gli stessi esiti (collegamento, i due rifiuti, registrazione chiusa e aperta, `400 ID_TOKEN_REQUIRED` senza token). Dalla 1.7.25 la firma si verifica in un punto solo (`verifyProviderIdToken`): per sostituirla in una prova si imposta `provider.options.verifyIdToken`, e `getUserInfo` deve restituire anche `data.sub`.
 
 ## File
 

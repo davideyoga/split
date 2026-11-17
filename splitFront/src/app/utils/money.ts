@@ -5,6 +5,10 @@
  * scritti con `formatCents` di utils/balance.ts.
  */
 
+// Importo massimo di una spesa o di un rimborso: lo stesso tetto del backend
+// (MAX_AMOUNT in splitBack/src/app/limits.ts).
+export const MAX_AMOUNT = 1_000_000_000;
+
 const formatters = new Map<string, Intl.NumberFormat>();
 
 /**

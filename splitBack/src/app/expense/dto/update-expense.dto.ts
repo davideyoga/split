@@ -1,14 +1,24 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
   IsArray,
   IsISO8601,
   IsNumber,
   IsOptional,
   IsString,
   Matches,
+  Max,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
+import {
+  MAX_AMOUNT,
+  MAX_PARTICIPANTS,
+  MAX_PUBLIC_ID_LENGTH,
+  MAX_SHARES,
+  MAX_TEXT_LENGTH,
+} from '../../limits';
 import { ExpenseShareDto } from './expense-share.dto';
 
 // PATCH parziale: un campo omesso resta com'e'. `groupPublicId` e
@@ -18,11 +28,13 @@ import { ExpenseShareDto } from './expense-share.dto';
 export class UpdateExpenseDto {
   @IsOptional()
   @IsString()
+  @MaxLength(MAX_TEXT_LENGTH)
   description?: string;
 
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 2 })
   @Min(0.01)
+  @Max(MAX_AMOUNT)
   amount?: number;
 
   // Giorno della spesa ('YYYY-MM-DD'). `createdDate` non si modifica mai.
@@ -34,19 +46,24 @@ export class UpdateExpenseDto {
   // Partecipanti singoli, oltre al creatore della spesa e ai membri del gruppo.
   @IsOptional()
   @IsArray()
+  @ArrayMaxSize(MAX_PARTICIPANTS)
   @IsString({ each: true })
+  @MaxLength(MAX_PUBLIC_ID_LENGTH, { each: true })
   participantPublicIds?: string[];
 
   @IsOptional()
   @IsString()
+  @MaxLength(MAX_PUBLIC_ID_LENGTH)
   paidByPublicId?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(MAX_PUBLIC_ID_LENGTH)
   groupPublicId?: string | null;
 
   @IsOptional()
   @IsString()
+  @MaxLength(MAX_PUBLIC_ID_LENGTH)
   categoryPublicId?: string | null;
 
   // Divisione: array = quote diseguali (stesse regole della creazione), `null`
@@ -54,6 +71,7 @@ export class UpdateExpenseDto {
   // contributori non cambiano, altrimenti si ridivide in parti uguali.
   @IsOptional()
   @IsArray()
+  @ArrayMaxSize(MAX_SHARES)
   @ValidateNested({ each: true })
   @Type(() => ExpenseShareDto)
   shares?: ExpenseShareDto[] | null;

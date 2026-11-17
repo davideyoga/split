@@ -14,6 +14,7 @@ import {
 import type { Request } from 'express';
 import type { AuthUser } from '../auth/auth-user';
 import { SessionAuthGuard } from '../auth/session-auth.guard';
+import { EXPENSE_BATCH, ExtraRateLimit } from '../rate-limit/rate-limit.rules';
 import { CreateExpenseBatchDto } from './dto/create-expense-batch.dto';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -58,6 +59,7 @@ export class ExpenseController {
   // Tutte o nessuna, in una transazione (vedi ExpenseService.createMany).
   @Post('batch')
   @UseGuards(SessionAuthGuard)
+  @ExtraRateLimit(EXPENSE_BATCH)
   createMany(
     @Req() request: Request,
     @Body(validation) dto: CreateExpenseBatchDto,

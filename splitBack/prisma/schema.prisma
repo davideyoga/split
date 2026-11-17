@@ -126,7 +126,8 @@ model Expense {
   createdById          Int
   group                Group?                @relation(fields: [groupId], references: [id])
   groupId              Int?
-  description          String
+  // Al massimo 300 caratteri, come MAX_TEXT_LENGTH in splitBack/src/app/limits.ts.
+  description          String                @db.VarChar(300)
   paidBy               User                  @relation("PaidBy", fields: [paidById], references: [id])
   paidById             Int
   notifications        Notification[]
@@ -146,7 +147,8 @@ model Settlement {
   toId          Int
   amount        Decimal
   currency      String         @default("EUR") // Pronto per V2.0
-  note          String?
+  // Al massimo 300 caratteri, come la descrizione delle spese.
+  note          String?        @db.VarChar(300)
   createdBy     User           @relation("SettlementCreatedBy", fields: [createdById], references: [id])
   createdById   Int
   createdDate   DateTime       @default(now())

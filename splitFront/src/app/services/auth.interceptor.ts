@@ -7,11 +7,18 @@ import { catchError, throwError } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
-// Aggiunge il Bearer token e gestisce la sessione scaduta: un 401 su una
+// Aggiunge il Bearer token, avvisa quando l'API risponde "troppe richieste"
+// (429 RATE_LIMITED) e gestisce la sessione scaduta: un 401 su una
 // richiesta autenticata (sessione scaduta, chiusa da un altro dispositivo o
 // token di una versione precedente dell'app) fa
 // logout e riporta al login con returnUrl, invece di lasciare ai service il
 // loro `catchError -> of([])` che mostrerebbe solo liste vuote.
+
+// Un solo avviso "troppe richieste" alla volta: una pagina che carica tre
+// liste insieme riceverebbe tre 429.
+const RATE_LIMIT_TOAST_GAP_MS = 5000;
+let lastRateLimitToast = 0;
+
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
@@ -52,6 +59,26 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           const toast = await toastCtrl.create({
             message,
             duration: 3000,
+            position: 'bottom',
+            color: 'warning',
+          });
+          await toast.present();
+        });
+      }
+      // Limite di frequenza dell'API (RateLimitInterceptor nel backend). Solo
+      // il suo `code`: il 429 del login e quello della ricerca utenti li
+      // mostrano le loro pagine.
+      if (
+        err instanceof HttpErrorResponse &&
+        err.status === 429 &&
+        (err.error as { code?: string } | null)?.code === 'RATE_LIMITED' &&
+        Date.now() - lastRateLimitToast > RATE_LIMIT_TOAST_GAP_MS
+      ) {
+        lastRateLimitToast = Date.now();
+        injector.get(TranslateService).get('common.rate-limited').subscribe(async (message: string) => {
+          const toast = await toastCtrl.create({
+            message,
+            duration: 4000,
             position: 'bottom',
             color: 'warning',
           });

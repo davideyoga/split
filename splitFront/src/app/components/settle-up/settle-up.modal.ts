@@ -18,7 +18,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
 import { SettlementService } from '../../services/settlement.service';
 import { Balance, formatCents, toCents } from '../../utils/balance';
-import { currencySymbol } from '../../utils/money';
+import { currencySymbol, MAX_AMOUNT } from '../../utils/money';
 import { MoneyPipe } from '../../pipes/money.pipe';
 import { UserNamePipe } from '../../pipes/user-name.pipe';
 
@@ -81,7 +81,7 @@ export class SettleUpModal implements OnInit {
   }
 
   get amountInvalid(): boolean {
-    return this.amountCents < 1;
+    return this.amountCents < 1 || this.amountCents > MAX_AMOUNT * 100;
   }
 
   get exceedsBalance(): boolean {

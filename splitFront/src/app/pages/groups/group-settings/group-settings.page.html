@@ -11,7 +11,7 @@
   @if (loadError) {
     <p class="ion-padding">{{ 'groups.load-error' | translate }}</p>
   } @else if (group) {
-    <!-- RINOMINA -->
+    <!-- RINOMINA. maxlength: stesso tetto del backend (splitBack/src/app/limits.ts) -->
     <form class="ion-padding" [formGroup]="nameForm" (ngSubmit)="rename()">
       <ion-input
         fill="outline"
@@ -19,6 +19,7 @@
         labelPlacement="floating"
         type="text"
         formControlName="name"
+        [maxlength]="60"
       ></ion-input>
       <div class="ion-padding-top ion-text-end">
         <ion-button

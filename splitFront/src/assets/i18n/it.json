@@ -1,7 +1,8 @@
 {
   "common": {
     "loading": "Caricamento…",
-    "deleted-user": "Utente eliminato"
+    "deleted-user": "Utente eliminato",
+    "rate-limited": "Troppe richieste: aspetta un minuto e riprova."
   },
   "expense-form": {
     "title-new": "Nuova spesa",

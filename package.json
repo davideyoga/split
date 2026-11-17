@@ -14,9 +14,9 @@
     "@angular-devkit/schematics": "~20.3.0",
     "@angular/build": "~20.3.0",
     "@angular/cli": "~20.3.0",
-    "@angular/compiler-cli": "~20.3.0",
-    "@angular/language-service": "~20.3.0",
-    "@angular/platform-browser-dynamic": "^20.3.15",
+    "@angular/compiler-cli": "~20.3.35",
+    "@angular/language-service": "~20.3.35",
+    "@angular/platform-browser-dynamic": "~20.3.35",
     "@capacitor/cli": "^6.0.0",
     "@eslint/js": "^9.8.0",
     "@nestjs/schematics": "^11.0.0",
@@ -71,13 +71,13 @@
     "data-access"
   ],
   "dependencies": {
-    "@angular/common": "~20.3.0",
-    "@angular/compiler": "~20.3.0",
-    "@angular/core": "~20.3.0",
-    "@angular/forms": "~20.3.0",
-    "@angular/platform-browser": "~20.3.0",
-    "@angular/router": "~20.3.0",
-    "@angular/service-worker": "~20.3.0",
+    "@angular/common": "~20.3.35",
+    "@angular/compiler": "~20.3.35",
+    "@angular/core": "~20.3.35",
+    "@angular/forms": "~20.3.35",
+    "@angular/platform-browser": "~20.3.35",
+    "@angular/router": "~20.3.35",
+    "@angular/service-worker": "~20.3.35",
     "@capacitor/android": "^6.0.0",
     "@capacitor/app": "^6.0.0",
     "@capacitor/core": "^6.0.0",
@@ -92,7 +92,7 @@
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "axios": "^1.6.0",
-    "better-auth": "1.7.6",
+    "better-auth": "1.7.25",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
     "dotenv": "^16.4.7",
@@ -101,5 +101,10 @@
     "rxjs": "^7.8.0",
     "web-push": "3.6.7",
     "zone.js": "~0.15.0"
+  },
+  "overrides": {
+    "better-call": {
+      "zod": "^4.6.7"
+    }
   }
 }

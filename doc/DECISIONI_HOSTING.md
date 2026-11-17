@@ -73,7 +73,7 @@ Web Service, runtime Node, regione Frankfurt, istanza Free, branch `test`, Root 
   | `NODE_VERSION` | `22.21.1`: Better Auth è solo ESM e il backend è CommonJS, serve Node ≥ 22.12 |
   | `NX_NO_CLOUD` | `true`: `nx.json` ha un `nxCloudId`, e la build non deve provare a collegarsi a Nx Cloud |
   | `DATABASE_URL` | connection string **diretta** di Neon + `&connect_timeout=15` |
-  | `BETTER_AUTH_SECRET` | nuovo, diverso da quello di sviluppo |
+  | `BETTER_AUTH_SECRET` | nuovo, diverso da quello di sviluppo, di almeno 32 caratteri: dal 2026-11-14 senza l'API non parte |
   | `BETTER_AUTH_URL` | `https://<servizio>.onrender.com` |
   | `MAIL_TRANSPORT` | `brevo` (con `BREVO_API_KEY`, `MAIL_FROM`, `MAIL_FROM_NAME`), oppure `console` per una prima prova: il codice compare nei log di Render |
   | `AUTH_TRUSTED_ORIGINS` | l'URL dello static site del frontend, più `https://localhost,capacitor://localhost` se si usa l'app Capacitor. Impostarla **sostituisce** i default |
@@ -83,7 +83,7 @@ Web Service, runtime Node, regione Frankfurt, istanza Free, branch `test`, Root 
   `PORT` lo imposta Render. `NODE_ENV` non va impostato.
 - **Verifica:** `https://<servizio>.onrender.com/api` risponde `{"message":"Hello API"}`.
 - **Migrazioni su DB vuoto:** verificate il 2026-09-27. Le 7 migrazioni si applicano su un DB vuoto e il risultato coincide con `schema.prisma` (`migrate diff --exit-code` = 0).
-- **IP del client dietro il proxy (2026-11-08):** senza `AUTH_TRUSTED_PROXIES`, `req.socket.remoteAddress` è l'IP del proxy e il rate limit sull'invio dei codici (3 al minuto per IP) è condiviso da tutti i tester. Valore da impostare su Render:
+- **IP del client dietro il proxy (2026-11-08):** senza `AUTH_TRUSTED_PROXIES`, `req.socket.remoteAddress` è l'IP del proxy e il rate limit sull'invio dei codici (3 al minuto per IP) è condiviso da tutti i tester. Dal 2026-11-14 la stessa variabile serve anche ai limiti delle rotte pubbliche dell'API (15 richieste al minuto per IP, vedi CLAUDE.md, "API limits"): senza, tutti i visitatori condividono quel contatore. Valore da impostare su Render:
 
   ```
   10.0.0.0/8,173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/13,104.24.0.0/14,172.64.0.0/13,131.0.72.0/22,2400:cb00::/32,2606:4700::/32,2803:f800::/32,2405:b500::/32,2405:8100::/32,2a06:98c0::/29,2c0f:f248::/32
